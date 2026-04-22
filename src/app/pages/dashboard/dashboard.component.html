@@ -1,0 +1,45 @@
+<!-- HEADER + TUGMALAR -->
+<header class="header">
+  <div class="logo">◈ CMS<strong>Radar</strong></div>
+  <div class="header-actions">
+    <button class="btn btn-primary" (click)="showAddForm.set(!showAddForm())">
+      + Sayt qo'sh
+    </button>
+  </div>
+</header>
+
+<!-- SHARTLI FORMA -->
+@if (showAddForm()) {
+<form [formGroup]="addForm" (ngSubmit)="submitAddForm()">
+  <input formControlName="url" placeholder="https://..." />
+  <button type="submit" [disabled]="addForm.invalid">Qo'shish</button>
+</form>
+}
+
+<!-- LOADING HOLAT -->
+@if (loading()) {
+<div class="loading-state">Yuklanmoqda...</div>
+} @else {
+<!-- JADVAL -->
+<table>
+  <tbody>
+    @for (result of filteredResults(); track result.id) {
+    <tr>
+      <td>{{ result.website?.url }}</td>
+      <td>
+        <span class="cms-badge" [style.--color]="getCmsColor(result.cms)">
+          {{ result.cms ?? 'Noma\'lum' }}
+        </span>
+      </td>
+      <td>{{ result.version || '—' }}</td>
+      <td>{{ result.scannedAt | date:'dd.MM.yyyy' }}</td>
+      <td>
+        <button (click)="scanOne(result)" [disabled]="scanning() === result.websiteId">
+          ⟳
+        </button>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
+}
