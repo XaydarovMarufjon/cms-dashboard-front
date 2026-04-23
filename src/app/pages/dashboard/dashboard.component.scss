@@ -1,839 +1,713 @@
 /* dashboard.component.scss */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-$bg: #080910;
-$s1: #0f1018;
-$s2: #14151f;
-$s3: #1c1d2a;
-$border: #22233a;
-$accent: #00e5c0;
-$red: #ff6b7a;
-$yellow: #ffc84a;
-$text: #dde1f0;
-$muted: #5a5b72;
-$radius: 10px;
+$bg:      #080910;
+$s1:      #0f1018;
+$s2:      #14151f;
+$s3:      #1c1d2a;
+$border:  #22233a;
+$accent:  #00e5c0;
+$red:     #ff6b7a;
+$yellow:  #ffc84a;
+$text:    #dde1f0;
+$muted:   #5a5b72;
+$radius:  10px;
 
 :host {
-    display: block;
-    font-family: 'IBM Plex Sans', sans-serif;
-    background: $bg;
-    color: $text;
-    min-height: 100vh;
+  display: block;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: $bg;
+  color: $text;
+  min-height: 100vh;
 }
 
 // ── LAYOUT ────────────────────────────────────────
 .dash {
-    display: flex;
-    min-height: 100vh;
+  display: flex;
+  min-height: 100vh;
 }
 
 // ── SIDEBAR ───────────────────────────────────────
 .sidebar {
-    width: 240px;
-    min-width: 240px;
-    background: $s1;
-    border-right: 1px solid $border;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
+  width: 240px;
+  min-width: 240px;
+  background: $s1;
+  border-right: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid $border;
 }
 
 .brand-icon {
-    width: 38px;
-    height: 38px;
-    background: rgba($accent, .08);
-    border: 1px solid rgba($accent, .2);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 38px; height: 38px;
+  background: rgba($accent, .08);
+  border: 1px solid rgba($accent, .2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
 }
 
 .brand-name {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -.3px;
-    color: $text;
-
-    span {
-        color: $accent;
-    }
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.3px;
+  color: $text;
+  span { color: $accent; }
 }
 
 .brand-sub {
-    font-size: 10px;
-    color: $muted;
-    font-family: 'IBM Plex Mono', monospace;
-    margin-top: 1px;
+  font-size: 10px;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 1px;
 }
 
 .sidenav {
-    padding: 16px 12px 8px;
+  padding: 16px 12px 8px;
 }
 
 .sidenav-label {
-    font-size: 10px;
-    color: $muted;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    padding: 0 8px;
-    margin-bottom: 6px;
+  font-size: 10px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 0 8px;
+  margin-bottom: 6px;
 }
 
 .sidenav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: $muted;
-    cursor: pointer;
-    transition: all .15s;
-    text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+  transition: all .15s;
+  text-decoration: none;
 
-    &.active {
-        background: rgba($accent, .08);
-        color: $accent;
-        border: 1px solid rgba($accent, .15);
-    }
+  &.active {
+    background: rgba($accent, .08);
+    color: $accent;
+    border: 1px solid rgba($accent, .15);
+  }
 
-    &:hover:not(.active) {
-        background: $s3;
-        color: $text;
-    }
+  &:hover:not(.active) {
+    background: $s3;
+    color: $text;
+  }
 }
 
 // SIDEBAR STATS
 .sidebar-stats {
-    margin: 8px 12px;
-    background: $s2;
-    border: 1px solid $border;
-    border-radius: $radius;
-    padding: 14px 16px;
-    flex-shrink: 0;
+  margin: 8px 12px;
+  background: $s2;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 14px 16px;
+  flex-shrink: 0;
 }
 
 .ss-title {
-    font-size: 10px;
-    color: $muted;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    margin-bottom: 10px;
-    font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 10px;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
-.ss-row,
-.ss-cms-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
+.ss-row, .ss-cms-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
 }
 
 .ss-cms-row {
-    gap: 8px;
-    justify-content: flex-start;
+  gap: 8px;
+  justify-content: flex-start;
 
-    .ss-label {
-        flex: 1;
-    }
-
-    .ss-val {
-        margin-left: auto;
-    }
+  .ss-label { flex: 1; }
+  .ss-val { margin-left: auto; }
 }
 
 .ss-cms-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.ss-label {
-    font-size: 12px;
-    color: $muted;
-}
-
-.ss-val {
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'IBM Plex Mono', monospace;
-}
+.ss-label { font-size: 12px; color: $muted; }
+.ss-val   { font-size: 13px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
 
 .ss-divider {
-    height: 1px;
-    background: $border;
-    margin: 10px 0;
+  height: 1px;
+  background: $border;
+  margin: 10px 0;
 }
 
 .sidebar-bottom {
-    margin-top: auto;
-    padding: 16px 12px;
-    border-top: 1px solid $border;
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid $border;
 }
 
 .btn-scanall {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid rgba($accent, .25);
-    background: rgba($accent, .06);
-    color: $accent;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba($accent, .25);
+  background: rgba($accent, .06);
+  color: $accent;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
 
-    &:hover:not(:disabled) {
-        background: rgba($accent, .14);
-        border-color: rgba($accent, .5);
-    }
+  &:hover:not(:disabled) {
+    background: rgba($accent, .14);
+    border-color: rgba($accent, .5);
+  }
 
-    &:disabled {
-        opacity: .4;
-        cursor: not-allowed;
-    }
+  &:disabled { opacity: .4; cursor: not-allowed; }
 }
 
 // ── MAIN ──────────────────────────────────────────
 .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding: 0 28px 32px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 28px 32px;
 }
 
 // ── TOPBAR ────────────────────────────────────────
 .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 0 20px;
-    border-bottom: 1px solid $border;
-    margin-bottom: 16px;
-    gap: 16px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.topbar-left {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-}
+.topbar-left { display: flex; align-items: baseline; gap: 12px; }
 
 .page-title {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -.4px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -.4px;
 }
 
 .page-count {
-    font-size: 12px;
-    color: $muted;
-    font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: $s2;
-    border: 1px solid $border;
-    border-radius: 8px;
-    padding: 8px 14px;
-    transition: border-color .15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $s2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: border-color .15s;
 
-    &:focus-within {
-        border-color: rgba($accent, .4);
-    }
+  &:focus-within {
+    border-color: rgba($accent, .4);
+  }
 
-    input {
-        background: none;
-        border: none;
-        outline: none;
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 13px;
-        color: $text;
-        width: 180px;
+  input {
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: $text;
+    width: 180px;
 
-        &::placeholder {
-            color: $muted;
-        }
-    }
+    &::placeholder { color: $muted; }
+  }
 }
 
 .btn-refresh {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: 1px solid $border;
-    background: $s2;
-    color: $muted;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all .15s;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $s2;
+  color: $muted;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
 
-    &:hover:not(:disabled) {
-        color: $text;
-        border-color: rgba($accent, .3);
-    }
-
-    &:disabled {
-        opacity: .4;
-    }
+  &:hover:not(:disabled) { color: $text; border-color: rgba($accent,.3); }
+  &:disabled { opacity: .4; }
 }
 
 .btn-add {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
-    border-radius: 8px;
-    border: none;
-    background: $accent;
-    color: #000;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: $accent;
+  color: #000;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
 
-    &:hover {
-        background: lighten($accent, 8%);
-    }
+  &:hover { background: color-mix(in srgb, #00e5c0 92%, white); }
 }
 
 // ── FILTER BAR ────────────────────────────────────
 .filter-bar {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .ftab {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid $border;
-    background: $s2;
-    color: $muted;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid $border;
+  background: $s2;
+  color: $muted;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
 
-    &:hover {
-        color: $text;
-    }
+  &:hover { color: $text; }
 
-    &.active {
-        background: rgba($accent, .1);
-        border-color: rgba($accent, .35);
-        color: $accent;
-    }
+  &.active {
+    background: rgba($accent, .1);
+    border-color: rgba($accent, .35);
+    color: $accent;
+  }
 }
 
 .ftab-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
 }
 
 .ftab-count {
-    background: $s3;
-    border-radius: 20px;
-    padding: 1px 7px;
-    font-size: 11px;
-    color: $muted;
+  background: $s3;
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 11px;
+  color: $muted;
 }
 
 .ftab.active .ftab-count {
-    background: rgba($accent, .15);
-    color: $accent;
+  background: rgba($accent, .15);
+  color: $accent;
 }
 
 // ── TOASTS ────────────────────────────────────────
 .toast {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 14px;
-    animation: fadeSlide .25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  animation: fadeSlide .25s ease;
 
-    &-ok {
-        background: rgba($accent, .08);
-        border: 1px solid rgba($accent, .2);
-        color: $accent;
-    }
-
-    &-err {
-        background: rgba($red, .08);
-        border: 1px solid rgba($red, .2);
-        color: $red;
-        cursor: pointer;
-    }
+  &-ok  { background: rgba($accent, .08); border: 1px solid rgba($accent, .2); color: $accent; }
+  &-err { background: rgba($red, .08); border: 1px solid rgba($red, .2); color: $red; cursor: pointer; }
 }
 
 @keyframes fadeSlide {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 // ── ADD PANEL ─────────────────────────────────────
 .add-panel {
-    background: $s1;
-    border: 1px solid rgba($accent, .2);
-    border-radius: 12px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    animation: fadeSlide .2s ease;
+  background: $s1;
+  border: 1px solid rgba($accent, .2);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  animation: fadeSlide .2s ease;
 }
 
 .add-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 20px;
-    border-bottom: 1px solid $border;
-    font-size: 14px;
-    font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid $border;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .add-panel-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: $muted;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    transition: color .15s;
-
-    &:hover {
-        color: $red;
-    }
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  transition: color .15s;
+  &:hover { color: $red; }
 }
 
 .add-form {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .field-group {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
 
-    label {
-        font-size: 11px;
-        color: $muted;
-        text-transform: uppercase;
-        letter-spacing: .08em;
-        font-weight: 500;
-    }
+  label {
+    font-size: 11px;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 500;
+  }
 
-    input {
-        background: $s3;
-        border: 1px solid $border;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 13px;
-        color: $text;
-        outline: none;
-        transition: border-color .15s;
+  input {
+    background: $s3;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: $text;
+    outline: none;
+    transition: border-color .15s;
 
-        &:focus {
-            border-color: rgba($accent, .5);
-        }
+    &:focus    { border-color: rgba($accent, .5); }
+    &.err      { border-color: $red; }
+    &::placeholder { color: $muted; }
+  }
 
-        &.err {
-            border-color: $red;
-        }
-
-        &::placeholder {
-            color: $muted;
-        }
-    }
-
-    .field-err {
-        font-size: 11px;
-        color: $red;
-    }
-
-    .req {
-        color: $red;
-    }
+  .field-err { font-size: 11px; color: $red; }
+  .req { color: $red; }
 }
 
 .add-form-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .btn-cancel {
-    padding: 9px 20px;
-    border-radius: 8px;
-    border: 1px solid $border;
-    background: $s3;
-    color: $muted;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .15s;
-
-    &:hover {
-        color: $text;
-    }
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $s3;
+  color: $muted;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  &:hover { color: $text; }
 }
 
 .btn-submit {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 22px;
-    border-radius: 8px;
-    border: none;
-    background: $accent;
-    color: #000;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-
-    &:hover:not(:disabled) {
-        background: lighten($accent, 8%);
-    }
-
-    &:disabled {
-        opacity: .5;
-        cursor: not-allowed;
-    }
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  border: none;
+  background: $accent;
+  color: #000;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  &:hover:not(:disabled) { background: color-mix(in srgb, #00e5c0 92%, white); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 // ── STATE BOXES ───────────────────────────────────
 .state-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    padding: 80px 20px;
-    color: $muted;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 80px 20px;
+  color: $muted;
+  text-align: center;
 }
 
-.empty-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: $text;
-}
-
-.empty-sub {
-    font-size: 13px;
-}
+.empty-title { font-size: 16px; font-weight: 600; color: $text; }
+.empty-sub   { font-size: 13px; }
 
 .loader-ring {
-    width: 36px;
-    height: 36px;
-    border: 2px solid $border;
-    border-top-color: $accent;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
+  width: 36px; height: 36px;
+  border: 2px solid $border;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
 }
 
 // ── CARDS GRID ────────────────────────────────────
 .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
 }
 
 .card {
-    background: $s1;
-    border: 1px solid $border;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    transition: border-color .2s, transform .2s;
-    display: flex;
-    flex-direction: column;
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color .2s, transform .2s;
+  display: flex;
+  flex-direction: column;
 
-    &:hover {
-        border-color: rgba(255, 255, 255, .12);
-        transform: translateY(-2px);
-    }
+  &:hover {
+    border-color: rgba(255,255,255,.12);
+    transform: translateY(-2px);
+  }
 
-    &.is-scanning {
-        border-color: rgba($accent, .3);
-
-        .card-accent {
-            opacity: 1;
-        }
-    }
+  &.is-scanning {
+    border-color: rgba($accent, .3);
+    .card-accent { opacity: 1; }
+  }
 }
 
 .card-accent {
-    height: 2px;
-    width: 100%;
-    opacity: .6;
-    transition: opacity .2s;
+  height: 2px;
+  width: 100%;
+  opacity: .6;
+  transition: opacity .2s;
 }
 
 .card-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 10px;
 }
 
 .site-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: 'IBM Plex Mono', monospace;
-    flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  flex-shrink: 0;
 }
 
-.site-meta {
-    flex: 1;
-    min-width: 0;
-}
+.site-meta { flex: 1; min-width: 0; }
 
 .site-url {
-    font-size: 13px;
-    font-weight: 500;
-    color: $text;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .site-label {
-    font-size: 11px;
-    color: $muted;
-    margin-top: 2px;
+  font-size: 11px;
+  color: $muted;
+  margin-top: 2px;
 }
 
 .card-scan-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 7px;
-    border: 1px solid $border;
-    background: $s3;
-    color: $muted;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all .15s;
-    flex-shrink: 0;
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  border: 1px solid $border;
+  background: $s3;
+  color: $muted;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
 
-    &:hover:not(:disabled) {
-        border-color: rgba($accent, .4);
-        color: $accent;
-        background: rgba($accent, .08);
-    }
+  &:hover:not(:disabled) {
+    border-color: rgba($accent, .4);
+    color: $accent;
+    background: rgba($accent, .08);
+  }
 
-    &:disabled {
-        opacity: .4;
-        cursor: not-allowed;
-    }
+  &:disabled { opacity: .4; cursor: not-allowed; }
 }
 
 .card-body {
-    padding: 0 16px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .cms-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .cms-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'IBM Plex Mono', monospace;
-    background: color-mix(in srgb, var(--c, #5a5b72) 14%, transparent);
-    border: 1px solid color-mix(in srgb, var(--c, #5a5b72) 30%, transparent);
-    color: var(--c, #5a5b72);
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  background: color-mix(in srgb, var(--c, #5a5b72) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c, #5a5b72) 30%, transparent);
+  color: var(--c, #5a5b72);
 }
 
 .version-tag {
-    font-size: 11px;
-    font-family: 'IBM Plex Mono', monospace;
-    padding: 3px 10px;
-    border-radius: 6px;
-    background: rgba($yellow, .1);
-    border: 1px solid rgba($yellow, .2);
-    color: $yellow;
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba($yellow, .1);
+  border: 1px solid rgba($yellow, .2);
+  color: $yellow;
 
-    &.unknown {
-        background: rgba($muted, .1);
-        border-color: rgba($muted, .2);
-        color: $muted;
-    }
+  &.unknown {
+    background: rgba($muted, .1);
+    border-color: rgba($muted, .2);
+    color: $muted;
+  }
 }
 
 .confidence {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .conf-bar {
-    flex: 1;
-    height: 3px;
-    background: $s3;
-    border-radius: 2px;
-    overflow: hidden;
+  flex: 1;
+  height: 3px;
+  background: $s3;
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 .conf-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width .5s ease;
+  height: 100%;
+  border-radius: 2px;
+  transition: width .5s ease;
 
-    &.high {
-        background: $accent;
-    }
-
-    &.mid {
-        background: $yellow;
-    }
-
-    &.low {
-        background: $red;
-    }
+  &.high { background: $accent; }
+  &.mid  { background: $yellow; }
+  &.low  { background: $red; }
 }
 
 .conf-num {
-    font-size: 11px;
-    font-family: 'IBM Plex Mono', monospace;
-    color: $muted;
-    min-width: 30px;
-    text-align: right;
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: $muted;
+  min-width: 30px;
+  text-align: right;
 }
 
 .card-foot {
-    padding: 10px 16px 14px;
-    border-top: 1px solid $border;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
+  padding: 10px 16px 14px;
+  border-top: 1px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .methods {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .method-chip {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: $s3;
-    border: 1px solid $border;
-    color: $muted;
-    font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: $s3;
+  border: 1px solid $border;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
 
-    &.more {
-        color: rgba($accent, .8);
-        border-color: rgba($accent, .2);
-        background: rgba($accent, .06);
-    }
+  &.more {
+    color: rgba($accent, .8);
+    border-color: rgba($accent, .2);
+    background: rgba($accent, .06);
+  }
 }
 
 .scan-date {
-    font-size: 11px;
-    color: $muted;
-    font-family: 'IBM Plex Mono', monospace;
-    white-space: nowrap;
+  font-size: 11px;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap;
 }
 
 // ── ANIMATIONS ────────────────────────────────────
-.spin {
-    animation: spin .8s linear infinite;
-    display: inline-block;
-}
+.spin { animation: spin .8s linear infinite; display: inline-block; }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
