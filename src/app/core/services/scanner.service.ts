@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ScanResult } from '../../shared/models/website.model';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/enviroment.prod';
 
 @Injectable({ providedIn: 'root' })
 export class ScannerService {
