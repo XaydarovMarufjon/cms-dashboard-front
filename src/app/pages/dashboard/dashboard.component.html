@@ -359,7 +359,7 @@
           </div>
 
           <!-- Server texnologiyalari -->
-          @if ((result.serverTech?.length || 0) > 0) {
+          @if ((result.serverTech.length || 0) > 0) {
           <div class="tech-row">
             <span class="tech-label">
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -378,7 +378,7 @@
           }
 
           <!-- JS Frameworks -->
-          @if ((result.jsFrameworks?.length || 0) > 0) {
+          @if ((result.jsFrameworks.length || 0) > 0) {
           <div class="tech-row">
             <span class="tech-label">
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -402,7 +402,7 @@
             @for (m of (result.detectionMethods || []).slice(0,2); track m) {
             <span class="method-chip">{{ m }}</span>
             }
-            @if ((result.detectionMethods?.length || 0) > 2) {
+            @if ((result.detectionMethods.length || 0) > 2) {
             <span class="method-chip more">+{{ result.detectionMethods!.length - 2 }}</span>
             }
           </div>
