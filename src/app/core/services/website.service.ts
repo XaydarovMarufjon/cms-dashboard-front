@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Website, CreateWebsiteDto } from '../../shared/models/website.model';
-import { environment } from '../../../environments/enviroment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class WebsiteService {
