@@ -92,7 +92,7 @@ $muted:  #5a5b72;
   border-radius: 12px;
   overflow: hidden;
   background: $s1;
-  height: 40vh;
+  height: 75vh;
   display: flex;
   flex-direction: column;
 }
@@ -144,9 +144,21 @@ $muted:  #5a5b72;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
   color: $muted;
   p { font-size: 13px; }
+}
+
+.win-msg {
+  font-size: 13px;
+  color: $accent;
+  font-weight: 500;
+}
+
+.win-countdown {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: rgba($accent, .6);
 }
 
 // ── BODY ──────────────────────────────────────────
@@ -260,6 +272,17 @@ $muted:  #5a5b72;
   background: $s1; border: 1px solid rgba($accent,.2); border-radius: 12px;
   padding: 16px; display: flex; flex-direction: column; gap: 10px;
   animation: fadeSlide .2s ease;
+
+  &.paused {
+    border-color: rgba($yellow, .3);
+    background: rgba($yellow, .03);
+  }
+}
+
+.pause-msg {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: $yellow;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .progress-info {
@@ -319,6 +342,13 @@ $muted:  #5a5b72;
   cursor: pointer; transition: all .15s;
   &:hover:not(:disabled) { background: rgba($red,.15); transform: translateY(-1px); }
   &:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+  &.paused {
+    border-color: rgba($accent, .35);
+    background: rgba($accent, .1);
+    color: $accent;
+    &:hover:not(:disabled) { background: rgba($accent, .18); transform: translateY(-1px); }
+  }
 }
 
 // ── RESULTS ───────────────────────────────────────

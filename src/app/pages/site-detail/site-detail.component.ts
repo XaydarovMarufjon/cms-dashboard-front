@@ -1,0 +1,184 @@
+// src/app/pages/site-detail/site-detail.component.ts
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { ScannerService } from '../../core/services/scanner.service';
+import { ScanResult, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
+
+export interface DiscoveredSub {
+  subdomain: string;
+  alive: boolean;
+  source: string[];
+  inDb: ScanResult | null;  // null = not yet in DB
+}
+
+@Component({
+  selector: 'app-site-detail',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './site-detail.component.html',
+  styleUrls: ['./site-detail.component.scss'],
+})
+export class SiteDetailComponent implements OnInit {
+  private router  = inject(Router);
+  private scanner = inject(ScannerService);
+
+  result     = signal<ScanResult | null>(null);
+  subdomains = signal<ScanResult[]>([]);   // already in DB
+  loading    = signal(true);
+
+  // Subdomain discovery
+  discovered    = signal<DiscoveredSub[]>([]);
+  discovering   = signal(false);
+  discoverError = signal('');
+  discoverDone  = signal(false);
+
+  /** Root domain of the current site (e.g. "gov.uz") */
+  rootDomain = computed(() => {
+    const url = this.result()?.website?.url;
+    return url ? this.extractRootDomain(url) : '';
+  });
+
+  /** All scan results from DB keyed by hostname for fast lookup */
+  private allResults: ScanResult[] = [];
+
+  async ngOnInit() {
+    const state =
+      this.router.getCurrentNavigation()?.extras.state as { result?: ScanResult } | undefined
+      ?? (history.state as { result?: ScanResult });
+
+    if (!state?.result) { this.router.navigate(['/']); return; }
+    this.result.set(state.result);
+
+    try {
+      this.allResults = await firstValueFrom(this.scanner.getLatestResults());
+      const root   = this.rootDomain();
+      const selfId = state.result.websiteId;
+
+      // Subdomains already in DB
+      this.subdomains.set(
+        this.allResults.filter(r => {
+          if (r.websiteId === selfId) return false;
+          const h = this.hostname(r.website?.url ?? '');
+          return h === root || h.endsWith('.' + root);
+        }),
+      );
+    } catch { /* ignore */ }
+    finally { this.loading.set(false); }
+  }
+
+  // ── Subdomain discovery ───────────────────────────────────────────────────
+  async discoverSubdomains() {
+    const domain = this.rootDomain();
+    if (!domain || this.discovering()) return;
+
+    this.discovering.set(true);
+    this.discoverError.set('');
+    this.discoverDone.set(false);
+    this.discovered.set([]);
+
+    try {
+      const raw = await firstValueFrom(this.scanner.discoverSubdomains(domain));
+
+      // Cross-reference with what's already in DB
+      const dbByHost = new Map<string, ScanResult>();
+      for (const r of this.allResults) {
+        const h = this.hostname(r.website?.url ?? '');
+        dbByHost.set(h, r);
+      }
+
+      const merged: DiscoveredSub[] = raw.map(s => ({
+        subdomain: s.subdomain,
+        alive:     s.alive,
+        source:    s.source,
+        inDb:      dbByHost.get(s.subdomain) ?? null,
+      }));
+
+      this.discovered.set(merged);
+      this.discoverDone.set(true);
+    } catch (err) {
+      this.discoverError.set('Subdomen qidirish muvaffaqiyatsiz tugadi');
+    } finally {
+      this.discovering.set(false);
+    }
+  }
+
+  openDetail(r: ScanResult) {
+    this.router.navigate(['/site', r.websiteId], { state: { result: r } });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  private hostname(url: string): string {
+    try   { return new URL(url).hostname.toLowerCase(); }
+    catch { return url.replace(/^https?:\/\//, '').split('/')[0].toLowerCase(); }
+  }
+
+  private extractRootDomain(url: string): string {
+    const host  = this.hostname(url);
+    const parts = host.split('.');
+    return parts.length > 2 ? parts.slice(-2).join('.') : host;
+  }
+
+  stripProtocol(url: string | undefined | null): string {
+    return (url ?? '').replace(/^https?:\/\//, '');
+  }
+
+  getCmsColor(cms: string | null): string {
+    return CMS_COLORS[cms ?? 'unknown'] ?? '#6b6c80';
+  }
+
+  getCategoryColor(cat: string | null): string {
+    return CATEGORY_META[cat as SiteCategory]?.color ?? '#6b6c80';
+  }
+
+  getCategoryLabel(cat: string | null): string {
+    return CATEGORY_META[cat as SiteCategory]?.label ?? (cat ?? 'Unknown');
+  }
+
+  getConfidenceClass(score: number): string {
+    if (score >= 80) return 'high';
+    if (score >= 50) return 'mid';
+    return 'low';
+  }
+
+  getConfidenceLevel(score: number): { label: string; desc: string; cls: string } {
+    if (score >= 90) return { label: 'Juda yuqori', desc: '2+ mustaqil usul bir xil CMS ni tasdiqladi', cls: 'level-high' };
+    if (score >= 70) return { label: 'Yuqori',      desc: 'Kuchli signal aniqlandi, ehtimol to\'g\'ri', cls: 'level-high' };
+    if (score >= 50) return { label: 'O\'rta',      desc: 'Bir nechta zaif signal, qo\'shimcha tekshiruv kerak', cls: 'level-mid' };
+    if (score >= 1)  return { label: 'Past',         desc: 'Zaif signal, aniqlik past', cls: 'level-low' };
+    return             { label: 'Aniqlanmadi',        desc: 'Hech qanday signal topilmadi', cls: 'level-none' };
+  }
+
+  categorizeMethod(method: string): { icon: string; label: string; cls: string } {
+    if (method.startsWith('File probe') || method.startsWith('RSS'))
+      return { icon: '◈', label: 'Fayl tekshiruvi', cls: 'ev-file' };
+    if (method === 'meta generator')
+      return { icon: '◉', label: 'Meta generator', cls: 'ev-meta' };
+    if (method === 'Cookie')
+      return { icon: '◇', label: 'Cookie', cls: 'ev-cookie' };
+    if (method === 'Inline version')
+      return { icon: '◈', label: 'Inline versiya', cls: 'ev-inline' };
+    if (method.startsWith('Header') || method.startsWith('Asset'))
+      return { icon: '▷', label: 'HTTP signal', cls: 'ev-header' };
+    if (method.includes('robots') || method.includes('sitemap'))
+      return { icon: '○', label: 'Crawl signal', cls: 'ev-crawl' };
+    if (method.startsWith('Pattern'))
+      return { icon: '◫', label: 'HTML pattern', cls: 'ev-pattern' };
+    return { icon: '·', label: method, cls: 'ev-other' };
+  }
+
+  getHttpStatusClass(status: number): string {
+    if (status >= 200 && status < 300) return 'http-ok';
+    if (status >= 300 && status < 400) return 'http-redirect';
+    if (status >= 400 && status < 500) return 'http-client-error';
+    return 'http-server-error';
+  }
+
+  formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleString('uz-UZ', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+}

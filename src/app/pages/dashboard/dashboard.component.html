@@ -58,7 +58,7 @@
           <path d="M13 7A6 6 0 1 1 7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M7 1l2.5 2.5L7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        {{ scanningAll() ? 'Skanerlayapti...' : 'Hammasini skaner qil' }}
+        {{ scanningAll() ? 'Skanerlanmoqda...' : 'Hammasini skaner qil' }}
       </button>
     </div>
   </aside>
@@ -315,7 +315,9 @@
           <div class="card"
             [class.is-scanning]="scanning() === result.websiteId"
             [class.is-deleting]="deletingId() === result.websiteId"
-            [class.is-editing]="editingWebsite()?.id === result.website?.id">
+            [class.is-editing]="editingWebsite()?.id === result.website?.id"
+            (click)="openDetail(result)"
+            style="cursor:pointer">
 
             <div class="card-accent" [style.background]="getCmsColor(result.cms)"></div>
 
@@ -351,12 +353,12 @@
                 }
               </div>
               <div class="site-meta">
-                <div class="site-url">{{ result.website?.url | slice:0:30 }}{{ (result.website?.url?.length || 0) > 30 ? '…' : '' }}</div>
+                <div class="site-url">{{ stripProtocol(result.website?.url) | slice:0:30 }}{{ (stripProtocol(result.website?.url).length) > 30 ? '…' : '' }}</div>
                 @if (result.website?.label) {
                   <div class="site-label">{{ result.website?.label }}</div>
                 }
               </div>
-              <div class="card-actions">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <button class="card-btn btn-scan-icon" (click)="scanOne(result)" [disabled]="scanning() === result.websiteId" title="Qayta skanerlash">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" [class.spin]="scanning() === result.websiteId"><path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 1l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
@@ -403,7 +405,7 @@
               </div>
 
               <!-- Server texnologiyalari -->
-              @if ((result.serverTech?.length || 0) > 0) {
+              @if (result.serverTech.length > 0) {
                 <div class="tech-row">
                   <span class="tech-label">
                     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x=".5" y=".5" width="10" height="10" rx="2" stroke="currentColor" stroke-opacity=".5"/><path d="M2 4l2 1.5L2 7M5.5 7h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -418,7 +420,7 @@
               }
 
               <!-- JS Frameworks -->
-              @if ((result.jsFrameworks?.length || 0) > 0) {
+              @if (result.jsFrameworks.length > 0) {
                 <div class="tech-row">
                   <span class="tech-label">
                     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 3l4.5 2.5L10 3M5.5 5.5V10" stroke="currentColor" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -439,8 +441,8 @@
                 @for (m of (result.detectionMethods || []).slice(0,2); track m) {
                   <span class="method-chip">{{ m }}</span>
                 }
-                @if ((result.detectionMethods?.length || 0) > 2) {
-                  <span class="method-chip more">+{{ result.detectionMethods!.length - 2 }}</span>
+                @if (result.detectionMethods.length > 2) {
+                  <span class="method-chip more">+{{ result.detectionMethods.length - 2 }}</span>
                 }
               </div>
               <div class="foot-right">

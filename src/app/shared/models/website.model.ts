@@ -18,6 +18,7 @@ export interface ScanResult {
   serverTech: string[];
   jsFrameworks: string[];
   httpStatus: number | null;
+  pageTitle: string | null;
   scannedAt: string;
   errorMessage?: string;
   website?: Website;

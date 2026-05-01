@@ -23,6 +23,12 @@ export const routes: Routes = [
             import('./pages/checker/checker.component').then(m => m.CheckerComponent),
     },
     {
+        path: 'site/:id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/site-detail/site-detail.component').then(m => m.SiteDetailComponent),
+    },
+    {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

@@ -1006,14 +1006,16 @@ $radius:  10px;
 
 // ── CARD BUTTONS ──────────────────────────────────
 .card-btn {
-  width: 28px; height: 28px;
-  border-radius: 6px;
+  width: 22px; height: 22px;
+  border-radius: 5px;
   border: 1px solid $border;
   background: $s3;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: all .15s;
   color: $muted;
+
+  svg { width: 11px; height: 11px; }
 
   &:disabled { opacity: .3; cursor: not-allowed; }
 }

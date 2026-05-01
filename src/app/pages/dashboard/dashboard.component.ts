@@ -1,7 +1,7 @@
 // src/app/pages/dashboard/dashboard.component.ts
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private websiteService = inject(WebsiteService);
   private fb             = inject(FormBuilder);
   private sanitizer      = inject(DomSanitizer);
+  private router         = inject(Router);
   auth                   = inject(AuthService);
 
   // ── SIGNALS ───────────────────────────────────
@@ -371,6 +372,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getCategoryIcon(category: string | null): string {
     return CATEGORY_META[category as SiteCategory]?.icon ?? '?';
+  }
+
+  openDetail(result: ScanResult) {
+    this.router.navigate(['/site', result.websiteId], { state: { result } });
+  }
+
+  stripProtocol(url: string | undefined | null): string {
+    return (url ?? '').replace(/^https?:\/\//, '');
   }
 
   getHttpStatusClass(status: number): string {

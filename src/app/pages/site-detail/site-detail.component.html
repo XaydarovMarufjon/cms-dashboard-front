@@ -1,0 +1,419 @@
+<!-- src/app/pages/site-detail/site-detail.component.html -->
+@if (result(); as r) {
+<div class="detail-page">
+
+  <!-- HEADER -->
+  <div class="detail-header">
+    <a class="btn-back" routerLink="/">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Dashboard
+    </a>
+
+    <div class="header-main">
+      <div class="header-accent" [style.background]="getCmsColor(r.cms)"></div>
+      <div class="header-info">
+        <div class="header-url">{{ stripProtocol(r.website?.url) }}</div>
+        @if (r.website?.label || r.pageTitle) {
+          <div class="header-label">{{ r.website?.label || r.pageTitle }}</div>
+        }
+      </div>
+      <a class="btn-open-site" [href]="r.website?.url" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M5 2H2v9h9V8M7.5 1H12v4.5M12 1L5.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Saytni ochish
+      </a>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="detail-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- CMS Info -->
+      <div class="detail-card">
+        <div class="card-title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="12" height="12" rx="3" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3"/>
+            <path d="M4 7h6M4 4.5h3M4 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          CMS Ma'lumotlari
+        </div>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-key">CMS</span>
+            <span class="info-val">
+              @if (r.cms) {
+                <span class="cms-pill" [style.--c]="getCmsColor(r.cms)">{{ r.cms }}</span>
+              } @else {
+                <span class="muted-val">Aniqlanmadi</span>
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Versiya</span>
+            <span class="info-val">
+              @if (r.version) {
+                <span class="version-pill">v{{ r.version }}</span>
+              } @else {
+                <span class="muted-val">Noma'lum</span>
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Kategoriya</span>
+            <span class="info-val">
+              @if (r.category) {
+                <span class="cat-pill" [style.--cc]="getCategoryColor(r.category)">
+                  {{ getCategoryLabel(r.category) }}
+                </span>
+              } @else {
+                <span class="muted-val">—</span>
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">HTTP Status</span>
+            <span class="info-val">
+              @if (r.httpStatus) {
+                <span class="http-pill" [class]="getHttpStatusClass(r.httpStatus)">{{ r.httpStatus }}</span>
+              } @else if (r.errorMessage) {
+                <span class="http-pill http-error">offline</span>
+              } @else {
+                <span class="muted-val">—</span>
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Skanerlangan</span>
+            <span class="info-val mono">{{ formatDate(r.scannedAt) }}</span>
+          </div>
+        </div>
+
+        <!-- Confidence -->
+        <div class="conf-block">
+          <div class="conf-header">
+            <span class="conf-label">Ishonch darajasi</span>
+            <span class="conf-num" [class]="getConfidenceClass(r.confidence)">{{ r.confidence }}%</span>
+          </div>
+          <div class="conf-bar">
+            <div class="conf-fill" [class]="getConfidenceClass(r.confidence)" [style.width.%]="r.confidence"></div>
+          </div>
+
+          <!-- Level badge + description -->
+          @let level = getConfidenceLevel(r.confidence);
+          <div class="conf-level">
+            <span class="level-badge" [class]="level.cls">{{ level.label }}</span>
+            <span class="level-desc">{{ level.desc }}</span>
+          </div>
+
+          <!-- Evidence breakdown -->
+          @if (r.detectionMethods.length > 0) {
+            <div class="evidence-list">
+              @for (m of r.detectionMethods; track m) {
+                @let ev = categorizeMethod(m);
+                <div class="evidence-row">
+                  <span class="ev-icon" [class]="ev.cls">{{ ev.icon }}</span>
+                  <div class="ev-texts">
+                    <span class="ev-label">{{ ev.label }}</span>
+                    <span class="ev-method">{{ m }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Error block -->
+      @if (r.errorMessage) {
+        <div class="detail-card error-card">
+          <div class="card-title red-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="6" stroke="#ff6b7a" stroke-width="1.3"/>
+              <path d="M7 4v3.5M7 9.5v.5" stroke="#ff6b7a" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Xato
+          </div>
+          <div class="error-msg">{{ r.errorMessage }}</div>
+        </div>
+      }
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <!-- Detection Methods -->
+      @if (r.detectionMethods.length > 0) {
+        <div class="detail-card">
+          <div class="card-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3"/>
+              <path d="M9.5 9.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Aniqlash usullari
+            <span class="count-badge">{{ r.detectionMethods.length }}</span>
+          </div>
+          <div class="chip-list">
+            @for (m of r.detectionMethods; track m) {
+              <span class="method-chip">{{ m }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Server Technologies -->
+      @if (r.serverTech.length > 0) {
+        <div class="detail-card">
+          <div class="card-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x=".5" y=".5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3"/>
+              <path d="M3 5l2 2-2 2M7 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Server texnologiyalari
+            <span class="count-badge">{{ r.serverTech.length }}</span>
+          </div>
+          <div class="chip-list">
+            @for (t of r.serverTech; track t) {
+              <span class="tech-chip server-chip">{{ t }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- JS Frameworks -->
+      @if (r.jsFrameworks.length > 0) {
+        <div class="detail-card">
+          <div class="card-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 4l6 3 6-3M7 7v6" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            JS Freymvorklar
+            <span class="count-badge">{{ r.jsFrameworks.length }}</span>
+          </div>
+          <div class="chip-list">
+            @for (f of r.jsFrameworks; track f) {
+              <span class="tech-chip js-chip">{{ f }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Website meta -->
+      <div class="detail-card">
+        <div class="card-title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3"/>
+            <path d="M7 1c-2 2-2 8 0 12M7 1c2 2 2 8 0 12M1 7h12" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Sayt ma'lumotlari
+        </div>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-key">To'liq URL</span>
+            <a class="info-val url-link" [href]="r.website?.url" target="_blank" rel="noopener">
+              {{ r.website?.url }}
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M4 2H2v6h6V6M5.5 1H9v3.5M9 1L4.5 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+          @if (r.website?.label || r.pageTitle) {
+            <div class="info-row">
+              <span class="info-key">Nomi</span>
+              <div class="info-val name-val">
+                <span>{{ r.website?.label || r.pageTitle }}</span>
+                @if (!r.website?.label && r.pageTitle) {
+                  <span class="auto-badge">auto</span>
+                }
+              </div>
+            </div>
+          }
+          <div class="info-row">
+            <span class="info-key">Website ID</span>
+            <span class="info-val mono muted-val">{{ r.websiteId }}</span>
+          </div>
+          @if (r.website?.createdAt) {
+            <div class="info-row">
+              <span class="info-key">Qo'shilgan</span>
+              <span class="info-val mono">{{ formatDate(r.website!.createdAt) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUBDOMAINS — full width -->
+  <div class="subdomains-section">
+    <div class="sub-header">
+      <div class="sub-title">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="6.5" stroke="#00e5c0" stroke-opacity=".4" stroke-width="1.3"/>
+          <circle cx="7.5" cy="7.5" r="3"   stroke="#00e5c0" stroke-opacity=".7" stroke-width="1.3"/>
+          <path d="M7.5 1v13M1 7.5h13" stroke="#00e5c0" stroke-opacity=".25" stroke-width="1.2"/>
+        </svg>
+        <span>{{ rootDomain() }} subdomenlari</span>
+        @if (subdomains().length > 0) {
+          <span class="sub-count">DB: {{ subdomains().length }} ta</span>
+        }
+        @if (discoverDone() && discovered().length > 0) {
+          <span class="sub-count discovered">Topildi: {{ discovered().length }} ta</span>
+        }
+      </div>
+
+      <button class="btn-discover"
+        (click)="discoverSubdomains()"
+        [disabled]="discovering()">
+        @if (discovering()) {
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="spin">
+            <path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Qidirilmoqda...
+        } @else {
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M8.5 8.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M5.5 3v5M3 5.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Subdomenlari qidirish
+        }
+      </button>
+    </div>
+
+    @if (discoverError()) {
+      <div class="discover-error">{{ discoverError() }}</div>
+    }
+
+    <!-- DB-dagi subdomainlar -->
+    @if (subdomains().length > 0) {
+      <div class="sub-section-label">Ma'lumotlar bazasida</div>
+      <div class="sub-grid">
+        @for (sub of subdomains(); track sub.id) {
+          <div class="sub-card" (click)="openDetail(sub)" role="button">
+            <div class="sub-accent" [style.background]="getCmsColor(sub.cms)"></div>
+            <div class="sub-top">
+              <div class="sub-url">{{ stripProtocol(sub.website?.url) }}</div>
+              @if (sub.website?.label) { <div class="sub-label">{{ sub.website?.label }}</div> }
+            </div>
+            <div class="sub-badges">
+              @if (sub.cms) {
+                <span class="sub-cms" [style.--c]="getCmsColor(sub.cms)">{{ sub.cms }}</span>
+                @if (sub.version) { <span class="sub-ver">v{{ sub.version }}</span> }
+              } @else {
+                <span class="sub-unknown">Aniqlanmadi</span>
+              }
+            </div>
+            <div class="sub-foot">
+              <div class="sub-conf">
+                <div class="sub-conf-bar">
+                  <div class="sub-conf-fill" [class]="getConfidenceClass(sub.confidence)" [style.width.%]="sub.confidence"></div>
+                </div>
+                <span class="sub-conf-num" [class]="getConfidenceClass(sub.confidence)">{{ sub.confidence }}%</span>
+              </div>
+              @if (sub.httpStatus) {
+                <span class="sub-http" [class]="getHttpStatusClass(sub.httpStatus)">{{ sub.httpStatus }}</span>
+              } @else if (sub.errorMessage) {
+                <span class="sub-http http-error">offline</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Discovering loader -->
+    @if (discovering()) {
+      <div class="discover-loader">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="spin">
+          <path d="M17 9A8 8 0 1 1 9 1" stroke="#00e5c0" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span>crt.sh va subfinder orqali qidirilmoqda...</span>
+      </div>
+    }
+
+    <!-- Discovered results -->
+    @if (discoverDone() && discovered().length > 0) {
+      <div class="sub-section-label new">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <circle cx="5.5" cy="5.5" r="5" stroke="#00e5c0" stroke-opacity=".5" stroke-width="1.2"/>
+          <path d="M5.5 2.5v6M2.5 5.5h6" stroke="#00e5c0" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Yangi topilgan (DNS orqali tasdiqlangan)
+      </div>
+      <div class="sub-grid">
+        @for (sub of discovered(); track sub.subdomain) {
+          <div class="sub-card discovered-card" [class.in-db]="!!sub.inDb"
+            (click)="sub.inDb ? openDetail(sub.inDb!) : null"
+            [style.cursor]="sub.inDb ? 'pointer' : 'default'">
+            <div class="sub-accent" [style.background]="sub.inDb ? getCmsColor(sub.inDb.cms) : '#22233a'"></div>
+
+            <div class="sub-top">
+              <div class="sub-url">{{ sub.subdomain }}</div>
+              <div class="sub-sources">
+                @for (src of sub.source; track src) {
+                  <span class="src-chip">{{ src }}</span>
+                }
+                @if (sub.inDb) {
+                  <span class="src-chip in-db-chip">DB</span>
+                }
+              </div>
+            </div>
+
+            @if (sub.inDb) {
+              <div class="sub-badges">
+                @if (sub.inDb.cms) {
+                  <span class="sub-cms" [style.--c]="getCmsColor(sub.inDb.cms)">{{ sub.inDb.cms }}</span>
+                  @if (sub.inDb.version) { <span class="sub-ver">v{{ sub.inDb.version }}</span> }
+                } @else {
+                  <span class="sub-unknown">Aniqlanmadi</span>
+                }
+              </div>
+              <div class="sub-foot">
+                <div class="sub-conf">
+                  <div class="sub-conf-bar">
+                    <div class="sub-conf-fill" [class]="getConfidenceClass(sub.inDb.confidence)" [style.width.%]="sub.inDb.confidence"></div>
+                  </div>
+                  <span class="sub-conf-num" [class]="getConfidenceClass(sub.inDb.confidence)">{{ sub.inDb.confidence }}%</span>
+                </div>
+                @if (sub.inDb.httpStatus) {
+                  <span class="sub-http" [class]="getHttpStatusClass(sub.inDb.httpStatus)">{{ sub.inDb.httpStatus }}</span>
+                }
+              </div>
+            } @else {
+              <div class="not-in-db">Hali skanerlanmagan</div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (discoverDone() && discovered().length === 0) {
+      <div class="no-subdomains">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="9" stroke="#22233a" stroke-width="1.5"/>
+          <path d="M10 2c-3 3-3 10 0 16M10 2c3 3 3 10 0 16M1 10h18" stroke="#22233a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>{{ rootDomain() }} uchun tirik subdomenlar topilmadi</span>
+      </div>
+    }
+
+    @if (!discoverDone() && !discovering() && subdomains().length === 0) {
+      <div class="no-subdomains">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="9" stroke="#22233a" stroke-width="1.5"/>
+          <path d="M10 2c-3 3-3 10 0 16M10 2c3 3 3 10 0 16M1 10h18" stroke="#22233a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>DB da subdomenlar yo'q. "Subdomenlari qidirish" tugmasini bosing</span>
+      </div>
+    }
+  </div>
+
+</div>
+}

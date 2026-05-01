@@ -1,9 +1,11 @@
 // src/app/pages/checker/checker.component.ts
-import { Component, signal, computed, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
+import { ScannerService } from '../../core/services/scanner.service';
 
 interface CheckSite {
   id:     string;
@@ -29,7 +31,7 @@ interface SiteResult {
   styleUrls: ['./checker.component.scss'],
 })
 export class CheckerComponent implements OnDestroy {
-  private fb = new (class { group = (v: any) => ({ value: v, invalid: false, reset: () => {}, get: (k: string) => ({ invalid: false, touched: false }) }) })();
+  private scannerService = inject(ScannerService);
 
   // ── SITES ─────────────────────────────────────
   sites = signal<CheckSite[]>([
@@ -49,15 +51,19 @@ export class CheckerComponent implements OnDestroy {
   urlError = signal('');
 
   // ── CHECKER STATE ─────────────────────────────
-  results       = signal<SiteResult[]>([]);
-  isRunning     = signal(false);
-  currentIndex  = signal(-1);
-  intervalMs    = signal(20000);   // ms — har sayt uchun vaqt
-  countdown     = signal(0);
-  iframeUrl     = signal<string>('');
+  results        = signal<SiteResult[]>([]);
+  isRunning      = signal(false);
+  isPaused       = signal(false);
+  currentIndex   = signal(-1);
+  intervalMs     = signal(20000);   // ms — har sayt uchun vaqt
+  countdown      = signal(0);
+  iframeUrl      = signal<string>('');
+  openedInWindow = signal(false);
 
   private timerId?: ReturnType<typeof setInterval>;
   private countId?: ReturnType<typeof setInterval>;
+  private openWin?: Window | null;
+  private doneTimer?: ReturnType<typeof setTimeout>;
 
   // ── COMPUTED ──────────────────────────────────
   progress = computed(() => {
@@ -102,11 +108,15 @@ export class CheckerComponent implements OnDestroy {
 
   // ── ISHGA TUSHIRISH ───────────────────────────
   start() {
-    if (this.isRunning() || !this.sites().length) return;
-    this.isRunning.set(true);
-    this.currentIndex.set(-1);
+    if (this.isRunning() && !this.isPaused()) return;
+    if (!this.sites().length) return;
 
-    // Natijalarni boshlang'ich holga keltiramiz
+    this.clearTimers();
+    this.isRunning.set(true);
+    this.isPaused.set(false);
+    this.currentIndex.set(-1);
+    this.iframeUrl.set('');
+    this.openedInWindow.set(false);
     this.results.set(this.sites().map(s => ({
       id: s.id, url: s.url, label: s.label, status: 'idle',
     })));
@@ -115,52 +125,117 @@ export class CheckerComponent implements OnDestroy {
     this.timerId = setInterval(() => this.next(), this.intervalMs());
   }
 
-  private next() {
+  private async next() {
     const idx = this.currentIndex() + 1;
 
     if (idx >= this.sites().length) {
-      this.stop();
+      clearInterval(this.timerId);
+      clearInterval(this.countId);
+      this.currentIndex.set(-1);
+      this.results.set(this.sites().map(s => ({
+        id: s.id, url: s.url, label: s.label, status: 'idle',
+      })));
+      await this.next();
+      this.timerId = setInterval(() => this.next(), this.intervalMs());
       return;
     }
 
     this.currentIndex.set(idx);
     const site = this.sites()[idx];
 
-    // Natijani yangilaymiz
     this.results.update(list => list.map(r =>
       r.id === site.id ? { ...r, status: 'checking' } : r
     ));
 
-    // Countdown
     this.countdown.set(Math.floor(this.intervalMs() / 1000));
     clearInterval(this.countId);
     this.countId = setInterval(() => {
       this.countdown.update(n => (n > 0 ? n - 1 : 0));
     }, 1000);
 
-    // Iframe da ko'rsatamiz
     const start = Date.now();
-    this.iframeUrl.set(site.url);
-    setTimeout(() => {
+
+    let canEmbed = true;
+    try {
+      const res = await firstValueFrom(this.scannerService.checkCanEmbed(site.url));
+      canEmbed = res.canEmbed;
+    } catch { canEmbed = true; }
+
+    this.openWin?.close();
+    this.openWin = null;
+    clearTimeout(this.doneTimer);
+
+    if (canEmbed) {
+      this.iframeUrl.set(site.url);
+      this.openedInWindow.set(false);
+    } else {
+      this.iframeUrl.set('');
+      this.openedInWindow.set(true);
+      this.openWin = window.open(site.url, '_blank');
+    }
+
+    this.doneTimer = setTimeout(() => {
       const elapsed = Date.now() - start;
+      this.openWin?.close();
+      this.openWin = null;
+      this.openedInWindow.set(false);
       this.results.update(list => list.map(r =>
         r.id === site.id ? { ...r, status: 'done', elapsed } : r
       ));
     }, this.intervalMs() - 2000);
   }
 
-  // ── TO'XTATISH ────────────────────────────────
-  stop() {
-    clearInterval(this.timerId);
-    clearInterval(this.countId);
-    this.isRunning.set(false);
-    this.currentIndex.set(-1);
-    this.countdown.set(0);
+  // ── PAUZA / DAVOM ETISH ───────────────────────
+  togglePause() {
+    if (!this.isRunning()) return;
+    if (this.isPaused()) {
+      this.resume();
+    } else {
+      this.pause();
+    }
+  }
 
-    // Tugamagan natijalarni reset
+  private pause() {
+    this.clearTimers();
+    this.openWin?.close();
+    this.openWin = null;
+    this.openedInWindow.set(false);
+    this.iframeUrl.set('');
+    this.countdown.set(0);
+    // Mark current site idle and step back so resume re-checks it
     this.results.update(list => list.map(r =>
       r.status === 'checking' ? { ...r, status: 'idle' } : r
     ));
+    this.currentIndex.update(i => Math.max(-1, i - 1));
+    this.isPaused.set(true);
+  }
+
+  private resume() {
+    this.isPaused.set(false);
+    this.next();
+    this.timerId = setInterval(() => this.next(), this.intervalMs());
+  }
+
+  // ── TO'LIQ TO'XTATISH ─────────────────────────
+  stop() {
+    this.clearTimers();
+    this.openWin?.close();
+    this.openWin = null;
+    this.openedInWindow.set(false);
+    this.iframeUrl.set('');
+    this.isRunning.set(false);
+    this.isPaused.set(false);
+    this.currentIndex.set(-1);
+    this.countdown.set(0);
+    this.results.update(list => list.map(r =>
+      r.status === 'checking' ? { ...r, status: 'idle' } : r
+    ));
+  }
+
+  private clearTimers() {
+    clearInterval(this.timerId);
+    clearInterval(this.countId);
+    clearTimeout(this.doneTimer);
   }
 
   setIntervalMs(ms: number) {

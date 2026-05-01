@@ -34,4 +34,14 @@ export class ScannerService {
     getInterval(): Observable<{ interval: number }> {
         return this.http.get<{ interval: number }>(`${this.api}/scanner/interval`);
     }
+
+    checkCanEmbed(url: string): Observable<{ canEmbed: boolean }> {
+        return this.http.get<{ canEmbed: boolean }>(`${this.api}/scanner/can-embed`, { params: { url } });
+    }
+
+    discoverSubdomains(domain: string): Observable<Array<{ subdomain: string; alive: boolean; source: string[] }>> {
+        return this.http.get<Array<{ subdomain: string; alive: boolean; source: string[] }>>(
+            `${this.api}/scanner/subdomains`, { params: { domain } }
+        );
+    }
 }
