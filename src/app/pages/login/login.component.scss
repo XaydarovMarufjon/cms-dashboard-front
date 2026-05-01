@@ -1,0 +1,279 @@
+/* src/app/pages/login/login.component.scss */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+$bg:      #080910;
+$surface: #0f1018;
+$s2:      #14151f;
+$s3:      #1c1d2a;
+$border:  #22233a;
+$accent:  #00e5c0;
+$red:     #ff6b7a;
+$text:    #dde1f0;
+$muted:   #5a5b72;
+
+:host {
+  display: block;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+// ── PAGE ──────────────────────────────────────────
+.login-page {
+  min-height: 100vh;
+  background: $bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+// Background grid effect
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,192,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,192,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, $bg 80%);
+  }
+}
+
+// ── CARD ──────────────────────────────────────────
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 36px 32px;
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .4s ease;
+
+  // Top accent line
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $accent, transparent);
+    border-radius: 1px;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── LOGO ──────────────────────────────────────────
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.logo-icon {
+  width: 48px; height: 48px;
+  background: rgba($accent, .08);
+  border: 1px solid rgba($accent, .2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  font-weight: 600;
+  color: $text;
+  letter-spacing: -.3px;
+  span { color: $accent; }
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: $muted;
+  margin-top: 2px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+// ── TITLE ─────────────────────────────────────────
+.login-title {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 13px;
+    color: $muted;
+    line-height: 1.5;
+  }
+}
+
+// ── ERROR ─────────────────────────────────────────
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba($red, .08);
+  border: 1px solid rgba($red, .2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: $red;
+  margin-bottom: 16px;
+  animation: fadeUp .2s ease;
+}
+
+// ── FORM ──────────────────────────────────────────
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 11px;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 500;
+  }
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: $s3;
+  border: 1px solid $border;
+  border-radius: 9px;
+  transition: border-color .15s;
+  overflow: hidden;
+
+  &:focus-within { border-color: rgba($accent, .5); }
+  &.err          { border-color: rgba($red, .5); }
+}
+
+.input-icon {
+  color: $muted;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 11px 12px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: $text;
+
+  &::placeholder { color: $muted; }
+}
+
+.pass-toggle {
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  transition: color .15s;
+  &:hover { color: $text; }
+}
+
+.field-err {
+  font-size: 11px;
+  color: $red;
+}
+
+// ── SUBMIT ────────────────────────────────────────
+.btn-login {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 9px;
+  border: none;
+  background: $accent;
+  color: #000;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 4px;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, $accent 88%, white);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ── ROLE INFO ─────────────────────────────────────
+.role-info {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $border;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: $muted;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  min-width: 80px;
+  text-align: center;
+
+  &.admin   { background: rgba(#7c6cff,.15); border: 1px solid rgba(#7c6cff,.3); color: #a090ff; }
+  &.worker  { background: rgba(#00e5c0,.1);  border: 1px solid rgba(#00e5c0,.25); color: $accent; }
+  &.monitor { background: rgba(#ffc84a,.1);  border: 1px solid rgba(#ffc84a,.25); color: #ffc84a; }
+}
+
+// ── SPIN ──────────────────────────────────────────
+.spin { animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

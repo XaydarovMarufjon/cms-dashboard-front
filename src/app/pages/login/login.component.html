@@ -1,0 +1,136 @@
+<!-- src/app/pages/login/login.component.html -->
+<div class="login-page">
+
+  <!-- Background grid -->
+  <div class="bg-grid"></div>
+
+  <!-- Login card -->
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00e5c0" stroke-width="1.5"/>
+          <circle cx="14" cy="14" r="5" fill="#00e5c0"/>
+          <line x1="14" y1="1" x2="14" y2="6" stroke="#00e5c0" stroke-width="2"/>
+          <line x1="14" y1="22" x2="14" y2="27" stroke="#00e5c0" stroke-width="2"/>
+          <line x1="1" y1="14" x2="6" y2="14" stroke="#00e5c0" stroke-width="2"/>
+          <line x1="22" y1="14" x2="27" y2="14" stroke="#00e5c0" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-name">CMS<span>Radar</span></div>
+        <div class="logo-sub">Monitoring tizimi</div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="login-title">
+      <h1>Kirish</h1>
+      <p>Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="login-error">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="7" stroke="#ff6b7a" stroke-width="1.2"/>
+          <path d="M7.5 4.5v4M7.5 10.5v.5" stroke="#ff6b7a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+
+      <!-- Username -->
+      <div class="field">
+        <label>Foydalanuvchi nomi</label>
+        <div class="input-wrap" [class.err]="form.get('username')?.invalid && form.get('username')?.touched">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="input-icon">
+            <circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M2 13.5c0-2.5 2.5-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <input
+            formControlName="username"
+            type="text"
+            placeholder="admin"
+            autocomplete="username"
+          />
+        </div>
+        @if (form.get('username')?.invalid && form.get('username')?.touched) {
+          <span class="field-err">Kamida 3 ta belgi kiriting</span>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label>Parol</label>
+        <div class="input-wrap" [class.err]="form.get('password')?.invalid && form.get('password')?.touched">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="input-icon">
+            <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="8" cy="10.5" r="1" fill="currentColor"/>
+          </svg>
+          <input
+            formControlName="password"
+            [type]="showPass() ? 'text' : 'password'"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button type="button" class="pass-toggle" (click)="togglePass()">
+            @if (showPass()) {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z" stroke="currentColor" stroke-width="1.3"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+                <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z" stroke="currentColor" stroke-width="1.3"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+              </svg>
+            }
+          </button>
+        </div>
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="field-err">Kamida 4 ta belgi kiriting</span>
+        }
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login" [disabled]="loading()">
+        @if (loading()) {
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="spin">
+            <path d="M14 8A6 6 0 1 1 8 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Kirilmoqda...
+        } @else {
+          Kirish
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+      </button>
+    </form>
+
+    <!-- Role info -->
+    <div class="role-info">
+      <div class="role-item">
+        <span class="role-badge admin">ADMIN</span>
+        <span>To'liq boshqaruv</span>
+      </div>
+      <div class="role-item">
+        <span class="role-badge worker">WORKER</span>
+        <span>Sayt qo'shish/skaner</span>
+      </div>
+      <div class="role-item">
+        <span class="role-badge monitor">MONITORING</span>
+        <span>Faqat kuzatuv</span>
+      </div>
+    </div>
+
+  </div>
+</div>

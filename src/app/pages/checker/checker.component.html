@@ -1,0 +1,228 @@
+<!-- src/app/pages/checker/checker.component.html -->
+<div class="checker-page">
+
+  <!-- HEADER -->
+  <div class="checker-header">
+    <div class="checker-title">
+      <a class="btn-back" routerLink="/">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+      </a>
+      <div class="title-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="9" stroke="#00e5c0" stroke-width="1.5"/>
+          <path d="M6 10l3 3 5-5" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Sayt tekshiruvi</h1>
+        <p>Saytlarni navbat bilan ochib tekshiradi</p>
+      </div>
+    </div>
+
+    <!-- Interval tanlash -->
+    <div class="interval-select">
+      <span class="int-label">Har bir sayt uchun vaqt:</span>
+      @for (opt of INTERVAL_OPTIONS; track opt.value) {
+        <button class="int-btn"
+          [class.active]="intervalMs() === opt.value"
+          [disabled]="isRunning()"
+          (click)="setIntervalMs(opt.value)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="checker-body">
+
+    <!-- CHAP: URL LIST + QO'SHISH -->
+    <div class="left-panel">
+
+      <!-- URL Qo'shish -->
+      <div class="add-section">
+        <div class="add-title">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Sayt qo'shish
+        </div>
+        <div class="add-fields">
+          <input
+            class="add-input"
+            type="text"
+            placeholder="https://example.uz"
+            [value]="newUrl()"
+            (input)="newUrl.set($any($event.target).value)"
+            (keydown.enter)="addSite()"
+            [class.err]="urlError()"
+          />
+          <input
+            class="add-input label-input"
+            type="text"
+            placeholder="Nomi (ixtiyoriy)"
+            [value]="newLabel()"
+            (input)="newLabel.set($any($event.target).value)"
+            (keydown.enter)="addSite()"
+          />
+          <button class="btn-add-site" (click)="addSite()" [disabled]="isRunning()">
+            Qo'shish
+          </button>
+        </div>
+        @if (urlError()) {
+          <div class="url-error">{{ urlError() }}</div>
+        }
+      </div>
+
+      <!-- Saytlar ro'yxati -->
+      <div class="site-list">
+        <div class="list-header">
+          <span>Saytlar ro'yxati</span>
+          <span class="site-count">{{ sites().length }} ta</span>
+        </div>
+
+        @if (sites().length === 0) {
+          <div class="empty-list">Hali sayt qo'shilmagan</div>
+        }
+
+        @for (site of sites(); track site.id; let i = $index) {
+          <div class="site-item" [class.active]="currentIndex() === i && isRunning()">
+            <div class="site-num">{{ i + 1 }}</div>
+            <div class="site-info">
+              @if (site.label) {
+                <div class="site-label">{{ site.label }}</div>
+              }
+              <div class="site-url">{{ site.url }}</div>
+            </div>
+            <button class="btn-remove"
+              (click)="removeSite(site.id)"
+              [disabled]="isRunning()"
+              title="O'chirish">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- O'NG: BOSHQARUV + NATIJALAR -->
+    <div class="right-panel">
+
+      <!-- Progress -->
+      @if (isRunning()) {
+        <div class="progress-section">
+          <div class="progress-info">
+            <span>Tekshirilmoqda...</span>
+            <span class="prog-count">{{ currentIndex() + 1 }} / {{ sites().length }}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress()"></div>
+          </div>
+          @if (currentSite()) {
+            <div class="current-site">
+              <div class="curr-dot"></div>
+              <span>{{ currentSite()?.label || currentSite()?.url }}</span>
+              <span class="curr-countdown">{{ countdown() }}s</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Boshqaruv tugmalari -->
+      <div class="control-row">
+        <button class="btn-start" (click)="start()" [disabled]="isRunning() || sites().length === 0">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 1.5l10 5.5L3 12.5V1.5z" fill="currentColor"/>
+          </svg>
+          Tekshiruvni boshlash
+        </button>
+        <button class="btn-stop" (click)="stop()" [disabled]="!isRunning()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+            <rect x="8" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+          </svg>
+          To'xtatish
+        </button>
+      </div>
+
+      <!-- Natijalar -->
+      @if (results().length > 0) {
+        <div class="results-section">
+          <div class="results-title">Natijalar</div>
+          <div class="results-list">
+            @for (r of results(); track r.id) {
+              <div class="result-row" [class]="'status-' + r.status">
+                <div class="res-status-icon">
+                  @if (r.status === 'checking') {
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="spin">
+                      <path d="M13 7A6 6 0 1 1 7 1" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  } @else if (r.status === 'done') {
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="6" fill="rgba(0,229,192,.15)"/>
+                      <path d="M4 7l2 2 4-4" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  } @else if (r.status === 'error') {
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="6" fill="rgba(255,107,122,.15)"/>
+                      <path d="M5 5l4 4M9 5l-4 4" stroke="#ff6b7a" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  } @else {
+                    <div class="idle-dot"></div>
+                  }
+                </div>
+                <div class="res-info">
+                  @if (r.label) { <div class="res-label">{{ r.label }}</div> }
+                  <div class="res-url">{{ r.url }}</div>
+                </div>
+                <div class="res-meta">
+                  @if (r.status === 'checking') {
+                    <span class="res-tag checking">Tekshirilmoqda</span>
+                  } @else if (r.status === 'done') {
+                    <span class="res-tag done">Tayyor</span>
+                    @if (r.elapsed) {
+                      <span class="res-time">{{ (r.elapsed / 1000).toFixed(1) }}s</span>
+                    }
+                  } @else if (r.status === 'error') {
+                    <span class="res-tag error">Xato</span>
+                  } @else {
+                    <span class="res-tag idle">Kutmoqda</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- IFRAME VIEWER -->
+      <div class="iframe-wrap">
+        @if (iframeUrl()) {
+          <div class="iframe-topbar">
+            <div class="iframe-url-dot" [class.running]="isRunning()"></div>
+            <span class="iframe-url-text">{{ iframeUrl() }}</span>
+            @if (isRunning()) {
+              <span class="iframe-countdown">{{ countdown() }}s</span>
+            }
+          </div>
+          <iframe class="site-iframe" [src]="iframeUrl() | safeUrl" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        } @else {
+          <div class="iframe-empty">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+              <rect x="4" y="8" width="32" height="24" rx="3" stroke="#22233a" stroke-width="2"/>
+              <path d="M4 14h32" stroke="#22233a" stroke-width="2"/>
+              <circle cx="9" cy="11" r="1.5" fill="#22233a"/>
+              <circle cx="14" cy="11" r="1.5" fill="#22233a"/>
+              <circle cx="19" cy="11" r="1.5" fill="#22233a"/>
+            </svg>
+            <p>Sayt ko'rinishi</p>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>

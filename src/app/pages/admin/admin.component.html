@@ -1,0 +1,176 @@
+<div class="admin-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">⚙</span>
+      <span class="brand-name">Admin Panel</span>
+    </div>
+    <nav class="nav">
+      <a routerLink="/" class="nav-item">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a routerLink="/checker" class="nav-item">
+        <span class="nav-icon">◉</span> Checker
+      </a>
+      <a routerLink="/admin" class="nav-item active">
+        <span class="nav-icon">◎</span> Foydalanuvchilar
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="current-user">
+        <span class="cu-role">{{ auth.role() }}</span>
+        <span class="cu-name">{{ auth.currentUser()?.username }}</span>
+      </div>
+      <button class="btn-logout" (click)="logout()">Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Foydalanuvchilar</h1>
+        <p class="page-sub">Tizim foydalanuvchilarini boshqarish</p>
+      </div>
+      <button class="btn-primary" (click)="showForm.set(!showForm()); editingUser.set(null)">
+        <span>+</span> Yangi foydalanuvchi
+      </button>
+    </div>
+
+    <!-- ALERTS -->
+    @if (successMsg()) {
+      <div class="alert alert-success">{{ successMsg() }}</div>
+    }
+    @if (error()) {
+      <div class="alert alert-error">
+        {{ error() }}
+        <button class="alert-close" (click)="clearError()">✕</button>
+      </div>
+    }
+
+    <!-- CREATE FORM -->
+    @if (showForm()) {
+      <div class="card form-card">
+        <h2 class="card-title">Yangi foydalanuvchi yaratish</h2>
+        <form [formGroup]="createForm" (ngSubmit)="submitCreate()" class="form">
+          <div class="form-row">
+            <div class="field">
+              <label>Foydalanuvchi nomi</label>
+              <input formControlName="username" placeholder="username" autocomplete="off" />
+              @if (createForm.get('username')?.invalid && createForm.get('username')?.touched) {
+                <span class="field-err">Kamida 3 ta belgi</span>
+              }
+            </div>
+            <div class="field">
+              <label>Parol</label>
+              <input formControlName="password" type="password" placeholder="••••••" autocomplete="new-password" />
+              @if (createForm.get('password')?.invalid && createForm.get('password')?.touched) {
+                <span class="field-err">Kamida 4 ta belgi</span>
+              }
+            </div>
+            <div class="field">
+              <label>Rol</label>
+              <select formControlName="role">
+                @for (r of ROLES; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="saving()">
+              {{ saving() ? 'Saqlanmoqda...' : 'Yaratish' }}
+            </button>
+            <button type="button" class="btn-ghost" (click)="showForm.set(false)">Bekor qilish</button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- EDIT FORM -->
+    @if (editingUser()) {
+      <div class="card form-card">
+        <h2 class="card-title">Tahrirlash — <span class="accent">{{ editingUser()!.username }}</span></h2>
+        <form [formGroup]="editForm" (ngSubmit)="submitEdit()" class="form">
+          <div class="form-row">
+            <div class="field">
+              <label>Yangi parol <span class="muted">(bo'sh qoldirsa o'zgarmaydi)</span></label>
+              <input formControlName="password" type="password" placeholder="••••••" autocomplete="new-password" />
+            </div>
+            <div class="field">
+              <label>Rol</label>
+              <select formControlName="role">
+                @for (r of ROLES; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="saving()">
+              {{ saving() ? 'Saqlanmoqda...' : 'Saqlash' }}
+            </button>
+            <button type="button" class="btn-ghost" (click)="closeEdit()">Bekor qilish</button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- USERS TABLE -->
+    <div class="card">
+      @if (loading()) {
+        <div class="empty">Yuklanmoqda...</div>
+      } @else if (users().length === 0) {
+        <div class="empty">Foydalanuvchilar yo'q</div>
+      } @else {
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Foydalanuvchi nomi</th>
+              <th>Rol</th>
+              <th>Yaratilgan</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id; let i = $index) {
+              <tr [class.deleting]="deletingId() === user.id">
+                <td class="muted">{{ i + 1 }}</td>
+                <td class="username">
+                  {{ user.username }}
+                  @if (user.id === auth.currentUser()?.id) {
+                    <span class="you-badge">siz</span>
+                  }
+                </td>
+                <td>
+                  <span class="badge" [class]="roleBadgeClass(user.role)">{{ user.role }}</span>
+                </td>
+                <td class="muted">{{ user.createdAt | date:'dd.MM.yyyy' }}</td>
+                <td class="actions">
+                  @if (confirmDelete() === user.id) {
+                    <span class="confirm-text">O'chirilsinmi?</span>
+                    <button class="btn-danger-sm" (click)="confirmDeleteUser()">Ha</button>
+                    <button class="btn-ghost-sm" (click)="cancelDelete()">Yo'q</button>
+                  } @else {
+                    <button class="btn-ghost-sm" (click)="openEdit(user)">Tahrirlash</button>
+                    @if (user.id !== auth.currentUser()?.id) {
+                      <button class="btn-danger-sm" (click)="askDelete(user)"
+                        [disabled]="deletingId() === user.id">
+                        {{ deletingId() === user.id ? '...' : "O'chirish" }}
+                      </button>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+  </main>
+</div>

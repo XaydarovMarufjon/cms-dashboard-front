@@ -17,6 +17,7 @@ export interface ScanResult {
   detectionMethods: string[];
   serverTech: string[];
   jsFrameworks: string[];
+  httpStatus: number | null;
   scannedAt: string;
   errorMessage?: string;
   website?: Website;

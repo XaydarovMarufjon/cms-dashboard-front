@@ -26,4 +26,12 @@ export class ScannerService {
     scanAll(): Observable<void> {
         return this.http.post<void>(`${this.api}/scanner/scan-all`, {});
     }
+
+    setInterval(minutes: number): Observable<any> {
+        return this.http.post(`${this.api}/scanner/interval`, { minutes });
+    }
+
+    getInterval(): Observable<{ interval: number }> {
+        return this.http.get<{ interval: number }>(`${this.api}/scanner/interval`);
+    }
 }
