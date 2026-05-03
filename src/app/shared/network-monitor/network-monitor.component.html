@@ -1,0 +1,19 @@
+<!-- network-monitor.component.html -->
+<div class="nm-bar" [attr.data-status]="status()">
+
+  <!-- signal bars -->
+  <svg class="nm-signal" width="14" height="10" viewBox="0 0 14 10" fill="none">
+    <rect x="0"  y="7"   width="2.5" height="3"   rx=".4" [attr.fill]="signalBars() >= 1 ? barColor() : '#2a2b3d'"/>
+    <rect x="4"  y="4.5" width="2.5" height="5.5" rx=".4" [attr.fill]="signalBars() >= 2 ? barColor() : '#2a2b3d'"/>
+    <rect x="8"  y="2"   width="2.5" height="8"   rx=".4" [attr.fill]="signalBars() >= 3 ? barColor() : '#2a2b3d'"/>
+    <rect x="11.5" y="0" width="2.5" height="10"  rx=".4" [attr.fill]="signalBars() >= 4 ? barColor() : '#2a2b3d'"/>
+  </svg>
+
+  <span class="nm-dot" [attr.data-status]="status()"></span>
+  <span class="nm-val" [class.spin]="measuring()">{{ fmtSpeed(speed()) }}</span>
+
+  @if (isp()) {
+    <span class="nm-isp" [title]="isp()!">{{ isp() }}</span>
+  }
+
+</div>

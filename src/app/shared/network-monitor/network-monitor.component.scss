@@ -1,0 +1,63 @@
+/* network-monitor.component.scss */
+$border: #22233a;
+$muted:  #5a5b72;
+$accent: #00e5c0;
+$red:    #ff6b7a;
+$yellow: #ffc84a;
+
+.nm-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.nm-signal {
+  flex-shrink: 0;
+  rect { transition: fill .4s ease; }
+}
+
+.nm-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: $muted;
+
+  &[data-status='excellent'],
+  &[data-status='good']       { background: $accent; animation: pulse 2s ease infinite; }
+  &[data-status='slow']       { background: $yellow; }
+  &[data-status='bad']        { background: #fb923c; }
+  &[data-status='offline']    { background: $red; }
+  &[data-status='connecting'] { background: #5a7aff; animation: pulse 1s ease infinite; }
+}
+
+.nm-val {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  color: $muted;
+  white-space: nowrap;
+}
+
+.nm-isp {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: $muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 88px;
+  margin-left: auto;
+  opacity: .7;
+}
+
+.spin { animation: spin .8s linear infinite; display: inline-block; }
+
+@keyframes spin  { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .35; }
+}

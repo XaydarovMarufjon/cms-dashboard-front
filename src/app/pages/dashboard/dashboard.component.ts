@@ -5,15 +5,16 @@ import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ScannerService } from '../../core/services/scanner.service';
+import { ScannerService, Alert } from '../../core/services/scanner.service';
 import { WebsiteService } from '../../core/services/website.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ScanResult, Website, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
+import { NetworkMonitorComponent } from '../../shared/network-monitor/network-monitor.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NetworkMonitorComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -36,12 +37,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   addingWebsite   = signal(false);
   searchQuery     = signal('');
   filterCms       = signal('all');
+  sortBy          = signal<'confidence' | 'date' | 'url'>('confidence');
   successMsg      = signal<string | null>(null);
   error           = signal<string | null>(null);
   editingWebsite  = signal<Website | null>(null);
   savingEdit      = signal(false);
   deletingId      = signal<string | null>(null);
   confirmDeleteId = signal<string | null>(null);
+
+  // ── ALERTS ────────────────────────────────────
+  alertCount = signal(0);
+
+  // ── SIDEBAR ───────────────────────────────────
+  sidebarCollapsed = signal(false);
 
   // ── AUTO REFRESH SIGNALS ───────────────────────
   autoRefresh     = signal(false);
@@ -87,22 +95,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // ── COMPUTED ──────────────────────────────────
   filteredResults = computed(() => {
-    let list = this.results();
+    let list = [...this.results()];
     const q   = this.searchQuery().toLowerCase();
     const cms = this.filterCms();
+    const sort = this.sortBy();
+
     if (q) list = list.filter(r =>
       r.website?.url.toLowerCase().includes(q) ||
       r.website?.label?.toLowerCase().includes(q) ||
       r.cms?.toLowerCase().includes(q)
     );
-    if (cms !== 'all') list = list.filter(r => (r.cms ?? 'unknown') === cms);
+    if (cms === 'no-cms')   list = list.filter(r => !r.cms);
+    else if (cms !== 'all') list = list.filter(r => (r.cms ?? 'unknown') === cms);
+
+    if (sort === 'confidence') list.sort((a, b) => b.confidence - a.confidence);
+    else if (sort === 'date')  list.sort((a, b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
+    else if (sort === 'url')   list.sort((a, b) => (a.website?.url ?? '').localeCompare(b.website?.url ?? ''));
+
     return list;
   });
 
   stats = computed(() => {
     const r = this.results();
     const cms: Record<string, number> = {};
-    r.forEach(s => { const k = s.cms ?? 'unknown'; cms[k] = (cms[k] || 0) + 1; });
+    r.filter(s => s.cms).forEach(s => { const k = s.cms!; cms[k] = (cms[k] || 0) + 1; });
     return {
       total:    r.length,
       detected: r.filter(s => s.cms).length,
@@ -111,7 +127,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   });
 
-  cmsTypes = computed(() => Object.keys(this.stats().cms));
+  cmsTypes = computed(() =>
+    Object.entries(this.stats().cms)
+      .sort((a, b) => b[1] - a[1])
+      .map(e => e[0])
+  );
 
   // ── FORMALAR ──────────────────────────────────
   addForm = this.fb.group({
@@ -128,6 +148,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadResults();
     this.scanner.getInterval().subscribe(r => this.refreshInterval.set(r.interval));
+    this.scanner.getAlertCount().subscribe({ next: r => this.alertCount.set(r.count), error: () => {} });
   }
 
   ngOnDestroy() {

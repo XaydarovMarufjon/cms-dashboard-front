@@ -24,11 +24,16 @@
 
     <!-- Interval tanlash -->
     <div class="interval-select">
-      <span class="int-label">Har bir sayt uchun vaqt:</span>
+      <span class="int-label">
+        Har bir sayt uchun vaqt:
+        @if (isRunning() && !isPaused()) {
+          <span class="int-hint">⏸ Pauza qiling, keyin o'zgartiring</span>
+        }
+      </span>
       @for (opt of INTERVAL_OPTIONS; track opt.value) {
         <button class="int-btn"
           [class.active]="intervalMs() === opt.value"
-          [disabled]="isRunning()"
+          [disabled]="isRunning() && !isPaused()"
           (click)="setIntervalMs(opt.value)">
           {{ opt.label }}
         </button>
@@ -192,31 +197,36 @@
 
       <!-- Boshqaruv tugmalari -->
       <div class="control-row">
+        <!-- Boshlash / Davom etish -->
         <button class="btn-start"
           (click)="start()"
           [disabled]="(isRunning() && !isPaused()) || sites().length === 0">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M3 1.5l10 5.5L3 12.5V1.5z" fill="currentColor"/>
           </svg>
-          {{ isPaused() ? 'Qayta boshlash' : 'Tekshiruvni boshlash' }}
+          {{ isPaused() ? 'Davom etish' : 'Boshlash' }}
         </button>
-        <button class="btn-stop"
-          [class.paused]="isPaused()"
-          (click)="togglePause()"
-          [disabled]="!isRunning()">
-          @if (isPaused()) {
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 1.5l10 5.5L3 12.5V1.5z" fill="currentColor"/>
-            </svg>
-            Davom etish
-          } @else {
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <rect x="2" y="2" width="4" height="10" rx="1" fill="currentColor"/>
-              <rect x="8" y="2" width="4" height="10" rx="1" fill="currentColor"/>
-            </svg>
-            To'xtatish
-          }
+
+        <!-- Pauza (faqat ishlayotganda) -->
+        @if (isRunning() && !isPaused()) {
+        <button class="btn-pause" (click)="togglePause()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+            <rect x="8" y="2" width="4" height="10" rx="1" fill="currentColor"/>
+          </svg>
+          Pauza
         </button>
+        }
+
+        <!-- To'xtatish (ishlayotganda yoki pauzada) -->
+        @if (isRunning()) {
+        <button class="btn-stop-full" (click)="stop()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/>
+          </svg>
+          To'xtatish
+        </button>
+        }
       </div>
 
       <!-- IFRAME VIEWER -->

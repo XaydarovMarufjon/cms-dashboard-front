@@ -239,7 +239,7 @@ export class CheckerComponent implements OnDestroy {
   }
 
   setIntervalMs(ms: number) {
-    if (this.isRunning()) return;
+    if (this.isRunning() && !this.isPaused()) return;
     this.intervalMs.set(ms);
   }
 

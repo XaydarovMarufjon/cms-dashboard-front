@@ -1,135 +1,226 @@
 <!-- src/app/pages/dashboard/dashboard.component.html -->
 <div class="dash">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+
+    <!-- Brand -->
     <div class="brand">
-      <div class="brand-icon">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="11" r="10" stroke="#00e5c0" stroke-width="1.5"/>
-          <circle cx="11" cy="11" r="4" fill="#00e5c0"/>
-          <line x1="11" y1="1" x2="11" y2="5" stroke="#00e5c0" stroke-width="1.5"/>
-          <line x1="11" y1="17" x2="11" y2="21" stroke="#00e5c0" stroke-width="1.5"/>
-          <line x1="1" y1="11" x2="5" y2="11" stroke="#00e5c0" stroke-width="1.5"/>
-          <line x1="17" y1="11" x2="21" y2="11" stroke="#00e5c0" stroke-width="1.5"/>
-        </svg>
+      <div class="brand-logo-wrap">
+        <img src="csec_logo.png" alt="CSEC Logo" class="brand-logo"/>
       </div>
-      <div>
-        <div class="brand-name">CMS<span>Radar</span></div>
-        <div class="brand-sub">v1.0 detektor</div>
+      <div class="brand-text">
+        <div class="brand-name">CMS<span>Monitoring</span></div>
+        <div class="brand-sub">v2.0 · Intelligence</div>
       </div>
     </div>
+
+    <!-- Sidebar toggle — always visible -->
+    <button class="sidebar-toggle" (click)="sidebarCollapsed.set(!sidebarCollapsed())" title="Yopish / Ochish">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="toggle-icon">
+        <path d="M7.5 1.5L3 6l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Network status (single row) -->
+    <app-network-monitor></app-network-monitor>
+
+    <!-- Nav -->
     <nav class="sidenav">
-      <div class="sidenav-label">Asosiy</div>
+      <div class="sidenav-label">Navigation</div>
       <a class="sidenav-item active">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/></svg>
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <rect x="1" y="1" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
+          <rect x="8.5" y="1" width="5.5" height="5.5" rx="1.5" fill="currentColor" opacity=".4"/>
+          <rect x="1" y="8.5" width="5.5" height="5.5" rx="1.5" fill="currentColor" opacity=".4"/>
+          <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.5" fill="currentColor" opacity=".4"/>
+        </svg>
         Dashboard
       </a>
       <a class="sidenav-item" routerLink="/checker">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Checker
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M4.5 7.5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        URL Checker
+      </a>
+      <a class="sidenav-item" routerLink="/alerts">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1.5a4.5 4.5 0 0 1 4.5 4.5c0 2.5-1 3.8-1.8 4.8H4.8C4 9.8 3 8.5 3 6a4.5 4.5 0 0 1 4.5-4.5Z"
+            stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M5.5 10.8v.2a2 2 0 0 0 4 0v-.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Alertlar
+        @if (alertCount() > 0) {
+        <span class="nav-alert-badge">{{ alertCount() }}</span>
+        }
       </a>
       @if (auth.role() === 'ADMIN') {
         <a class="sidenav-item" routerLink="/admin">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13c0-2.5 2.7-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M2 13c0-2.5 2.5-4 5.5-4s5.5 1.5 5.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
           Foydalanuvchilar
         </a>
       }
     </nav>
+
+    <!-- Stats panel -->
     <div class="sidebar-stats">
-      <div class="ss-title">Statistika</div>
-      <div class="ss-row"><span class="ss-label">Jami</span><span class="ss-val">{{ stats().total }}</span></div>
-      <div class="ss-row"><span class="ss-label">Aniqlangan</span><span class="ss-val" style="color:#00e5c0">{{ stats().detected }}</span></div>
-      <div class="ss-row"><span class="ss-label">Noma'lum</span><span class="ss-val" style="color:#ff6b7a">{{ stats().unknown }}</span></div>
+      <div class="ss-header">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <rect x=".5" y=".5" width="10" height="10" rx="2" stroke="#00e5c0" stroke-opacity=".4" stroke-width="1"/>
+          <path d="M2.5 7.5V5M5.5 7.5V3M8.5 7.5V4.5" stroke="#00e5c0" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span>Statistika</span>
+      </div>
+
+      <div class="ss-counts">
+        <div class="ss-count-item">
+          <div class="ss-num">{{ stats().total }}</div>
+          <div class="ss-lbl">Jami</div>
+        </div>
+        <div class="ss-count-item detected">
+          <div class="ss-num">{{ stats().detected }}</div>
+          <div class="ss-lbl">Aniqlangan</div>
+        </div>
+        <div class="ss-count-item unknown">
+          <div class="ss-num">{{ stats().unknown }}</div>
+          <div class="ss-lbl">CMS yo'q</div>
+        </div>
+      </div>
+
       @if (stats().total > 0) {
+        <!-- Coverage bar -->
+        <div class="ss-coverage">
+          <div class="ss-cov-bar">
+            <div class="ss-cov-fill" [style.width.%]="(stats().detected / stats().total) * 100"></div>
+          </div>
+          <span class="ss-cov-pct">{{ ((stats().detected / stats().total) * 100) | number:'1.0-0' }}% aniqlangan</span>
+        </div>
+
+        <!-- CMS breakdown -->
         <div class="ss-divider"></div>
         @for (entry of stats().cms | keyvalue; track entry.key) {
-          <div class="ss-cms-row">
+          <div class="ss-cms-row" (click)="filterCms.set(entry.key)" role="button">
             <div class="ss-cms-dot" [style.background]="getCmsColor(entry.key)"></div>
             <span class="ss-label">{{ entry.key }}</span>
+            <div class="ss-bar-mini">
+              <div class="ss-bar-fill" [style.width.%]="(entry.value / stats().total) * 100" [style.background]="getCmsColor(entry.key)"></div>
+            </div>
             <span class="ss-val">{{ entry.value }}</span>
           </div>
         }
       }
     </div>
+
+    <!-- Scan all button + User -->
     <div class="sidebar-bottom">
       <button class="btn-scanall" (click)="scanAll()" [disabled]="scanningAll()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" [class.spin]="scanningAll()">
           <path d="M13 7A6 6 0 1 1 7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M7 1l2.5 2.5L7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        {{ scanningAll() ? 'Skanerlanmoqda...' : 'Hammasini skaner qil' }}
+        <span class="btn-scanall-text">{{ scanningAll() ? 'Skanerlanmoqda...' : 'Hammasini skaner qil' }}</span>
       </button>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" [class]="'role-' + auth.role()?.toLowerCase()">
+          {{ auth.currentUser()?.username?.[0]?.toUpperCase() }}
+        </div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">{{ auth.currentUser()?.username }}</div>
+          <div class="sidebar-user-role">{{ auth.role() }}</div>
+        </div>
+        <button class="btn-logout" (click)="logout()" title="Chiqish">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 7h7M9.5 4.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.5 2H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
+
   </aside>
 
-  <!-- MAIN -->
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
   <main class="main">
 
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
         <h1 class="page-title">Saytlar</h1>
-        <div class="page-count">{{ filteredResults().length }} ta natija</div>
+        <div class="page-count">
+          <span class="count-num">{{ filteredResults().length }}</span>
+          <span class="count-lbl">natija</span>
+        </div>
       </div>
       <div class="topbar-right">
+
         <div class="search-box">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#5a5b72" stroke-width="1.5"/><path d="M10.5 10.5L13.5 13.5" stroke="#5a5b72" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input placeholder="Qidirish..." [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"/>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="6" cy="6" r="4.5" stroke="#4a4b62" stroke-width="1.4"/>
+            <path d="M9.5 9.5L12.5 12.5" stroke="#4a4b62" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input placeholder="URL, CMS, izoh..." [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"/>
+          @if (searchQuery()) {
+            <button class="search-clear" (click)="searchQuery.set('')">✕</button>
+          }
         </div>
-        <button class="btn-refresh" (click)="loadResults()" [disabled]="loading()" title="Yangilash">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" [class.spin]="loading()"><path d="M13 7.5A5.5 5.5 0 1 1 7.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7.5 2L10 4.5L7.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+        <button class="btn-icon-tool" (click)="loadResults()" [disabled]="loading()" title="Yangilash">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" [class.spin]="loading()">
+            <path d="M13 7.5A5.5 5.5 0 1 1 7.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M7.5 2L10 4.5L7.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
 
         <!-- SCHEDULER -->
         <div class="scheduler-wrap">
-          <button class="btn-scheduler" (click)="showScheduler.set(!showScheduler())" [class.active]="autoRefresh()">
+          <button class="btn-icon-tool" [class.btn-active]="autoRefresh()"
+            (click)="showScheduler.set(!showScheduler())" title="Auto yangilash">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
               <path d="M7 3.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
             </svg>
             @if (autoRefresh()) {
               <span class="countdown-badge">{{ formatCountdown(countdown()) }}</span>
-            } @else {
-              Auto
             }
           </button>
           @if (showScheduler()) {
             <div class="scheduler-panel">
               <div class="scheduler-header">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#00e5c0" stroke-width="1.3"/><path d="M7 3.5v4l2.5 1.5" stroke="#00e5c0" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#00e5c0" stroke-width="1.2"/><path d="M6.5 3.5v3.5l2 1.2" stroke="#00e5c0" stroke-width="1.2" stroke-linecap="round"/></svg>
                 <span>Avtomatik yangilash</span>
                 <button class="sch-close" (click)="showScheduler.set(false)">✕</button>
               </div>
               <div class="scheduler-body">
-                <div class="sch-label">Yangilash intervali</div>
+                <div class="sch-label">Interval</div>
                 <div class="interval-grid">
                   @for (opt of INTERVAL_OPTIONS; track opt.value) {
-                    <button class="interval-btn" [class.active]="refreshInterval() === opt.value" (click)="setRefreshInterval(opt.value)">
-                      {{ opt.label }}
-                    </button>
+                    <button class="interval-btn" [class.active]="refreshInterval() === opt.value"
+                      (click)="setRefreshInterval(opt.value)">{{ opt.label }}</button>
                   }
                 </div>
                 <div class="sch-status">
                   @if (autoRefresh()) {
                     <div class="status-row">
                       <span class="status-dot active"></span>
-                      <span>Ishlayapti — {{ getIntervalLabel() }}</span>
+                      <span>{{ getIntervalLabel() }}</span>
                       <span class="next-refresh">{{ formatCountdown(countdown()) }}</span>
                     </div>
                   } @else {
-                    <div class="status-row">
-                      <span class="status-dot"></span>
-                      <span>To'xtatilgan</span>
-                    </div>
+                    <div class="status-row"><span class="status-dot"></span><span>To'xtatilgan</span></div>
                   }
                 </div>
                 <button class="btn-toggle-refresh" (click)="toggleAutoRefresh()">
                   @if (autoRefresh()) {
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="2" width="3.5" height="9" rx="1" fill="currentColor"/><rect x="7.5" y="2" width="3.5" height="9" rx="1" fill="currentColor"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="2" width="3" height="8" rx="1" fill="currentColor"/><rect x="7" y="2" width="3" height="8" rx="1" fill="currentColor"/></svg>
                     To'xtatish
                   } @else {
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 1.5l9 5-9 5V1.5z" fill="currentColor"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 1.5l7.5 4.5L3 10.5V1.5z" fill="currentColor"/></svg>
                     Ishga tushirish
                   }
                 </button>
@@ -139,39 +230,67 @@
         </div>
 
         <button class="btn-add" (click)="showAddForm.set(!showAddForm()); closeEdit()">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
           Sayt qo'sh
         </button>
-
-        <!-- USER INFO -->
-        <div class="user-info">
-          <div class="user-avatar" [class]="'role-' + auth.role()?.toLowerCase()">
-            {{ auth.currentUser()?.username?.[0]?.toUpperCase() }}
-          </div>
-          <div class="user-details">
-            <div class="user-name">{{ auth.currentUser()?.username }}</div>
-            <div class="user-role">{{ auth.role() }}</div>
-          </div>
-          <button class="btn-logout" (click)="logout()" title="Chiqish">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <path d="M5.5 7.5h7M10 4.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M8 2H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
 
       </div>
     </header>
 
     <!-- FILTER TABS -->
+    <!-- Sort row -->
+    <div class="sort-bar">
+      <span class="sort-label">Saralash:</span>
+      <button class="sort-btn" [class.active]="sortBy() === 'confidence'" (click)="sortBy.set('confidence')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 9V3M2 3l2 2M2 3L0 5M5 9h5M5 6h4M5 3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Ishonchlilik
+        @if (sortBy() === 'confidence') { <span class="sort-arrow">↓</span> }
+      </button>
+      <button class="sort-btn" [class.active]="sortBy() === 'date'" (click)="sortBy.set('date')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Sana
+        @if (sortBy() === 'date') { <span class="sort-arrow">↓</span> }
+      </button>
+      <button class="sort-btn" [class.active]="sortBy() === 'url'" (click)="sortBy.set('url')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1 3h10M1 6h7M1 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        URL
+        @if (sortBy() === 'url') { <span class="sort-arrow">↑</span> }
+      </button>
+      <span class="sort-count">{{ filteredResults().length }} sayt</span>
+    </div>
+
     <div class="filter-bar">
       <button class="ftab" [class.active]="filterCms() === 'all'" (click)="filterCms.set('all')">
-        Barchasi <span class="ftab-count">{{ stats().total }}</span>
+        <span class="ftab-icon">⬡</span>
+        Barchasi
+        <span class="ftab-count">{{ stats().total }}</span>
       </button>
       @for (cms of cmsTypes(); track cms) {
         <button class="ftab" [class.active]="filterCms() === cms" (click)="filterCms.set(cms)">
           <span class="ftab-dot" [style.background]="getCmsColor(cms)"></span>
-          {{ cms }} <span class="ftab-count">{{ stats().cms[cms] }}</span>
+          {{ cms }}
+          <span class="ftab-count">{{ stats().cms[cms] }}</span>
+        </button>
+      }
+      @if (stats().unknown > 0) {
+        <button class="ftab ftab-nocms" [class.active]="filterCms() === 'no-cms'" (click)="filterCms.set('no-cms')">
+          <span class="ftab-nocms-icon">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3.5 4C3.5 3.17 4.17 2.5 5 2.5s1.5.67 1.5 1.5c0 1-1.5 1-1.5 2M5 7.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          CMS yo'q
+          <span class="ftab-count">{{ stats().unknown }}</span>
         </button>
       }
     </div>
@@ -179,14 +298,15 @@
     <!-- TOASTS -->
     @if (successMsg()) {
       <div class="toast toast-ok">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#00e5c0" opacity=".2"/><path d="M4 7l2 2 4-4" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" fill="#00e5c0" opacity=".15"/><path d="M3.5 6.5l2 2 4-4" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         {{ successMsg() }}
       </div>
     }
     @if (error()) {
       <div class="toast toast-err" (click)="clearError()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#ff6b7a" opacity=".2"/><path d="M7 4v3M7 9.5v.5" stroke="#ff6b7a" stroke-width="1.5" stroke-linecap="round"/></svg>
-        {{ error() }} <span style="opacity:.4;margin-left:8px;font-size:11px">✕</span>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" fill="#ff4d63" opacity=".15"/><path d="M6.5 3.5v3M6.5 9v.5" stroke="#ff4d63" stroke-width="1.5" stroke-linecap="round"/></svg>
+        {{ error() }}
+        <span class="toast-close">✕</span>
       </div>
     }
 
@@ -194,10 +314,10 @@
     @if (showAddForm()) {
       <div class="panel panel-add">
         <div class="panel-header">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="#00e5c0" stroke-width="1.2"/><path d="M7.5 4v7M4 7.5h7" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#00e5c0" stroke-width="1.2"/><path d="M7 4v6M4 7h6" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span>Yangi sayt qo'shish</span>
           <button class="panel-close" (click)="showAddForm.set(false)">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1l11 11M12 1L1 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
         <form [formGroup]="addForm" (ngSubmit)="submitAddForm()" class="panel-form">
@@ -212,15 +332,15 @@
             </div>
             <div class="field">
               <label>Izoh</label>
-              <input formControlName="label" type="text" placeholder="Mijoz nomi..."/>
+              <input formControlName="label" type="text" placeholder="Tashkilot nomi..."/>
             </div>
           </div>
           <div class="panel-actions">
             <button type="button" class="btn-cancel" (click)="showAddForm.set(false)">Bekor</button>
             <button type="submit" class="btn-submit" [disabled]="addForm.invalid || addingWebsite()">
               @if (addingWebsite()) {
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="spin"><path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                Qo'shilmoqda...
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="spin"><path d="M11 6A5 5 0 1 1 6 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Skanerlanmoqda...
               } @else { Qo'shish va skanerlash }
             </button>
           </div>
@@ -232,58 +352,54 @@
     @if (editingWebsite()) {
       <div class="panel panel-edit">
         <div class="panel-header">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M10.5 2.5l2 2L5 12H3v-2L10.5 2.5z" stroke="#ffc84a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10 2l2 2L4 12H2v-2L10 2z" stroke="#ffc84a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Saytni tahrirlash</span>
-          <span class="edit-site-url">{{ editingWebsite()?.url | slice:0:38 }}</span>
+          <span class="edit-site-url">{{ editingWebsite()?.url | slice:0:40 }}</span>
           <button class="panel-close" (click)="closeEdit()">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1l11 11M12 1L1 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
         <form [formGroup]="editForm" (ngSubmit)="submitEditForm()" class="panel-form">
           <div class="field-row">
             <div class="field">
               <label>URL <span class="req">*</span></label>
-              <input formControlName="url" type="text" placeholder="https://example.com"
-                [class.err]="editForm.get('url')?.invalid && editForm.get('url')?.touched"/>
-              @if (editForm.get('url')?.invalid && editForm.get('url')?.touched) {
-                <div class="field-err">To'g'ri URL kiriting</div>
-              }
+              <input formControlName="url" type="text" [class.err]="editForm.get('url')?.invalid && editForm.get('url')?.touched"/>
             </div>
             <div class="field">
               <label>Izoh</label>
-              <input formControlName="label" type="text" placeholder="Mijoz nomi..."/>
+              <input formControlName="label" type="text"/>
             </div>
           </div>
           <div class="panel-actions">
             <button type="button" class="btn-cancel" (click)="closeEdit()">Bekor</button>
             <button type="submit" class="btn-submit btn-edit-submit" [disabled]="editForm.invalid || savingEdit()">
               @if (savingEdit()) {
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="spin"><path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                Saqlanmoqda...
-              } @else { Saqlash }
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="spin"><path d="M11 6A5 5 0 1 1 6 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              }
+              {{ savingEdit() ? 'Saqlanmoqda...' : 'Saqlash' }}
             </button>
           </div>
         </form>
       </div>
     }
 
-    <!-- DELETE CONFIRM MODAL -->
+    <!-- DELETE MODAL -->
     @if (confirmDeleteId()) {
       <div class="modal-overlay" (click)="cancelDelete()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal-icon">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle cx="18" cy="18" r="17" stroke="#ff6b7a" stroke-width="1.5" opacity=".25"/>
-              <circle cx="18" cy="18" r="12" stroke="#ff6b7a" stroke-width="1" opacity=".15"/>
-              <path d="M18 10v10M18 23v2" stroke="#ff6b7a" stroke-width="2" stroke-linecap="round"/>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="18" stroke="#ff4d63" stroke-width="1" stroke-opacity=".2"/>
+              <circle cx="20" cy="20" r="13" stroke="#ff4d63" stroke-width="1" stroke-opacity=".15"/>
+              <path d="M20 12v10M20 25v2" stroke="#ff4d63" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
           <div class="modal-title">Saytni o'chirishni tasdiqlang</div>
-          <div class="modal-sub">Bu amal qaytarib bo'lmaydi. Sayt va barcha skaner natijalari butunlay o'chiriladi.</div>
+          <div class="modal-sub">Bu amal qaytarib bo'lmaydi. Sayt va barcha skaner natijalari o'chiriladi.</div>
           <div class="modal-actions">
             <button class="btn-cancel" (click)="cancelDelete()">Bekor qilish</button>
             <button class="btn-delete-confirm" (click)="confirmDelete()">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.5 7h4l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4.5 3V2h3v1M3.5 3l.5 7h4l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
               Ha, o'chirish
             </button>
           </div>
@@ -291,7 +407,7 @@
       </div>
     }
 
-    <!-- CONTENT -->
+    <!-- ══════════════════════ CONTENT ══════════════════════ -->
     @if (loading()) {
       <div class="state-box">
         <div class="loader-ring"></div>
@@ -300,72 +416,85 @@
     } @else if (filteredResults().length === 0) {
       <div class="state-box">
         <div class="empty-icon">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#2a2b38" stroke-width="2"/><circle cx="24" cy="24" r="8" stroke="#2a2b38" stroke-width="2"/><line x1="24" y1="2" x2="24" y2="10" stroke="#2a2b38" stroke-width="2"/><line x1="24" y1="38" x2="24" y2="46" stroke="#2a2b38" stroke-width="2"/><line x1="2" y1="24" x2="10" y2="24" stroke="#2a2b38" stroke-width="2"/><line x1="38" y1="24" x2="46" y2="24" stroke="#2a2b38" stroke-width="2"/></svg>
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="26" stroke="#1a1b2e" stroke-width="1.5"/>
+            <circle cx="28" cy="28" r="10" stroke="#1a1b2e" stroke-width="1.5"/>
+            <line x1="28" y1="2"  x2="28" y2="12"  stroke="#1a1b2e" stroke-width="1.5"/>
+            <line x1="28" y1="44" x2="28" y2="54"  stroke="#1a1b2e" stroke-width="1.5"/>
+            <line x1="2"  y1="28" x2="12"  y2="28" stroke="#1a1b2e" stroke-width="1.5"/>
+            <line x1="44" y1="28" x2="54"  y2="28" stroke="#1a1b2e" stroke-width="1.5"/>
+          </svg>
         </div>
         <p class="empty-title">Sayt topilmadi</p>
         <p class="empty-sub">Birinchi saytni qo'shib skanerlang</p>
         <button class="btn-add" (click)="showAddForm.set(true)">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           Sayt qo'sh
         </button>
       </div>
     } @else {
       <div class="cards-grid">
         @for (result of filteredResults(); track result.id) {
+
+          @let noCms = !result.cms && !result.errorMessage;
+          @let isOffline = !!result.errorMessage;
+
           <div class="card"
+            [class.card-no-cms]="noCms"
+            [class.card-offline]="isOffline"
             [class.is-scanning]="scanning() === result.websiteId"
             [class.is-deleting]="deletingId() === result.websiteId"
             [class.is-editing]="editingWebsite()?.id === result.website?.id"
             (click)="openDetail(result)"
-            style="cursor:pointer">
+            role="button">
 
-            <div class="card-accent" [style.background]="getCmsColor(result.cms)"></div>
+            <!-- CMS color accent line -->
+            <div class="card-accent" [style.background]="noCms ? 'transparent' : getCmsColor(result.cms)"></div>
 
+            <!-- Scanning overlay -->
+            @if (scanning() === result.websiteId) {
+              <div class="scan-overlay">
+                <div class="scan-line"></div>
+              </div>
+            }
+
+            <!-- ── Card Header ── -->
             <div class="card-head">
-              <div class="site-status" [class]="'status-' + getSiteStatus(result)">
-                @switch (getSiteStatus(result)) {
-                  @case ('error') {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                  }
-                  @case ('unknown') {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M6 6c0-1.1.9-2 2-2s2 .9 2 2c0 1.5-2 1.5-2 3M8 12v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                  }
-                  @case ('high') {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3.5 8.5l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  }
-                  @case ('mid') {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M4 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      <circle cx="8" cy="11.5" r=".8" fill="currentColor"/>
-                    </svg>
-                  }
-                  @case ('low') {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M8 4v5M8 11.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  }
+              <div class="site-icon" [class]="'status-' + getSiteStatus(result)">
+                @if (result.httpStatus) {
+                  <span class="site-status-code">{{ result.httpStatus }}</span>
+                } @else if (getSiteStatus(result) === 'error') {
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                } @else {
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 5.5c0-1.1.9-2 2-2s2 .9 2 2c0 1.5-2 1.5-2 2.5M7 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                 }
               </div>
+
               <div class="site-meta">
-                <div class="site-url">{{ stripProtocol(result.website?.url) | slice:0:30 }}{{ (stripProtocol(result.website?.url).length) > 30 ? '…' : '' }}</div>
-                @if (result.website?.label) {
-                  <div class="site-label">{{ result.website?.label }}</div>
+                <div class="site-url">{{ stripProtocol(result.website?.url) | slice:0:32 }}{{ stripProtocol(result.website?.url).length > 32 ? '…' : '' }}</div>
+                @if (result.website?.label || result.pageTitle) {
+                  <div class="site-label">
+                    {{ result.website?.label || result.pageTitle }}
+                    @if (!result.website?.label && result.pageTitle) {
+                      <span class="auto-tag">auto</span>
+                    }
+                  </div>
                 }
               </div>
+
               <div class="card-actions" (click)="$event.stopPropagation()">
-                <button class="card-btn btn-scan-icon" (click)="scanOne(result)" [disabled]="scanning() === result.websiteId" title="Qayta skanerlash">
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" [class.spin]="scanning() === result.websiteId"><path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 1l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <button class="card-btn btn-scan-icon" (click)="scanOne(result)"
+                  [disabled]="scanning() === result.websiteId" title="Qayta skaner">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" [class.spin]="scanning() === result.websiteId">
+                    <path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M6.5 1l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                 </button>
                 <button class="card-btn btn-edit-icon" (click)="openEdit(result)" title="Tahrirlash">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M9.5 1.5l2 2L4 11H2v-2L9.5 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
-                <button class="card-btn btn-delete-icon" (click)="askDelete(result)" [disabled]="deletingId() === result.websiteId" title="O'chirish">
+                <button class="card-btn btn-delete-icon" (click)="askDelete(result)"
+                  [disabled]="deletingId() === result.websiteId" title="O'chirish">
                   @if (deletingId() === result.websiteId) {
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="spin"><path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                   } @else {
@@ -375,94 +504,113 @@
               </div>
             </div>
 
+            <!-- ── Card Body ── -->
             <div class="card-body">
 
-              <!-- Category badge + CMS nomi + versiya -->
-              <div class="cms-row">
-                @if (result.category) {
-                  <div class="cat-badge" [style.--cc]="getCategoryColor(result.category)">
-                    {{ getCategoryIcon(result.category) }} {{ result.category }}
+              @if (isOffline) {
+                <!-- OFFLINE STATE -->
+                <div class="cms-row">
+                  <div class="offline-badge">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 3l5 5M8 3L3 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                    Offline / Xato
                   </div>
+                </div>
+                <div class="error-snippet">{{ result.errorMessage | slice:0:60 }}...</div>
+
+              } @else if (noCms) {
+                <!-- NO CMS STATE -->
+                <div class="cms-row">
+                  <div class="no-cms-badge">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 4.5c0-1.1.9-2 2-2s2 .9 2 2c0 1.5-2 1.5-2 2.5M5.5 8.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                    CMS aniqlanmadi
+                  </div>
+                  @if (result.category) {
+                    <div class="cat-badge-sm" [style.--cc]="getCategoryColor(result.category)">
+                      {{ getCategoryIcon(result.category) }}
+                    </div>
+                  }
+                </div>
+
+                <!-- What we DID detect -->
+                @if (result.serverTech.length > 0 || result.jsFrameworks.length > 0) {
+                  <div class="tech-fingerprint">
+                    @for (t of result.serverTech.slice(0, 2); track t) {
+                      <span class="fp-chip fp-server">{{ t }}</span>
+                    }
+                    @for (f of result.jsFrameworks.slice(0, 2); track f) {
+                      <span class="fp-chip fp-js">{{ f }}</span>
+                    }
+                    @if (result.serverTech.length + result.jsFrameworks.length > 4) {
+                      <span class="fp-chip fp-more">+{{ result.serverTech.length + result.jsFrameworks.length - 4 }}</span>
+                    }
+                  </div>
+                } @else {
+                  <div class="no-signals">Texnologiya aniqlanmadi</div>
                 }
-                @if (result.cms) {
-                  <div class="cms-badge" [style.--c]="getCmsColor(result.cms)">{{ result.cms }}</div>
+
+              } @else {
+                <!-- HAS CMS STATE -->
+                <div class="cms-row">
+                  @if (result.category) {
+                    <div class="cat-badge" [style.--cc]="getCategoryColor(result.category)">
+                      {{ getCategoryIcon(result.category) }} {{ result.category }}
+                    </div>
+                  }
+                  <div class="cms-badge" [style.--c]="getCmsColor(result.cms)"
+                    [class.cms-glow]="result.confidence >= 75">
+                    {{ result.cms }}
+                  </div>
                   @if (result.version) {
                     <div class="version-tag">v{{ result.version }}</div>
                   } @else {
-                    <div class="version-tag unknown">versiya ?</div>
+                    <div class="version-tag unknown">v<span class="ver-q">?</span></div>
                   }
-                } @else {
-                  <div class="cms-badge" style="--c:#5a5b72">Aniqlanmadi</div>
-                }
-              </div>
-
-              <!-- Confidence bar -->
-              <div class="confidence">
-                <div class="conf-bar">
-                  <div class="conf-fill" [class]="getConfidenceClass(result.confidence)" [style.width.%]="result.confidence"></div>
                 </div>
-                <span class="conf-num">{{ result.confidence }}%</span>
-              </div>
 
-              <!-- Server texnologiyalari -->
-              @if (result.serverTech.length > 0) {
-                <div class="tech-row">
-                  <span class="tech-label">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x=".5" y=".5" width="10" height="10" rx="2" stroke="currentColor" stroke-opacity=".5"/><path d="M2 4l2 1.5L2 7M5.5 7h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Server
-                  </span>
-                  <div class="tech-chips">
-                    @for (t of result.serverTech; track t) {
-                      <span class="tech-chip server-chip">{{ t }}</span>
+                <!-- Signal strength bars + tech chips inline -->
+                <div class="signal-row">
+                  <div class="signal-bars">
+                    @for (i of [1,2,3,4,5]; track i) {
+                      <div class="signal-bar"
+                        [class.active]="result.confidence >= i * 20"
+                        [class.bar-high]="result.confidence >= 80"
+                        [class.bar-mid]="result.confidence >= 50 && result.confidence < 80"
+                        [class.bar-low]="result.confidence < 50"
+                        [style.height.px]="4 + i * 3">
+                      </div>
                     }
                   </div>
+                  <span class="conf-pct" [class]="getConfidenceClass(result.confidence)">{{ result.confidence }}%</span>
+                  @for (t of result.serverTech.slice(0, 1); track t) {
+                    <span class="fp-chip fp-server">{{ t }}</span>
+                  }
+                  @for (f of result.jsFrameworks.slice(0, 1); track f) {
+                    <span class="fp-chip fp-js">{{ f }}</span>
+                  }
+                  @if (result.serverTech.length + result.jsFrameworks.length > 2) {
+                    <span class="fp-chip fp-more">+{{ result.serverTech.length + result.jsFrameworks.length - 2 }}</span>
+                  }
                 </div>
               }
-
-              <!-- JS Frameworks -->
-              @if (result.jsFrameworks.length > 0) {
-                <div class="tech-row">
-                  <span class="tech-label">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 3l4.5 2.5L10 3M5.5 5.5V10" stroke="currentColor" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    JS
-                  </span>
-                  <div class="tech-chips">
-                    @for (f of result.jsFrameworks; track f) {
-                      <span class="tech-chip js-chip">{{ f }}</span>
-                    }
-                  </div>
-                </div>
-              }
-
             </div>
 
+            <!-- ── Card Footer ── -->
             <div class="card-foot">
               <div class="methods">
-                @for (m of (result.detectionMethods || []).slice(0,2); track m) {
-                  <span class="method-chip">{{ m }}</span>
+                @for (m of (result.detectionMethods || []).slice(0, 2); track m) {
+                  <span class="method-chip">{{ m | slice:0:18 }}</span>
                 }
-                @if (result.detectionMethods.length > 2) {
+                @if ((result.detectionMethods || []).length > 2) {
                   <span class="method-chip more">+{{ result.detectionMethods.length - 2 }}</span>
                 }
               </div>
-              <div class="foot-right">
-                @if (result.httpStatus) {
-                  <span class="http-badge" [class]="getHttpStatusClass(result.httpStatus)">
-                    {{ result.httpStatus }}
-                  </span>
-                } @else if (result.errorMessage) {
-                  <span class="http-badge http-error">offline</span>
-                } @else {
-                  <span class="http-badge http-unknown">—</span>
-                }
-                <div class="scan-date">{{ result.scannedAt | date:'dd.MM.yy HH:mm' }}</div>
-              </div>
+              <div class="scan-date">{{ result.scannedAt | date:'dd.MM HH:mm' }}</div>
             </div>
 
           </div>
         }
       </div>
-
     }
+
   </main>
 </div>

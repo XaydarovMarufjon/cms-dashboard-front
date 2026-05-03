@@ -40,30 +40,88 @@ $radius:  10px;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width .25s ease, min-width .25s ease;
+
+  &.collapsed {
+    width: 60px;
+    min-width: 60px;
+
+    // Brand — only logo, centered
+    .brand { justify-content: center; padding: 12px 0; }
+    .brand-text { display: none; }
+
+    // Toggle — centered, arrow flipped
+    .sidebar-toggle { justify-content: center; }
+    .toggle-icon { transform: rotate(180deg); }
+
+    // Network monitor — completely hidden
+    .nm-bar { display: none; }
+
+    // Nav — icons only (font-size:0 hides text nodes, svg uses explicit w/h)
+    .sidenav-label { display: none; }
+    .sidenav { padding-left: 4px; padding-right: 4px; }
+    .sidenav-item {
+      justify-content: center;
+      padding: 9px 0;
+      font-size: 0;
+      gap: 0;
+    }
+    .nav-alert-badge { display: none; }
+
+    // Stats — hidden
+    .sidebar-stats { display: none; }
+
+    // Scan all — icon only
+    .btn-scanall-text { display: none; }
+    .btn-scanall {
+      justify-content: center;
+      padding: 9px;
+      width: 40px;
+      margin: 0 auto;
+      border-radius: 10px;
+    }
+
+    // User — only logout icon
+    .sidebar-user { justify-content: center; padding: 6px 0; background: none; border: none; }
+    .sidebar-user-info,
+    .user-avatar { display: none; }
+  }
 }
 
+// ── BRAND ─────────────────────────────────────────
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid $border;
+  gap: 10px;
+  padding: 14px 14px 10px;
+  flex-shrink: 0;
 }
 
-.brand-icon {
-  width: 38px; height: 38px;
-  background: rgba($accent, .08);
-  border: 1px solid rgba($accent, .2);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
+.brand-logo-wrap {
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .brand-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -.3px;
   color: $text;
+  white-space: nowrap;
   span { color: $accent; }
 }
 
@@ -72,6 +130,26 @@ $radius:  10px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   margin-top: 1px;
+  white-space: nowrap;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 4px 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid $border;
+  color: $muted;
+  cursor: pointer;
+  width: 100%;
+  flex-shrink: 0;
+  transition: color .15s;
+
+  .toggle-icon { transition: transform .25s ease; }
+
+  &:hover { color: $text; background: rgba($accent, .04); }
 }
 
 .sidenav {
@@ -110,6 +188,19 @@ $radius:  10px;
     background: $s3;
     color: $text;
   }
+}
+
+.nav-alert-badge {
+  margin-left: auto;
+  background: rgba(#ff6b7a, .15);
+  color: #ff6b7a;
+  border: 1px solid rgba(#ff6b7a, .25);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  min-width: 18px;
+  text-align: center;
 }
 
 // SIDEBAR STATS
@@ -163,6 +254,7 @@ $radius:  10px;
 
 .sidebar-bottom {
   margin-top: auto;
+  flex-shrink: 0;
   padding: 16px 12px;
   border-top: 1px solid $border;
 }
@@ -192,6 +284,42 @@ $radius:  10px;
   &:disabled { opacity: .4; cursor: not-allowed; }
 }
 
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: $s2;
+  border: 1px solid $border;
+  border-radius: 9px;
+
+  .sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-user-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .sidebar-user-role {
+    font-size: 10px;
+    color: $muted;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+}
+
 // ── MAIN ──────────────────────────────────────────
 .main {
   flex: 1;
@@ -199,6 +327,7 @@ $radius:  10px;
   flex-direction: column;
   min-width: 0;
   padding: 0 28px 32px;
+
 }
 
 // ── TOPBAR ────────────────────────────────────────
@@ -293,6 +422,57 @@ $radius:  10px;
 }
 
 // ── FILTER BAR ────────────────────────────────────
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.sort-label {
+  font-size: 11px;
+  color: $muted;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-right: 2px;
+}
+
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $muted;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all .15s;
+
+  &:hover { background: $s3; color: $text; }
+
+  &.active {
+    background: rgba($accent, .1);
+    color: $accent;
+    border-color: rgba($accent, .2);
+  }
+}
+
+.sort-arrow {
+  font-size: 11px;
+  opacity: .7;
+}
+
+.sort-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
 .filter-bar {
   display: flex;
   gap: 6px;
@@ -622,6 +802,22 @@ $radius:  10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.auto-tag {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba($muted, .1);
+  border: 1px solid rgba($muted, .18);
+  color: rgba($muted, .6);
 }
 
 .card-actions {
@@ -698,10 +894,16 @@ $radius:  10px;
   color: rgba($yellow, .85);
 
   &.unknown {
-    background: transparent;
-    border-color: rgba($muted, .2);
-    color: rgba($muted, .6);
+    background: rgba($muted, .06);
+    border-color: rgba($muted, .18);
+    color: rgba($muted, .55);
+    border-style: dashed;
   }
+}
+
+.ver-q {
+  opacity: .6;
+  font-style: italic;
 }
 
 // ── CONFIDENCE ────────────────────────────────────
@@ -1597,4 +1799,451 @@ $radius:  10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+
+// ── SIDEBAR STATS (new layout) ────────────────────
+.ss-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.ss-counts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.ss-count-item {
+  background: $s3;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+
+  &.detected { border-color: rgba($accent, .2); }
+  &.unknown  { border-color: rgba($red, .2); }
+}
+
+.ss-num {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: $text;
+  line-height: 1;
+}
+
+.ss-count-item.detected .ss-num { color: $accent; }
+.ss-count-item.unknown  .ss-num { color: $red; }
+
+.ss-lbl {
+  font-size: 9px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 3px;
+}
+
+.ss-coverage {
+  margin-bottom: 10px;
+}
+
+.ss-cov-bar {
+  height: 4px;
+  background: $s3;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.ss-cov-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba($accent,.6), $accent);
+  border-radius: 3px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+.ss-cov-pct {
+  font-size: 10px;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.ss-bar-mini {
+  flex: 1;
+  height: 3px;
+  background: $s3;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ss-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  opacity: .7;
+}
+
+// ── TOOLBAR ICON BUTTONS ──────────────────────────
+.btn-icon-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $s2;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { color: $text; border-color: rgba($accent,.3); }
+  &:disabled { opacity: .4; }
+
+  &.btn-active {
+    border-color: rgba($accent, .4);
+    background: rgba($accent, .07);
+    color: $accent;
+  }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 2px;
+  transition: color .15s;
+  &:hover { color: $red; }
+}
+
+// ── USER CHIP (topbar) ────────────────────────────
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 5px;
+  background: $s2;
+  border: 1px solid $border;
+  border-radius: 10px;
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+  }
+}
+
+// ── TOPBAR COUNT ──────────────────────────────────
+.count-num {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: $accent;
+  margin-right: 4px;
+}
+
+.count-lbl {
+  font-size: 13px;
+  color: $muted;
+}
+
+// ── FILTER TAB EXTRAS ─────────────────────────────
+.ftab-icon {
+  font-size: 12px;
+  color: $muted;
+}
+
+.ftab-nocms {
+  &.active {
+    background: rgba($red, .1);
+    border-color: rgba($red, .35);
+    color: $red;
+
+    .ftab-count {
+      background: rgba($red, .15);
+      color: $red;
+    }
+  }
+}
+
+.ftab-nocms-icon {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+}
+
+// ── TOAST CLOSE ───────────────────────────────────
+.toast-close {
+  margin-left: auto;
+  font-size: 11px;
+  opacity: .6;
+  cursor: pointer;
+}
+
+// ── SITE ICON (replaces old site-status) ──────────
+// same size/shape, reuse status-* modifier classes
+.site-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.06);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid $bg;
+  }
+
+  &.status-high {
+    background: rgba($accent, .12);
+    color: $accent;
+    &::after { background: $accent; box-shadow: 0 0 5px rgba($accent, .6); }
+  }
+  &.status-mid {
+    background: rgba($yellow, .12);
+    color: $yellow;
+    &::after { background: $yellow; }
+  }
+  &.status-low {
+    background: rgba(#ff8c42, .12);
+    color: #ff8c42;
+    &::after { background: #ff8c42; }
+  }
+  &.status-unknown {
+    background: rgba($muted, .15);
+    color: $muted;
+    &::after { background: #3a3b52; }
+  }
+  &.status-error {
+    background: rgba($red, .12);
+    color: $red;
+    &::after { background: $red; }
+  }
+}
+
+// ── CARD VARIANTS ─────────────────────────────────
+.card-no-cms {
+  background: repeating-linear-gradient(
+    -45deg,
+    $s1,
+    $s1 5px,
+    rgba($s3, .6) 5px,
+    rgba($s3, .6) 10px
+  );
+  border-style: dashed;
+  border-color: rgba($muted, .3);
+
+  &:hover {
+    border-color: rgba($muted, .55);
+  }
+}
+
+.card-offline {
+  border-color: rgba($red, .25);
+  background: linear-gradient(160deg, rgba($red, .04) 0%, $s1 100%);
+
+  &:hover {
+    border-color: rgba($red, .45);
+  }
+}
+
+// ── SCAN OVERLAY ──────────────────────────────────
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 14px;
+  z-index: 1;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba($accent, .7) 50%, transparent 100%);
+  animation: scan-move 1.4s ease-in-out infinite;
+}
+
+@keyframes scan-move {
+  0%   { top: 0%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+// ── OFFLINE / NO-CMS BADGES ───────────────────────
+.offline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  background: rgba($red, .1);
+  border: 1px solid rgba($red, .25);
+  color: $red;
+}
+
+.error-snippet {
+  font-size: 10.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: rgba($red, .6);
+  background: rgba($red, .05);
+  border: 1px solid rgba($red, .1);
+  border-radius: 6px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-cms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  background: rgba($muted, .1);
+  border: 1px dashed rgba($muted, .3);
+  color: $muted;
+}
+
+.cat-badge-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--cc, #6b6c80) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cc, #6b6c80) 25%, transparent);
+}
+
+// ── TECH FINGERPRINT CHIPS ────────────────────────
+.tech-fingerprint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fp-chip {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+
+  &.fp-server {
+    background: rgba($yellow, .08);
+    border: 1px solid rgba($yellow, .2);
+    color: rgba($yellow, .85);
+  }
+
+  &.fp-js {
+    background: rgba(#a78bfa, .09);
+    border: 1px solid rgba(#a78bfa, .22);
+    color: rgba(#a78bfa, .9);
+  }
+
+  &.fp-more {
+    background: $s3;
+    border: 1px solid $border;
+    color: $muted;
+  }
+}
+
+.no-signals {
+  font-size: 11px;
+  color: rgba($muted, .6);
+  font-style: italic;
+}
+
+// ── SITE STATUS CODE ──────────────────────────────
+.site-status-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.5px;
+}
+
+// ── SIGNAL BARS ───────────────────────────────────
+.signal-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 19px;
+}
+
+.signal-bar {
+  width: 5px;
+  border-radius: 2px 2px 1px 1px;
+  background: $s3;
+  border: 1px solid $border;
+  transition: background .3s, border-color .3s;
+
+  &.active {
+    border-color: transparent;
+
+    &.bar-high { background: $accent; box-shadow: 0 0 4px rgba($accent, .4); }
+    &.bar-mid  { background: $yellow; }
+    &.bar-low  { background: $red; }
+  }
+}
+
+// ── CONFIDENCE PERCENT ────────────────────────────
+.conf-pct {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  min-width: 34px;
+
+  &.high { color: $accent; }
+  &.mid  { color: $yellow; }
+  &.low  { color: $red; }
+}
+
+// ── CMS GLOW ─────────────────────────────────────
+.cms-glow {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c, #00e5c0) 35%, transparent),
+              0 0 20px color-mix(in srgb, var(--c, #00e5c0) 15%, transparent);
+}
+
+// ── PULSE (used by status-dot) ────────────────────
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
 }

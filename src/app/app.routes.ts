@@ -29,6 +29,12 @@ export const routes: Routes = [
             import('./pages/site-detail/site-detail.component').then(m => m.SiteDetailComponent),
     },
     {
+        path: 'alerts',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/alerts/alerts.component').then(m => m.AlertsComponent),
+    },
+    {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

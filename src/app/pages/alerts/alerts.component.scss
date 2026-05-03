@@ -1,0 +1,306 @@
+/* src/app/pages/alerts/alerts.component.scss */
+$bg:       #080910;
+$s1:       #0f1018;
+$s2:       #14151f;
+$s3:       #1c1d2a;
+$border:   #22233a;
+$text:     #dde1f0;
+$muted:    #5a5b72;
+$accent:   #00e5c0;
+$red:      #ff6b7a;
+$yellow:   #ffc84a;
+$orange:   #fb923c;
+$green:    #22c55e;
+
+:host { display: block; font-family: 'IBM Plex Sans', sans-serif; }
+
+.alerts-page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── HEADER ─────────────────────────────────────────
+.alerts-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid $border;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $muted;
+  text-decoration: none;
+  font-size: 12px;
+  transition: color .2s;
+  width: fit-content;
+  &:hover { color: $text; }
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.total-badge {
+  background: rgba($yellow, .15);
+  color: $yellow;
+  border: 1px solid rgba($yellow, .25);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+}
+
+.summary-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 4px 12px;
+  border: 1px solid;
+
+  .chip-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.chip-urgent   { color: $red;    background: rgba($red,.12);    border-color: rgba($red,.3); font-weight: 700; }
+  &.chip-critical { color: $red;    background: rgba($red,.08);    border-color: rgba($red,.2); }
+  &.chip-warning  { color: $orange; background: rgba($orange,.08); border-color: rgba($orange,.2); }
+  &.chip-notice   { color: $yellow; background: rgba($yellow,.08); border-color: rgba($yellow,.2); }
+}
+
+// ── STATES ─────────────────────────────────────────
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 0;
+  color: $muted;
+}
+
+.spinner {
+  display: inline-block;
+  width: 28px; height: 28px;
+  border: 2px solid rgba($accent,.15);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+.state-text { font-size: 14px; }
+
+.empty-state {
+  .empty-title { font-size: 16px; font-weight: 600; color: $text; }
+  .empty-desc  { font-size: 13px; color: $muted; }
+}
+
+// ── ALERTS LIST ────────────────────────────────────
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 860px;
+}
+
+.alert-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border-left-width: 3px;
+  transition: box-shadow .2s;
+
+  &:hover { box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+
+  &.alert-expiry_urgent   { border-left-color: $red;    border-left-width: 4px; background: linear-gradient(90deg, rgba($red,.08) 0%, $s1 60%); }
+  &.alert-expiry_critical { border-left-color: $red;    background: linear-gradient(90deg, rgba($red,.04) 0%, $s1 60%); }
+  &.alert-expiry_warning  { border-left-color: $orange; background: linear-gradient(90deg, rgba($orange,.04) 0%, $s1 60%); }
+  &.alert-expiry_notice   { border-left-color: $yellow; background: linear-gradient(90deg, rgba($yellow,.04) 0%, $s1 60%); }
+
+  &.alert-urgent-pulse {
+    animation: urgentPulse 2s ease-in-out infinite;
+  }
+}
+
+.alert-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.icon-expiry_urgent   { color: $red;    background: rgba($red,.18);    border: 1px solid rgba($red,.35); }
+  &.icon-expiry_critical { color: $red;    background: rgba($red,.12);    border: 1px solid rgba($red,.2); }
+  &.icon-expiry_warning  { color: $orange; background: rgba($orange,.12); border: 1px solid rgba($orange,.2); }
+  &.icon-expiry_notice   { color: $yellow; background: rgba($yellow,.12); border: 1px solid rgba($yellow,.2); }
+}
+
+.alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.alert-domain {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text;
+}
+
+.alert-message {
+  font-size: 12px;
+  color: rgba($text, .65);
+  line-height: 1.5;
+}
+
+.alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.type-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 7px;
+  border: 1px solid;
+
+  &.type-badge-expiry_urgent   { color: $red;    background: rgba($red,.15);   border-color: rgba($red,.3); font-weight: 800; letter-spacing: .08em; }
+  &.type-badge-expiry_critical { color: $red;    background: rgba($red,.1);    border-color: rgba($red,.2); }
+  &.type-badge-expiry_warning  { color: $orange; background: rgba($orange,.1); border-color: rgba($orange,.2); }
+  &.type-badge-expiry_notice   { color: $yellow; background: rgba($yellow,.1); border-color: rgba($yellow,.2); }
+}
+
+.days-left {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba($text, .6);
+
+  &.days-overdue { color: $red; }
+}
+
+.due-date {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: $muted;
+}
+
+// ── ACTIONS ────────────────────────────────────────
+.alert-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.btn-done, .btn-skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 7px 14px;
+  transition: background .2s, opacity .2s;
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.btn-done {
+  background: rgba($green, .12);
+  color: $green;
+  border: 1px solid rgba($green, .25);
+  &:not(:disabled):hover { background: rgba($green, .2); }
+}
+
+.btn-skip {
+  background: rgba($muted, .08);
+  color: $muted;
+  border: 1px solid rgba($muted, .15);
+  &:not(:disabled):hover { background: rgba($muted, .14); color: $text; }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border: 1.5px solid rgba($green,.2);
+  border-top-color: $green;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes urgentPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba($red, 0); }
+  50%       { box-shadow: 0 0 0 6px rgba($red, .15); }
+}
+
+.chip-pulse {
+  animation: dotPulse 1s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .4; transform: scale(1.4); }
+}
+
+.ssl-tag {
+  display: inline-block;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .06em;
+  background: rgba(#00e5c0, .1);
+  color: #00e5c0;
+  border: 1px solid rgba(#00e5c0, .25);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
