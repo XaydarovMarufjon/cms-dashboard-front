@@ -35,6 +35,12 @@ export const routes: Routes = [
             import('./pages/alerts/alerts.component').then(m => m.AlertsComponent),
     },
     {
+        path: 'dork',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/dork/dork.component').then(m => m.DorkComponent),
+    },
+    {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

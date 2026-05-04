@@ -1,0 +1,513 @@
+$accent: #f59e0b;
+$accent2: #00e5c0;
+$bg: #0f172a;
+$surface: #1e293b;
+$surface2: #263348;
+$border: #334155;
+$text: #e2e8f0;
+$muted: #94a3b8;
+$danger: #ef4444;
+
+.dork-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 0 24px 40px;
+}
+
+// ── HEADER ──────────────────────────────────────────
+.dork-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 20px;
+}
+
+.dork-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: $text;
+  }
+  p {
+    font-size: 12px;
+    color: $muted;
+    margin: 0;
+  }
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: $muted;
+  text-decoration: none;
+  padding: 5px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  background: $surface;
+  transition: color .15s, border-color .15s;
+
+  &:hover {
+    color: $text;
+    border-color: #475569;
+  }
+}
+
+.title-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(245, 158, 11, .08);
+  border: 1px solid rgba(245, 158, 11, .2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── BODY LAYOUT ─────────────────────────────────────
+.dork-body {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+// ── PANELS ──────────────────────────────────────────
+.left-panel,
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-section {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+
+.badge {
+  margin-left: auto;
+  background: rgba($accent2, .12);
+  color: $accent2;
+  border: 1px solid rgba($accent2, .2);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.hint-text {
+  margin-left: 4px;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 400;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+// ── KEYWORDS INPUT ───────────────────────────────────
+.kw-input {
+  width: 100%;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 7px;
+  color: $text;
+  font-size: 13px;
+  padding: 9px 12px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .15s;
+
+  &::placeholder { color: #475569; }
+  &:focus { border-color: rgba($accent, .5); }
+}
+
+// ── DOMAIN GRID ──────────────────────────────────────
+.domain-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.domain-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 7px;
+  padding: 7px 11px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+
+  .chip-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $muted;
+    transition: color .15s;
+  }
+  .chip-desc {
+    font-size: 10px;
+    color: #475569;
+    transition: color .15s;
+  }
+
+  &:hover {
+    border-color: rgba($accent, .3);
+    .chip-label { color: $text; }
+  }
+
+  &.selected {
+    border-color: rgba($accent, .6);
+    background: rgba($accent, .07);
+    .chip-label { color: $accent; }
+    .chip-desc { color: rgba($accent, .6); }
+  }
+}
+
+// ── PRESET GRID ──────────────────────────────────────
+.preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.preset-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s;
+
+  .preset-icon {
+    width: 28px;
+    height: 28px;
+    background: $surface2;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $muted;
+    flex-shrink: 0;
+    transition: color .15s, background .15s;
+  }
+
+  .preset-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 2px;
+  }
+
+  .preset-desc {
+    font-size: 10px;
+    color: #475569;
+    line-height: 1.4;
+  }
+
+  &:hover {
+    border-color: rgba($accent, .3);
+  }
+
+  &.active {
+    border-color: rgba($accent, .6);
+    background: rgba($accent, .06);
+
+    .preset-icon {
+      background: rgba($accent, .12);
+      color: $accent;
+    }
+    .preset-name { color: $accent; }
+  }
+}
+
+// ── CUSTOM TEXTAREA ──────────────────────────────────
+.custom-input {
+  width: 100%;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 7px;
+  color: $text;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  padding: 9px 12px;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  line-height: 1.6;
+  transition: border-color .15s;
+
+  &::placeholder { color: #475569; }
+  &:focus { border-color: rgba($accent, .5); }
+}
+
+// ── QUERY SECTION ────────────────────────────────────
+.query-section {
+  border-color: rgba($accent2, .2);
+}
+
+.query-box {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 7px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  position: relative;
+  min-height: 56px;
+
+  &.empty .query-text { color: #475569; font-style: italic; }
+}
+
+.query-text {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: $accent2;
+  line-height: 1.6;
+  word-break: break-all;
+  padding-right: 90px;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: $surface2;
+  border: 1px solid $border;
+  border-radius: 5px;
+  color: $muted;
+  font-size: 11px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+
+  &:hover {
+    color: $text;
+    border-color: #475569;
+  }
+}
+
+.btn-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  background: rgba($accent, .1);
+  border: 1px solid rgba($accent, .35);
+  border-radius: 8px;
+  color: $accent;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+
+  &:hover {
+    background: rgba($accent, .18);
+    border-color: rgba($accent, .55);
+  }
+}
+
+// ── ALL PRESETS LIST ─────────────────────────────────
+.all-presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preset-row {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: border-color .15s;
+
+  &:hover { border-color: #475569; }
+}
+
+.preset-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.preset-row-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.preset-row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.preset-row-query {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: $accent2;
+  word-break: break-all;
+  line-height: 1.5;
+  opacity: .85;
+}
+
+// ── ICON BUTTONS ─────────────────────────────────────
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: $surface2;
+  border: 1px solid $border;
+  border-radius: 5px;
+  color: $muted;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color .15s, border-color .15s;
+
+  &:hover {
+    color: $text;
+    border-color: #475569;
+  }
+
+  &.open-btn:hover { color: $accent; border-color: rgba($accent, .4); }
+  &.copied { color: $accent2; border-color: rgba($accent2, .3); }
+}
+
+// ── HISTORY ──────────────────────────────────────────
+.clear-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: $muted;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color .15s;
+
+  &:hover { color: $danger; }
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.history-row {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 7px;
+  padding: 8px 10px;
+  transition: border-color .15s;
+
+  &:hover { border-color: #475569; }
+}
+
+.history-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.history-preset {
+  font-size: 10px;
+  font-weight: 600;
+  color: $accent;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.history-domains {
+  font-size: 10px;
+  color: $muted;
+}
+
+.history-time {
+  margin-left: auto;
+  font-size: 10px;
+  color: #475569;
+}
+
+.history-query {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #64748b;
+  word-break: break-all;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+// ── EMPTY STATE ──────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 14px;
+  color: #334155;
+
+  p {
+    font-size: 13px;
+    margin: 0;
+  }
+}
+
+// ── RESPONSIVE ───────────────────────────────────────
+@media (max-width: 900px) {
+  .dork-body {
+    grid-template-columns: 1fr;
+  }
+}

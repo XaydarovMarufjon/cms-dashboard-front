@@ -1,0 +1,298 @@
+<div class="dork-page">
+
+  <!-- HEADER -->
+  <div class="dork-header">
+    <div class="dork-title">
+      <a class="btn-back" routerLink="/">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Dashboard
+      </a>
+      <div class="title-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="8" cy="8" r="5.5" stroke="#f59e0b" stroke-width="1.5" />
+          <path d="M12.5 12.5L17 17" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M6 8h4M8 6v4" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div>
+        <h1>OSINT Dork Search</h1>
+        <p>Google Dork orqali O'zbekiston domenlarini qidirish</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="dork-body">
+
+    <!-- LEFT PANEL: controls -->
+    <div class="left-panel">
+
+      <!-- KEYWORDS -->
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="5.5" cy="5.5" r="4" stroke="#94a3b8" stroke-width="1.3" />
+            <path d="M8.5 8.5L11 11" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Kalit so'zlar
+        </div>
+        <input class="kw-input" type="text" placeholder="masalan: toshkent, hujjat, xodim..." [ngModel]="keywords()"
+          (ngModelChange)="keywords.set($event)" />
+      </div>
+
+      <!-- DOMAIN SELECTOR -->
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="4" width="11" height="7" rx="1.5" stroke="#94a3b8" stroke-width="1.3" />
+            <path d="M4 4V3a2.5 2.5 0 0 1 5 0v1" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+          O'zbekiston Domenlari
+          <span class="badge">{{ selectedDomains().length }} tanlandi</span>
+        </div>
+        <div class="domain-grid">
+          @for (d of UZ_DOMAINS; track d.value) {
+          <button class="domain-chip" [class.selected]="isDomainSelected(d.value)" (click)="toggleDomain(d.value)"
+            [title]="d.desc">
+            <span class="chip-label">{{ d.label }}</span>
+            <span class="chip-desc">{{ d.desc }}</span>
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- PRESET SELECTOR -->
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2 4h9M2 7h6M2 10h4" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+          Dork Preset
+        </div>
+        <div class="preset-grid">
+          @for (preset of DORK_PRESETS; track preset.id) {
+          <button class="preset-card" [class.active]="activePresetId() === preset.id"
+            (click)="activePresetId.set(preset.id)">
+            <div class="preset-icon">
+              @if (preset.icon === 'file') {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 2h5l3 3v9H4V2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                <path d="M9 2v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M6 8h4M6 10.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+              }
+              @if (preset.icon === 'key') {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="6.5" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3" />
+                <path d="M9.5 9.5L14 14M12 12l-1.5-1.5" stroke="currentColor" stroke-width="1.3"
+                  stroke-linecap="round" />
+              </svg>
+              }
+              @if (preset.icon === 'warning') {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2L14 13H2L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                <path d="M8 6.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="8" cy="11" r=".75" fill="currentColor" />
+              </svg>
+              }
+              @if (preset.icon === 'edit') {
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M11 3l2 2-8 8H3v-2l8-8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                <path d="M9.5 4.5l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+              }
+            </div>
+            <div class="preset-info">
+              <div class="preset-name">{{ preset.label }}</div>
+              <div class="preset-desc">{{ preset.desc }}</div>
+            </div>
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- CUSTOM OPERATORS (only for custom preset) -->
+      @if (activePresetId() === 'custom') {
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M3 5l2 2-2 2M7 9h3" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Dork Operatorlar
+          <span class="hint-text">masalan: inurl:admin filetype:pdf</span>
+        </div>
+        <textarea class="custom-input" placeholder='inurl:admin OR intext:"password" filetype:pdf' rows="3"
+          [ngModel]="customOperators()" (ngModelChange)="customOperators.set($event)"></textarea>
+      </div>
+      }
+
+      <!-- GENERATED QUERY -->
+      <div class="panel-section query-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="11" height="11" rx="2" stroke="#94a3b8" stroke-width="1.3" />
+            <path d="M3.5 4.5h6M3.5 7h4" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
+          </svg>
+          Yaratilgan Query
+        </div>
+        <div class="query-box" [class.empty]="!generatedQuery()">
+          <div class="query-text">
+            {{ generatedQuery() || 'Domen va preset tanlang...' }}
+          </div>
+          @if (generatedQuery()) {
+          <button class="copy-btn" (click)="copyQuery(generatedQuery(), 'main')">
+            @if (copiedId() === 'main') {
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 7l3 3 6-6" stroke="#00e5c0" stroke-width="1.6" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            Nusxalandi
+            } @else {
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <rect x="4" y="4" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4 4V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h1" stroke="currentColor" stroke-width="1.2"
+                stroke-linecap="round" />
+            </svg>
+            Nusxalash
+            }
+          </button>
+          }
+        </div>
+
+        @if (generatedQuery()) {
+        <button class="btn-search" (click)="openGoogle()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" />
+            <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          Google'da Qidirish
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: all presets + history -->
+    <div class="right-panel">
+
+      <!-- ALL PRESETS PANEL -->
+      @if (siteClause()) {
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1" fill="#94a3b8" opacity=".5" />
+            <rect x="7" y="1" width="5" height="5" rx="1" fill="#94a3b8" opacity=".5" />
+            <rect x="1" y="7" width="5" height="5" rx="1" fill="#94a3b8" opacity=".5" />
+            <rect x="7" y="7" width="5" height="5" rx="1" fill="#94a3b8" opacity=".5" />
+          </svg>
+          Avtomatik Yaratilgan Querylar
+        </div>
+        <div class="all-presets-list">
+          @for (item of allPresetQueries(); track item.preset.id) {
+          <div class="preset-row">
+            <div class="preset-row-header">
+              <span class="preset-row-name">{{ item.preset.label }}</span>
+              <div class="preset-row-actions">
+                <button class="icon-btn" [class.copied]="copiedId() === item.preset.id"
+                  (click)="copyQuery(item.query, item.preset.id)" title="Nusxalash">
+                  @if (copiedId() === item.preset.id) {
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l2.5 2.5 5.5-5" stroke="#00e5c0" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                  } @else {
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M3.5 3.5V2.5A1 1 0 0 0 2.5 2h-.5A1 1 0 0 0 1 3v5.5A1 1 0 0 0 2 9.5h1.5"
+                      stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+                  </svg>
+                  }
+                </button>
+                <a class="icon-btn open-btn" [href]="item.googleUrl" target="_blank" rel="noopener"
+                  title="Google'da ochish">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7" stroke="currentColor"
+                      stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M8 1h3v3M11 1L6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div class="preset-row-query">{{ item.query }}</div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- HISTORY -->
+      @if (history().length > 0) {
+      <div class="panel-section">
+        <div class="section-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5" stroke="#94a3b8" stroke-width="1.3" />
+            <path d="M6.5 3.5V7l2 1.5" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Tarix
+          <button class="clear-btn" (click)="clearHistory()">Tozalash</button>
+        </div>
+        <div class="history-list">
+          @for (entry of history(); track entry.id) {
+          <div class="history-row">
+            <div class="history-meta">
+              <span class="history-preset">{{ entry.preset }}</span>
+              <span class="history-domains">{{ entry.domains.join(', ') }}</span>
+              <span class="history-time">{{ entry.timestamp | date:'HH:mm:ss' }}</span>
+            </div>
+            <div class="history-query">{{ entry.query }}</div>
+            <div class="history-actions">
+              <button class="icon-btn" (click)="copyQuery(entry.query, 'h-' + entry.id)">
+                @if (copiedId() === 'h-' + entry.id) {
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M1.5 5.5l2.5 2.5 5-5" stroke="#00e5c0" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                } @else {
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.1" />
+                  <path d="M3 3V2A1 1 0 0 0 2 1H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1" stroke="currentColor"
+                    stroke-width="1" stroke-linecap="round" />
+                </svg>
+                }
+              </button>
+              <button class="icon-btn open-btn" (click)="rerunHistory(entry)" title="Qayta qidirish">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M4.5 1H1.5A1 1 0 0 0 .5 2v7.5A1 1 0 0 0 1.5 10.5h7.5A1 1 0 0 0 10 9.5V7"
+                    stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M7 .5h3V3.5M10 .5L5.5 5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- EMPTY STATE -->
+      @if (!siteClause()) {
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="20" cy="20" r="14" stroke="#334155" stroke-width="2" />
+          <path d="M30 30L43 43" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+          <path d="M15 20h10M20 15v10" stroke="#475569" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <p>Domen tanlang va qidirishni boshlang</p>
+      </div>
+      }
+
+    </div>
+  </div>
+</div>
