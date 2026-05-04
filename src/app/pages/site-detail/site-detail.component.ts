@@ -33,9 +33,14 @@ export class SiteDetailComponent implements OnInit {
 
   whois        = signal<WhoisData | null>(null);
   whoisLoading = signal(false);
+  whoisError   = signal(false);
 
   siteInfo        = signal<SiteInfoData | null>(null);
   siteInfoLoading = signal(false);
+  siteInfoError   = signal(false);
+
+  private _fetchUrl       = '';
+  private _fetchWebsiteId = '';
 
   canEmbed = signal<boolean | null>(null);
 
@@ -71,10 +76,13 @@ export class SiteDetailComponent implements OnInit {
     if (!state?.result) { this.router.navigate(['/']); return; }
     this.result.set(state.result);
 
+    this._fetchUrl       = state.result.website?.url ?? '';
+    this._fetchWebsiteId = state.result.websiteId;
+
     // Fetch WHOIS + site-info + canEmbed in parallel (fire-and-forget)
-    this.fetchWhois(state.result.website?.url ?? '');
-    this.fetchSiteInfo(state.result.website?.url ?? '', state.result.websiteId);
-    this.fetchCanEmbed(state.result.website?.url ?? '');
+    this.fetchWhois(this._fetchUrl);
+    this.fetchSiteInfo(this._fetchUrl, this._fetchWebsiteId);
+    this.fetchCanEmbed(this._fetchUrl);
 
     try {
       this.allResults = await firstValueFrom(this.scanner.getLatestResults());
@@ -206,11 +214,14 @@ export class SiteDetailComponent implements OnInit {
     if (!siteUrl) return;
     try {
       this.siteInfoLoading.set(true);
+      this.siteInfoError.set(false);
       const data = await firstValueFrom(this.scanner.getSiteInfo(siteUrl, websiteId));
       this.siteInfo.set(data);
-    } catch { /* ignore */ }
+    } catch { this.siteInfoError.set(true); }
     finally { this.siteInfoLoading.set(false); }
   }
+
+  retrySiteInfo() { this.fetchSiteInfo(this._fetchUrl, this._fetchWebsiteId); }
 
   // ── WHOIS ─────────────────────────────────────────────────────────────────
   private async fetchWhois(siteUrl: string) {
@@ -218,11 +229,14 @@ export class SiteDetailComponent implements OnInit {
     try {
       const host = this.hostname(siteUrl);
       this.whoisLoading.set(true);
+      this.whoisError.set(false);
       const data = await firstValueFrom(this.scanner.getWhois(host));
       this.whois.set(data);
-    } catch { /* silently ignore */ }
+    } catch { this.whoisError.set(true); }
     finally { this.whoisLoading.set(false); }
   }
+
+  retryWhois() { this.fetchWhois(this._fetchUrl); }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   private hostname(url: string): string {

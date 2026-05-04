@@ -264,7 +264,7 @@
         </div>
         } @else if (whois(); as w) {
           @if (w.domainName || w.registrar || w.status) {
-          <div class="whois-divider">
+          <div class="whois-divider wd-whois">
             <span>WHOIS — cctld.uz</span>
           </div>
           <div class="info-rows whois-rows">
@@ -336,6 +336,13 @@
             }
           </div>
           }
+        } @else {
+          <div class="retry-block">
+            <button class="retry-btn" (click)="retryWhois()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 1.5l2 2-2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              WHOIS qayta yuklash
+            </button>
+          </div>
         }
 
           </div><!-- /whois-ssl-col -->
@@ -349,7 +356,7 @@
         </div>
         } @else if (siteInfo(); as si) {
           @if (si.ssl) {
-          <div class="whois-divider"><span>SSL Sertifikat</span></div>
+          <div class="whois-divider wd-ssl"><span>SSL Sertifikat</span></div>
           <div class="info-rows whois-rows">
             <div class="info-row">
               <span class="info-key">Holat</span>
@@ -392,6 +399,13 @@
             }
           </div>
           }
+        } @else {
+          <div class="retry-block">
+            <button class="retry-btn" (click)="retrySiteInfo()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 1.5l2 2-2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              SSL qayta yuklash
+            </button>
+          </div>
         }
           </div><!-- /whois-ssl-col -->
 
@@ -404,7 +418,7 @@
           <!-- GEO col -->
           <div class="whois-ssl-col">
           @if (si.geo?.country) {
-          <div class="whois-divider"><span>Joylashuv</span></div>
+          <div class="whois-divider wd-geo"><span>Joylashuv</span></div>
           <div class="info-rows whois-rows">
             <div class="info-row">
               <span class="info-key">Mamlakat</span>
@@ -440,7 +454,7 @@
           <!-- HEADERS col -->
           <div class="whois-ssl-col">
           @if (si.headers) {
-          <div class="whois-divider"><span>Xavfsizlik headerlari</span></div>
+          <div class="whois-divider wd-sec"><span>Xavfsizlik headerlari</span></div>
           <div class="sec-headers-block">
             <div class="sec-grade-row">
               <span class="sec-grade" [class]="'grade-' + si.headers.grade.replace('+','plus')">
@@ -476,6 +490,13 @@
           </div><!-- /headers col -->
 
         </div><!-- /whois-ssl-grid -->
+        } @else if (!siteInfoLoading()) {
+        <div class="retry-block">
+          <button class="retry-btn" (click)="retrySiteInfo()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 1.5l2 2-2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Geo / Headers qayta yuklash
+          </button>
+        </div>
         }
       </div>
 
