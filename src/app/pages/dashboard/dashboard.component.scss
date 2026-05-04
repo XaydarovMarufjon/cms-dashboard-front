@@ -711,7 +711,6 @@ $radius:  10px;
   &.is-scanning {
     border-color: rgba($accent, .35);
     box-shadow: 0 0 0 1px rgba($accent, .15);
-    .card-accent { opacity: 1; }
   }
 
   &.is-editing {
@@ -725,8 +724,7 @@ $radius:  10px;
 .card-accent {
   height: 3px;
   width: 100%;
-  opacity: .55;
-  transition: opacity .2s;
+  opacity: 1;
 }
 
 .card-head {

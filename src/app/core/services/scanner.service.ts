@@ -22,6 +22,11 @@ export class ScannerService {
     private http = inject(HttpClient); // DI — NestJS kabi
     private api = environment.apiUrl;
 
+    // Singleton state — navigation'da yo'qolmaydi
+    nextPollAt = 0;
+    pollIntervalMs = 60 * 60 * 1000;
+    autoRefreshEnabled = false;
+
     // GET /api/scanner/results
     getLatestResults(): Observable<ScanResult[]> {
         return this.http.get<ScanResult[]>(`${this.api}/scanner/results`);
@@ -85,6 +90,10 @@ export class ScannerService {
     dismissAlert(id: string): Observable<Alert> {
         return this.http.patch<Alert>(`${this.api}/alerts/${id}/dismiss`, {});
     }
+
+    exportCsv(): Observable<string> {
+        return this.http.get(`${this.api}/scanner/export`, { responseType: 'text' });
+    }
 }
 
 export interface SslInfo {
@@ -126,7 +135,8 @@ export interface SiteInfoData {
 
 export type AlertType =
     'expiry_urgent'     | 'expiry_critical'     | 'expiry_warning'     | 'expiry_notice' |
-    'ssl_expiry_urgent' | 'ssl_expiry_critical'  | 'ssl_expiry_warning' | 'ssl_expiry_notice';
+    'ssl_expiry_urgent' | 'ssl_expiry_critical'  | 'ssl_expiry_warning' | 'ssl_expiry_notice' |
+    'cms_change' | 'site_down';
 
 export interface Alert {
     id:          string;

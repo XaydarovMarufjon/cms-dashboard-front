@@ -51,29 +51,42 @@ export class AlertsComponent implements OnInit {
   }
 
   isUrgent(type: AlertType): boolean {
-    return type === 'expiry_urgent' || type === 'ssl_expiry_urgent';
+    return type === 'expiry_urgent' || type === 'ssl_expiry_urgent' || type === 'site_down';
   }
 
   isSsl(type: AlertType): boolean {
     return type.startsWith('ssl_');
   }
 
+  isCmsChange(type: AlertType): boolean {
+    return type === 'cms_change';
+  }
+
+  isSiteDown(type: AlertType): boolean {
+    return type === 'site_down';
+  }
+
   typeLabel(type: AlertType): string {
     if (type === 'expiry_urgent'      || type === 'ssl_expiry_urgent')   return 'SHOSHILINCH';
     if (type === 'expiry_critical'    || type === 'ssl_expiry_critical') return 'Kritik';
     if (type === 'expiry_warning'     || type === 'ssl_expiry_warning')  return 'Ogohlantirish';
+    if (type === 'cms_change') return 'CMS O\'zgardi';
+    if (type === 'site_down')  return 'Sayt Ishlamayapti';
     return 'Eslatma';
   }
 
   cssType(type: AlertType): string {
-    if (type === 'expiry_urgent'   || type === 'ssl_expiry_urgent')   return 'expiry_urgent';
+    if (type === 'expiry_urgent'   || type === 'ssl_expiry_urgent' || type === 'site_down') return 'expiry_urgent';
     if (type === 'expiry_critical' || type === 'ssl_expiry_critical') return 'expiry_critical';
     if (type === 'expiry_warning'  || type === 'ssl_expiry_warning')  return 'expiry_warning';
+    if (type === 'cms_change') return 'expiry_warning';
     return 'expiry_notice';
   }
 
-  urgentCount()    { return this.alerts().filter(a => this.isUrgent(a.type)).length; }
-  criticalCount()  { return this.alerts().filter(a => a.type === 'expiry_critical'  || a.type === 'ssl_expiry_critical').length; }
-  warningCount()   { return this.alerts().filter(a => a.type === 'expiry_warning'   || a.type === 'ssl_expiry_warning').length; }
-  noticeCount()    { return this.alerts().filter(a => a.type === 'expiry_notice'    || a.type === 'ssl_expiry_notice').length; }
+  urgentCount()     { return this.alerts().filter(a => this.isUrgent(a.type)).length; }
+  criticalCount()   { return this.alerts().filter(a => a.type === 'expiry_critical'  || a.type === 'ssl_expiry_critical').length; }
+  warningCount()    { return this.alerts().filter(a => a.type === 'expiry_warning'   || a.type === 'ssl_expiry_warning').length; }
+  noticeCount()     { return this.alerts().filter(a => a.type === 'expiry_notice'    || a.type === 'ssl_expiry_notice').length; }
+  cmsChangeCount()  { return this.alerts().filter(a => a.type === 'cms_change').length; }
+  siteDownCount()   { return this.alerts().filter(a => a.type === 'site_down').length; }
 }

@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { interval, Subscription } from 'rxjs';
+import { interval, timer, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ScannerService, Alert } from '../../core/services/scanner.service';
 import { WebsiteService } from '../../core/services/website.service';
@@ -59,6 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private refreshSub?: Subscription;
   private countSub?:   Subscription;
+  private pollSub?:    Subscription;
 
   readonly INTERVAL_OPTIONS = [
     { label: '5 daqiqa',  value: 5    },
@@ -147,12 +148,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ── LIFECYCLE ─────────────────────────────────
   ngOnInit() {
     this.loadResults();
-    this.scanner.getInterval().subscribe(r => this.refreshInterval.set(r.interval));
+    this.scanner.getInterval().subscribe(r => {
+      this.refreshInterval.set(r.interval);
+      this.startBackgroundPoll();
+      if (this.scanner.autoRefreshEnabled) this.startAutoRefresh();
+    });
     this.scanner.getAlertCount().subscribe({ next: r => this.alertCount.set(r.count), error: () => {} });
   }
 
   ngOnDestroy() {
-    this.stopAutoRefresh();
+    // Faqat RxJS unsub — visual state service'da saqlanadi
+    this.refreshSub?.unsubscribe();
+    this.countSub?.unsubscribe();
+    this.pollSub?.unsubscribe();
     this.stopIframeReload();
   }
 
@@ -253,21 +261,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private startAutoRefresh() {
+    this.scanner.autoRefreshEnabled = true;
     this.autoRefresh.set(true);
     const ms = this.refreshInterval() * 60 * 1000;
-    this.countdown.set(this.refreshInterval() * 60);
+
+    const now = Date.now();
+    const remainingMs = this.scanner.nextPollAt > now ? this.scanner.nextPollAt - now : ms;
+    this.countdown.set(Math.ceil(remainingMs / 1000));
 
     this.countSub = interval(1000).subscribe(() => {
       this.countdown.update(n => (n > 0 ? n - 1 : 0));
     });
 
-    this.refreshSub = interval(ms).subscribe(() => {
+    this.refreshSub = timer(remainingMs, ms).subscribe(() => {
+      this.scanner.nextPollAt = Date.now() + ms;
       this.loadResults();
       this.countdown.set(this.refreshInterval() * 60);
     });
   }
 
   private stopAutoRefresh() {
+    this.scanner.autoRefreshEnabled = false;
     this.autoRefresh.set(false);
     this.refreshSub?.unsubscribe();
     this.countSub?.unsubscribe();
@@ -280,7 +294,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: () => this.showSuccess(`Interval ${minutes} daqiqaga o'rnatildi`),
       error: () => {},
     });
+    this.startBackgroundPoll();
     if (this.autoRefresh()) { this.stopAutoRefresh(); this.startAutoRefresh(); }
+  }
+
+  private startBackgroundPoll() {
+    this.pollSub?.unsubscribe();
+    const ms = this.refreshInterval() * 60 * 1000;
+    this.scanner.pollIntervalMs = ms;
+
+    const now = Date.now();
+    const delay = this.scanner.nextPollAt > now ? this.scanner.nextPollAt - now : ms;
+    if (this.scanner.nextPollAt <= now) {
+      this.scanner.nextPollAt = now + ms;
+    }
+
+    this.pollSub = timer(delay, ms).subscribe(() => {
+      this.scanner.nextPollAt = Date.now() + ms;
+      this.loadResults();
+      this.scanner.getAlertCount().subscribe({ next: r => this.alertCount.set(r.count), error: () => {} });
+    });
   }
 
   formatCountdown(seconds: number): string {
@@ -371,6 +404,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ── AUTH ──────────────────────────────────────
   logout() { this.auth.logout(); }
 
+  // ── EXPORT ────────────────────────────────────
+  exportCsv() {
+    this.scanner.exportCsv().subscribe(csv => {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cms-scan-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
   // ── HELPERS ───────────────────────────────────
   clearError() { this.error.set(null); }
 
@@ -422,6 +468,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (result.confidence >= 80) return 'high';
     if (result.confidence >= 50) return 'mid';
     return 'low';
+  }
+
+  getCardAccentColor(result: ScanResult): string {
+    if (result.errorMessage) return '#ef4444';
+    if (result.httpStatus !== null && result.httpStatus !== undefined) {
+      if (result.httpStatus >= 500) return '#ef4444';
+      if (result.httpStatus >= 400) return '#f97316';
+    }
+    return 'transparent';
   }
 
   private showSuccess(msg: string) {
