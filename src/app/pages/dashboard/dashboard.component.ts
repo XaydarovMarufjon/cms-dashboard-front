@@ -294,6 +294,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: () => this.showSuccess(`Interval ${minutes} daqiqaga o'rnatildi`),
       error: () => {},
     });
+    this.scanner.nextPollAt = 0; // Eski interval qoldig'ini tozala
     this.startBackgroundPoll();
     if (this.autoRefresh()) { this.stopAutoRefresh(); this.startAutoRefresh(); }
   }
