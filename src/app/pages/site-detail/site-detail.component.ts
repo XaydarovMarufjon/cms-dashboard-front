@@ -37,6 +37,8 @@ export class SiteDetailComponent implements OnInit {
   siteInfo        = signal<SiteInfoData | null>(null);
   siteInfoLoading = signal(false);
 
+  canEmbed = signal<boolean | null>(null);
+
   // Subdomain discovery
   discovered    = signal<DiscoveredSub[]>([]);
   discovering   = signal(false);
@@ -69,9 +71,10 @@ export class SiteDetailComponent implements OnInit {
     if (!state?.result) { this.router.navigate(['/']); return; }
     this.result.set(state.result);
 
-    // Fetch WHOIS + site-info in parallel (fire-and-forget)
+    // Fetch WHOIS + site-info + canEmbed in parallel (fire-and-forget)
     this.fetchWhois(state.result.website?.url ?? '');
     this.fetchSiteInfo(state.result.website?.url ?? '', state.result.websiteId);
+    this.fetchCanEmbed(state.result.website?.url ?? '');
 
     try {
       this.allResults = await firstValueFrom(this.scanner.getLatestResults());
@@ -184,6 +187,17 @@ export class SiteDetailComponent implements OnInit {
       this.scanErrorMap.update(m => { const n = new Map(m); n.set(sub.subdomain, 'Skanerlab bo\'lmadi'); return n; });
     } finally {
       this.scanningSet.update(s => { const n = new Set(s); n.delete(sub.subdomain); return n; });
+    }
+  }
+
+  // ── CAN EMBED ─────────────────────────────────────────────────────────────
+  private async fetchCanEmbed(siteUrl: string) {
+    if (!siteUrl) return;
+    try {
+      const { canEmbed } = await firstValueFrom(this.scanner.checkCanEmbed(siteUrl));
+      this.canEmbed.set(canEmbed);
+    } catch {
+      this.canEmbed.set(false);
     }
   }
 

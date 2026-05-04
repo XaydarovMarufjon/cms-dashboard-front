@@ -491,6 +491,27 @@
           </svg>
           Sayt ko'rinishi
         </div>
+
+        <div class="iframe-domain-label">{{ stripProtocol(r.website!.url) }}</div>
+
+        @if (canEmbed() === null) {
+        <div class="embed-checking">
+          <span class="embed-checking-dot"></span>
+          <span class="embed-checking-dot"></span>
+          <span class="embed-checking-dot"></span>
+        </div>
+        } @else if (canEmbed() === false) {
+        <div class="no-embed-wrap">
+          <a [href]="r.website!.url" target="_blank" rel="noopener" class="btn-open-external">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M6 3H3v9h9V9M8.5 1.5H13.5V6.5M13.5 1.5L6.5 8.5"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Saytni yangi sahifada ochish
+          </a>
+          <p class="no-embed-note">Bu sayt iframe ko'rsatishni bloklagan (X-Frame-Options / CSP)</p>
+        </div>
+        } @else {
         <div class="iframe-wrap">
           <iframe
             [src]="r.website!.url | safeUrl"
@@ -500,6 +521,7 @@
             title="Sayt preview">
           </iframe>
         </div>
+        }
       </div>
       }
 

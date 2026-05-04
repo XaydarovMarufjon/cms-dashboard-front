@@ -8,18 +8,18 @@ import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
 import { ScannerService } from '../../core/services/scanner.service';
 
 interface CheckSite {
-  id:     string;
-  url:    string;
+  id: string;
+  url: string;
   label?: string;
 }
 
 type SiteStatus = 'idle' | 'checking' | 'done' | 'error';
 
 interface SiteResult {
-  id:      string;
-  url:     string;
-  label?:  string;
-  status:  SiteStatus;
+  id: string;
+  url: string;
+  label?: string;
+  status: SiteStatus;
   elapsed?: number;  // ms
 }
 
@@ -35,29 +35,29 @@ export class CheckerComponent implements OnDestroy {
 
   // ── SITES ─────────────────────────────────────
   sites = signal<CheckSite[]>([
-    { id: '1', url: 'https://senat.uz/',          label: 'Senat' },
-    { id: '2', url: 'https://president.uz/',       label: 'Prezident' },
-    { id: '3', url: 'https://gov.uz/',             label: 'Hukumat' },
-    { id: '4', url: 'https://my.gov.uz/',          label: 'My Gov' },
-    { id: '5', url: 'https://saylov.uz/',          label: 'Saylov' },
-    { id: '6', url: 'https://ijro.gov.uz/',        label: 'Ijro' },
-    { id: '7', url: 'https://parliament.gov.uz/',  label: 'Parlament' },
-    { id: '8', url: 'https://e-saylov.uz/',        label: 'E-Saylov' },
+    { id: '1', url: 'https://senat.uz/', label: 'Senat' },
+    { id: '2', url: 'https://president.uz/', label: 'Prezident' },
+    { id: '3', url: 'https://e-saylov.uz/', label: 'E-Saylov' },
+    { id: '4', url: 'https://my.gov.uz/', label: 'My Gov UZ' },
+    { id: '5', url: 'https://saylov.uz/', label: 'Saylov' },
+    { id: '6', url: 'https://ijro.gov.uz/', label: 'Ijro' },
+    { id: '7', url: 'https://parliament.gov.uz/', label: 'Parlament' },
+    { id: '8', url: 'https://gov.uz/', label: 'Hukumat Sayti' },
   ]);
 
   // ── URL QOSHISH ───────────────────────────────
-  newUrl   = signal('');
+  newUrl = signal('');
   newLabel = signal('');
   urlError = signal('');
 
   // ── CHECKER STATE ─────────────────────────────
-  results        = signal<SiteResult[]>([]);
-  isRunning      = signal(false);
-  isPaused       = signal(false);
-  currentIndex   = signal(-1);
-  intervalMs     = signal(20000);   // ms — har sayt uchun vaqt
-  countdown      = signal(0);
-  iframeUrl      = signal<string>('');
+  results = signal<SiteResult[]>([]);
+  isRunning = signal(false);
+  isPaused = signal(false);
+  currentIndex = signal(-1);
+  intervalMs = signal(20000);   // ms — har sayt uchun vaqt
+  countdown = signal(0);
+  iframeUrl = signal<string>('');
   openedInWindow = signal(false);
 
   private timerId?: ReturnType<typeof setInterval>;
@@ -81,7 +81,7 @@ export class CheckerComponent implements OnDestroy {
     { label: '10 son', value: 10000 },
     { label: '20 son', value: 20000 },
     { label: '30 son', value: 30000 },
-    { label: '1 min',  value: 60000 },
+    { label: '1 min', value: 60000 },
   ];
 
   // ── SAYT QO'SHISH ─────────────────────────────
@@ -93,7 +93,7 @@ export class CheckerComponent implements OnDestroy {
 
     this.urlError.set('');
     this.sites.update(list => [...list, {
-      id:    Date.now().toString(),
+      id: Date.now().toString(),
       url,
       label: this.newLabel().trim() || undefined,
     }]);
