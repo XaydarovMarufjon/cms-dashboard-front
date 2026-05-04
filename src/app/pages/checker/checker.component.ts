@@ -11,6 +11,7 @@ interface CheckSite {
   id: string;
   url: string;
   label?: string;
+  forceWindow?: boolean;
 }
 
 type SiteStatus = 'idle' | 'checking' | 'done' | 'error';
@@ -42,7 +43,7 @@ export class CheckerComponent implements OnDestroy {
     { id: '5', url: 'https://saylov.uz/', label: 'Saylov' },
     { id: '6', url: 'https://ijro.gov.uz/', label: 'Ijro' },
     { id: '7', url: 'https://parliament.gov.uz/', label: 'Parlament' },
-    { id: '8', url: 'https://gov.uz/', label: 'Hukumat Sayti' },
+    { id: '8', url: 'https://gov.uz/', label: 'Hukumat Sayti', forceWindow: true },
   ]);
 
   // ── URL QOSHISH ───────────────────────────────
@@ -155,11 +156,13 @@ export class CheckerComponent implements OnDestroy {
 
     const start = Date.now();
 
-    let canEmbed = true;
-    try {
-      const res = await firstValueFrom(this.scannerService.checkCanEmbed(site.url));
-      canEmbed = res.canEmbed;
-    } catch { canEmbed = true; }
+    let canEmbed = !site.forceWindow;
+    if (canEmbed) {
+      try {
+        const res = await firstValueFrom(this.scannerService.checkCanEmbed(site.url));
+        canEmbed = res.canEmbed;
+      } catch { canEmbed = false; }
+    }
 
     this.openWin?.close();
     this.openWin = null;
