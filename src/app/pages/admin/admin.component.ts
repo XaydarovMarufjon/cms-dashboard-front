@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { User, UserRole } from '../../shared/models/user.model';
 
 @Component({
@@ -16,6 +17,7 @@ import { User, UserRole } from '../../shared/models/user.model';
 export class AdminComponent implements OnInit {
   private adminSvc = inject(AdminService);
   auth             = inject(AuthService);
+  themeService     = inject(ThemeService);
   private fb       = inject(FormBuilder);
 
   users         = signal<User[]>([]);

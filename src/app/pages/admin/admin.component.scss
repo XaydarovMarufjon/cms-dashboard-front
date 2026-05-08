@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-$bg:      #080910;
-$s1:      #0f1018;
-$s2:      #14151f;
-$s3:      #1c1d2a;
-$border:  #22233a;
-$accent:  #00e5c0;
-$red:     #ff6b7a;
-$yellow:  #ffc84a;
-$text:    #dde1f0;
-$muted:   #5a5b72;
-$radius:  10px;
+$bg:     var(--bg);
+$s1:     var(--s1);
+$s2:     var(--s2);
+$s3:     var(--s3);
+$border: var(--border);
+$accent: var(--accent);
+$red:    var(--red);
+$yellow: var(--yellow);
+$text:   var(--text);
+$muted:  var(--muted);
+$radius: 10px;
 
 :host {
   display: block;
@@ -59,7 +59,7 @@ $radius:  10px;
   font-size: 13px;
   transition: color .15s, background .15s;
   &:hover  { color: $text; background: $s2; }
-  &.active { color: $accent; background: rgba($accent, .07); }
+  &.active { color: $accent; background: color-mix(in srgb, var(--accent) 7%, transparent); }
 }
 .nav-icon { font-size: 16px; }
 
@@ -116,8 +116,8 @@ $radius:  10px;
   justify-content: space-between;
   gap: 12px;
 }
-.alert-success { background: rgba($accent, .12); color: $accent; border: 1px solid rgba($accent, .3); }
-.alert-error   { background: rgba($red, .12);    color: $red;    border: 1px solid rgba($red, .3); }
+.alert-success { background: color-mix(in srgb, var(--accent) 12%, transparent); color: $accent; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.alert-error   { background: color-mix(in srgb, var(--red) 12%, transparent);    color: $red;    border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); }
 .alert-close   { background: none; border: none; cursor: pointer; color: inherit; font-size: 14px; opacity: .7; &:hover { opacity: 1; } }
 
 // ── CARD ──────────────────────────────────────────
@@ -188,7 +188,7 @@ $radius:  10px;
   align-items: center;
   gap: 6px;
   background: $accent;
-  color: #080910;
+  color: var(--bg);
   border: none;
   border-radius: 8px;
   padding: 9px 18px;
@@ -229,7 +229,7 @@ $radius:  10px;
 
   td {
     padding: 13px 16px;
-    border-bottom: 1px solid rgba($border, .5);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
     vertical-align: middle;
   }
 
@@ -241,7 +241,7 @@ $radius:  10px;
 .username { font-weight: 500; display: flex; align-items: center; gap: 8px; }
 .you-badge {
   font-size: 10px;
-  background: rgba($accent, .15);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: $accent;
   padding: 2px 6px;
   border-radius: 4px;
@@ -258,8 +258,8 @@ $radius:  10px;
   letter-spacing: .5px;
 }
 .badge-admin      { background: rgba(#7c6ff5, .2); color: #a99cf5; }
-.badge-worker     { background: rgba($accent, .15); color: $accent; }
-.badge-monitoring { background: rgba($yellow, .15); color: $yellow; }
+.badge-worker     { background: color-mix(in srgb, var(--accent) 15%, transparent); color: $accent; }
+.badge-monitoring { background: color-mix(in srgb, var(--yellow) 15%, transparent); color: $yellow; }
 
 // ── ROW ACTIONS ───────────────────────────────────
 .actions { display: flex; align-items: center; gap: 8px; }
@@ -279,13 +279,13 @@ $radius:  10px;
 
 .btn-danger-sm {
   background: transparent;
-  border: 1px solid rgba($red, .4);
+  border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
   color: $red;
   border-radius: 6px;
   padding: 5px 10px;
   font-size: 12px;
   cursor: pointer;
-  &:hover { background: rgba($red, .1); }
+  &:hover { background: color-mix(in srgb, var(--red) 10%, transparent); }
   &:disabled { opacity: .4; cursor: default; }
 }
 
@@ -294,4 +294,33 @@ $radius:  10px;
   text-align: center;
   color: $muted;
   font-size: 14px;
+}
+
+// ── THEME SWITCHER ────────────────────────────────
+.theme-switcher {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.theme-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 4px;
+  border-radius: 7px;
+  border: 1px solid $border;
+  background: $s2;
+  color: $muted;
+  cursor: pointer;
+  transition: all .15s;
+
+  &:hover { color: $text; border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  &.active {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    color: $accent;
+  }
 }

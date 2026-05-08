@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
 import { firstValueFrom } from 'rxjs';
-import { ScannerService, WhoisData, SiteInfoData } from '../../core/services/scanner.service';
+import { ScannerService, WhoisData, SiteInfoData, NucleiResult } from '../../core/services/scanner.service';
 import { ScanResult, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
 
 export interface DiscoveredSub {
@@ -59,6 +59,12 @@ export class SiteDetailComponent implements OnInit {
   scanResultMap = signal<Map<string, ScanResult>>(new Map());
   scanErrorMap  = signal<Map<string, string>>(new Map());
 
+  // Nuclei CVE scan
+  nucleiResults  = signal<NucleiResult[]>([]);
+  nucleiRunning  = signal(false);
+  nucleiError    = signal('');
+  nucleiDone     = signal(false);
+
   /** Root domain of the current site (e.g. "gov.uz") */
   rootDomain = computed(() => {
     const url = this.result()?.website?.url;
@@ -99,6 +105,12 @@ export class SiteDetailComponent implements OnInit {
       );
     } catch { /* ignore */ }
     finally { this.loading.set(false); }
+
+    // Load saved nuclei results (fire-and-forget)
+    try {
+      const saved = await firstValueFrom(this.scanner.getNucleiResults(this._fetchWebsiteId));
+      if (saved.length) { this.nucleiResults.set(saved); this.nucleiDone.set(true); }
+    } catch { /* ignore */ }
   }
 
   // ── Subdomain discovery ───────────────────────────────────────────────────
@@ -196,6 +208,38 @@ export class SiteDetailComponent implements OnInit {
     } finally {
       this.scanningSet.update(s => { const n = new Set(s); n.delete(sub.subdomain); return n; });
     }
+  }
+
+  // ── Nuclei CVE scan ───────────────────────────────────────────────────────
+  async runNuclei() {
+    if (this.nucleiRunning()) return;
+    const targets = this.aliveSubdomains().map(s => s.subdomain);
+    if (!targets.length) {
+      this.nucleiError.set('Tirik subdomenlar topilmadi. Avval subdomains qidiring.');
+      return;
+    }
+    this.nucleiRunning.set(true);
+    this.nucleiError.set('');
+    try {
+      const hits = await firstValueFrom(
+        this.scanner.runNuclei(this._fetchWebsiteId, targets)
+      );
+      this.nucleiResults.set(hits);
+      this.nucleiDone.set(true);
+    } catch (e: any) {
+      this.nucleiError.set(e?.error?.message ?? 'Nuclei skan muvaffaqiyatsiz tugadi');
+    } finally {
+      this.nucleiRunning.set(false);
+    }
+  }
+
+  nucleiSevClass(sev: string): string {
+    const map: Record<string, string> = {
+      critical: 'sev-critical', high: 'sev-high',
+      medium: 'sev-medium',    low: 'sev-low',
+      info: 'sev-info',
+    };
+    return map[sev] ?? 'sev-unknown';
   }
 
   // ── CAN EMBED ─────────────────────────────────────────────────────────────
@@ -307,7 +351,7 @@ export class SiteDetailComponent implements OnInit {
 
   countryFlag(code: string): string {
     return code.toUpperCase().replace(/./g, c =>
-      String.fromCodePoint(0x1F1E0 - 65 + c.charCodeAt(0))
+      String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0))
     );
   }
 

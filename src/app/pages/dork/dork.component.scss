@@ -1,12 +1,10 @@
-$accent: #f59e0b;
-$accent2: #00e5c0;
-$bg: #0f172a;
-$surface: #1e293b;
-$surface2: #263348;
-$border: #334155;
-$text: #e2e8f0;
-$muted: #94a3b8;
-$danger: #ef4444;
+$dork-accent: #f59e0b;  // page-specific amber
+$bg:      var(--bg);
+$surface: var(--s1);
+$surface2: var(--s2);
+$border:  var(--border);
+$text:    var(--text);
+$muted:   var(--muted);
 
 .dork-page {
   display: flex;
@@ -34,13 +32,13 @@ $danger: #ef4444;
   gap: 12px;
 
   h1 {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 600;
     margin: 0 0 2px;
     color: $text;
   }
   p {
-    font-size: 12px;
+    font-size: 14px;
     color: $muted;
     margin: 0;
   }
@@ -50,7 +48,7 @@ $danger: #ef4444;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   text-decoration: none;
   padding: 5px 10px;
@@ -61,7 +59,7 @@ $danger: #ef4444;
 
   &:hover {
     color: $text;
-    border-color: #475569;
+    border-color: var(--muted);
   }
 }
 
@@ -103,7 +101,7 @@ $danger: #ef4444;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -113,20 +111,20 @@ $danger: #ef4444;
 
 .badge {
   margin-left: auto;
-  background: rgba($accent2, .12);
-  color: $accent2;
-  border: 1px solid rgba($accent2, .2);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 10px;
   padding: 1px 8px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0;
 }
 
 .hint-text {
   margin-left: 4px;
-  color: #475569;
-  font-size: 10px;
+  color: color-mix(in srgb, var(--muted) 45%, transparent);
+  font-size: 12px;
   font-weight: 400;
   font-style: italic;
   text-transform: none;
@@ -140,14 +138,14 @@ $danger: #ef4444;
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 13px;
+  font-size: 15px;
   padding: 9px 12px;
   outline: none;
   box-sizing: border-box;
   transition: border-color .15s;
 
-  &::placeholder { color: #475569; }
-  &:focus { border-color: rgba($accent, .5); }
+  &::placeholder { color: color-mix(in srgb, var(--muted) 45%, transparent); }
+  &:focus { border-color: color-mix(in srgb, #f59e0b 50%, transparent); }
 }
 
 // ── DOMAIN GRID ──────────────────────────────────────
@@ -170,27 +168,27 @@ $danger: #ef4444;
   transition: border-color .15s, background .15s;
 
   .chip-label {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: $muted;
     transition: color .15s;
   }
   .chip-desc {
-    font-size: 10px;
-    color: #475569;
+    font-size: 12px;
+    color: color-mix(in srgb, var(--muted) 45%, transparent);
     transition: color .15s;
   }
 
   &:hover {
-    border-color: rgba($accent, .3);
+    border-color: color-mix(in srgb, #f59e0b 30%, transparent);
     .chip-label { color: $text; }
   }
 
   &.selected {
-    border-color: rgba($accent, .6);
-    background: rgba($accent, .07);
-    .chip-label { color: $accent; }
-    .chip-desc { color: rgba($accent, .6); }
+    border-color: color-mix(in srgb, #f59e0b 60%, transparent);
+    background: color-mix(in srgb, #f59e0b 7%, transparent);
+    .chip-label { color: #f59e0b; }
+    .chip-desc { color: color-mix(in srgb, #f59e0b 60%, transparent); }
   }
 }
 
@@ -227,31 +225,31 @@ $danger: #ef4444;
   }
 
   .preset-name {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: $text;
     margin-bottom: 2px;
   }
 
   .preset-desc {
-    font-size: 10px;
-    color: #475569;
+    font-size: 12px;
+    color: color-mix(in srgb, var(--muted) 45%, transparent);
     line-height: 1.4;
   }
 
   &:hover {
-    border-color: rgba($accent, .3);
+    border-color: color-mix(in srgb, #f59e0b 30%, transparent);
   }
 
   &.active {
-    border-color: rgba($accent, .6);
-    background: rgba($accent, .06);
+    border-color: color-mix(in srgb, #f59e0b 60%, transparent);
+    background: color-mix(in srgb, #f59e0b 6%, transparent);
 
     .preset-icon {
-      background: rgba($accent, .12);
-      color: $accent;
+      background: color-mix(in srgb, #f59e0b 12%, transparent);
+      color: #f59e0b;
     }
-    .preset-name { color: $accent; }
+    .preset-name { color: #f59e0b; }
   }
 }
 
@@ -262,7 +260,7 @@ $danger: #ef4444;
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   padding: 9px 12px;
   outline: none;
@@ -271,13 +269,13 @@ $danger: #ef4444;
   line-height: 1.6;
   transition: border-color .15s;
 
-  &::placeholder { color: #475569; }
-  &:focus { border-color: rgba($accent, .5); }
+  &::placeholder { color: color-mix(in srgb, var(--muted) 45%, transparent); }
+  &:focus { border-color: color-mix(in srgb, #f59e0b 50%, transparent); }
 }
 
 // ── QUERY SECTION ────────────────────────────────────
 .query-section {
-  border-color: rgba($accent2, .2);
+  border-color: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .query-box {
@@ -289,13 +287,13 @@ $danger: #ef4444;
   position: relative;
   min-height: 56px;
 
-  &.empty .query-text { color: #475569; font-style: italic; }
+  &.empty .query-text { color: color-mix(in srgb, var(--muted) 45%, transparent); font-style: italic; }
 }
 
 .query-text {
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: $accent2;
+  color: var(--accent);
   line-height: 1.6;
   word-break: break-all;
   padding-right: 90px;
@@ -312,14 +310,14 @@ $danger: #ef4444;
   border: 1px solid $border;
   border-radius: 5px;
   color: $muted;
-  font-size: 11px;
+  font-size: 13px;
   padding: 4px 9px;
   cursor: pointer;
   transition: color .15s, border-color .15s;
 
   &:hover {
     color: $text;
-    border-color: #475569;
+    border-color: var(--muted);
   }
 }
 
@@ -329,19 +327,19 @@ $danger: #ef4444;
   justify-content: center;
   gap: 7px;
   width: 100%;
-  background: rgba($accent, .1);
-  border: 1px solid rgba($accent, .35);
+  background: color-mix(in srgb, #f59e0b 10%, transparent);
+  border: 1px solid color-mix(in srgb, #f59e0b 35%, transparent);
   border-radius: 8px;
-  color: $accent;
-  font-size: 13px;
+  color: #f59e0b;
+  font-size: 15px;
   font-weight: 600;
   padding: 10px;
   cursor: pointer;
   transition: background .15s, border-color .15s;
 
   &:hover {
-    background: rgba($accent, .18);
-    border-color: rgba($accent, .55);
+    background: color-mix(in srgb, #f59e0b 18%, transparent);
+    border-color: color-mix(in srgb, #f59e0b 55%, transparent);
   }
 }
 
@@ -359,7 +357,7 @@ $danger: #ef4444;
   padding: 10px 12px;
   transition: border-color .15s;
 
-  &:hover { border-color: #475569; }
+  &:hover { border-color: var(--muted); }
 }
 
 .preset-row-header {
@@ -370,7 +368,7 @@ $danger: #ef4444;
 }
 
 .preset-row-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -383,9 +381,9 @@ $danger: #ef4444;
 }
 
 .preset-row-query {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: $accent2;
+  color: var(--accent);
   word-break: break-all;
   line-height: 1.5;
   opacity: .85;
@@ -408,11 +406,11 @@ $danger: #ef4444;
 
   &:hover {
     color: $text;
-    border-color: #475569;
+    border-color: var(--muted);
   }
 
-  &.open-btn:hover { color: $accent; border-color: rgba($accent, .4); }
-  &.copied { color: $accent2; border-color: rgba($accent2, .3); }
+  &.open-btn:hover { color: #f59e0b; border-color: color-mix(in srgb, #f59e0b 40%, transparent); }
+  &.copied { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
 }
 
 // ── HISTORY ──────────────────────────────────────────
@@ -421,13 +419,13 @@ $danger: #ef4444;
   background: none;
   border: none;
   color: $muted;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
   transition: color .15s;
 
-  &:hover { color: $danger; }
+  &:hover { color: var(--red); }
 }
 
 .history-list {
@@ -445,7 +443,7 @@ $danger: #ef4444;
   padding: 8px 10px;
   transition: border-color .15s;
 
-  &:hover { border-color: #475569; }
+  &:hover { border-color: var(--muted); }
 }
 
 .history-meta {
@@ -456,26 +454,26 @@ $danger: #ef4444;
 }
 
 .history-preset {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  color: $accent;
+  color: #f59e0b;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
 
 .history-domains {
-  font-size: 10px;
+  font-size: 12px;
   color: $muted;
 }
 
 .history-time {
   margin-left: auto;
-  font-size: 10px;
-  color: #475569;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--muted) 45%, transparent);
 }
 
 .history-query {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: #64748b;
   word-break: break-all;
@@ -500,7 +498,7 @@ $danger: #ef4444;
   color: #334155;
 
   p {
-    font-size: 13px;
+    font-size: 15px;
     margin: 0;
   }
 }

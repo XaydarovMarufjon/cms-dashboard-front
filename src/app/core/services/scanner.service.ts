@@ -94,6 +94,148 @@ export class ScannerService {
     exportCsv(): Observable<string> {
         return this.http.get(`${this.api}/scanner/export`, { responseType: 'text' });
     }
+
+    runNuclei(websiteId: string, subdomains: string[]): Observable<NucleiResult[]> {
+        return this.http.post<NucleiResult[]>(
+            `${this.api}/scanner/nuclei/${websiteId}`, { subdomains }
+        );
+    }
+
+    getNucleiResults(websiteId: string): Observable<NucleiResult[]> {
+        return this.http.get<NucleiResult[]>(`${this.api}/scanner/nuclei/${websiteId}`);
+    }
+
+    getAllNucleiResults(): Observable<NucleiResult[]> {
+        return this.http.get<NucleiResult[]>(`${this.api}/scanner/nuclei-results`);
+    }
+
+    runNucleiAll(): Observable<{ total: number; findings: number }> {
+        return this.http.post<{ total: number; findings: number }>(
+            `${this.api}/scanner/nuclei-all`, {}
+        );
+    }
+
+    getNucleiInterval(): Observable<{ interval: number }> {
+        return this.http.get<{ interval: number }>(`${this.api}/scanner/nuclei-interval`);
+    }
+
+    setNucleiInterval(minutes: number): Observable<any> {
+        return this.http.post(`${this.api}/scanner/nuclei-interval`, { minutes });
+    }
+
+    getNucleiProgress(): Observable<NucleiProgress> {
+        return this.http.get<NucleiProgress>(`${this.api}/scanner/nuclei-progress`);
+    }
+
+    updateCveStatus(id: string, status: 'PENDING' | 'FALSE_POSITIVE' | 'CONFIRMED'): Observable<NucleiResult> {
+        return this.http.patch<NucleiResult>(`${this.api}/scanner/nuclei-result/${id}/status`, { status });
+    }
+
+    getCveMonitoring(): Observable<NucleiResult[]> {
+        return this.http.get<NucleiResult[]>(`${this.api}/scanner/nuclei-monitoring`);
+    }
+
+    getCveRejected(): Observable<NucleiResult[]> {
+        return this.http.get<NucleiResult[]>(`${this.api}/scanner/nuclei-rejected`);
+    }
+
+    // ── Threat Intel Feeds ────────────────────────────────────────────────
+    getFeeds(): Observable<ThreatFeed[]> {
+        return this.http.get<ThreatFeed[]>(`${this.api}/scanner/threat-feeds`);
+    }
+
+    upsertFeed(data: { id?: string; name: string; type: string; url?: string; apiKey?: string; enabled?: boolean }): Observable<ThreatFeed> {
+        return this.http.post<ThreatFeed>(`${this.api}/scanner/threat-feeds`, data);
+    }
+
+    toggleFeed(id: string, enabled: boolean): Observable<ThreatFeed> {
+        return this.http.patch<ThreatFeed>(`${this.api}/scanner/threat-feeds/${id}/toggle`, { enabled });
+    }
+
+    configureFeed(id: string, data: { url?: string; apiKey?: string; name?: string }): Observable<ThreatFeed> {
+        return this.http.patch<ThreatFeed>(`${this.api}/scanner/threat-feeds/${id}/configure`, data);
+    }
+
+    deleteFeed(id: string): Observable<ThreatFeed> {
+        return this.http.delete<ThreatFeed>(`${this.api}/scanner/threat-feeds/${id}`);
+    }
+
+    syncFeed(id: string): Observable<{ synced: number; errors: number }> {
+        return this.http.post<{ synced: number; errors: number }>(`${this.api}/scanner/threat-feeds/${id}/sync`, {});
+    }
+
+    syncAllFeeds(): Observable<Record<string, { synced: number; errors: number }>> {
+        return this.http.post<any>(`${this.api}/scanner/threat-feeds/sync-all`, {});
+    }
+
+    enrichAll(): Observable<{ total: number; enriched: number; errors: number }> {
+        return this.http.post<any>(`${this.api}/scanner/cve-enrich-all`, {});
+    }
+}
+
+export interface NucleiProgress {
+    scanning:     boolean;
+    currentSite:  string | null;
+    currentIndex: number;
+    total:        number;
+    completed: Array<{
+        url:      string;
+        label:    string | null;
+        findings: number;
+        error:    string | null;
+    }>;
+    startedAt: string | null;
+}
+
+export interface CveEnrichment {
+    id:          string;
+    cveId:       string;
+    cvssScore:   number | null;
+    cvssVector:  string | null;
+    cvssVersion: string | null;
+    epssScore:   number | null;
+    epssPercent: number | null;
+    isKev:       boolean;
+    kevDueDate:  string | null;
+    description: string | null;
+    references:  string[];
+    cweIds:      string[];
+    otxPulses:   number | null;
+    vtMalicious: number | null;
+    mispEvents:  number | null;
+    osvFound:    boolean;
+    osvAliases:  string[];
+    sources:     string[];
+    enrichedAt:  string;
+    updatedAt:   string;
+}
+
+export interface ThreatFeed {
+    id:         string;
+    name:       string;
+    type:       'NVD' | 'CISA_KEV' | 'EPSS' | 'OSV' | 'CIRCL' | 'MITRE_CVE' | 'MISP' | 'OTX' | 'VIRUSTOTAL';
+    url:        string | null;
+    apiKey:     string | null;
+    enabled:    boolean;
+    lastSync:   string | null;
+    lastStatus: string | null;
+    lastError:  string | null;
+    createdAt:  string;
+}
+
+export interface NucleiResult {
+    id:          string;
+    websiteId:   string;
+    subdomain:   string;
+    templateId:  string;
+    cveId:       string | null;
+    severity:    'critical' | 'high' | 'medium' | 'low' | 'info' | 'unknown';
+    name:        string;
+    description: string | null;
+    matchedAt:   string | null;
+    scannedAt:   string;
+    status:      'PENDING' | 'FALSE_POSITIVE' | 'CONFIRMED';
+    enrichment:  CveEnrichment | null;
 }
 
 export interface SslInfo {
@@ -122,6 +264,9 @@ export interface SecHeadersInfo {
     xXssProtection:      boolean;
     referrerPolicy:      boolean;
     permissionsPolicy:   boolean;
+    coopPolicy:          boolean;
+    coepPolicy:          boolean;
+    corpPolicy:          boolean;
     score:               number;
     grade:               string;
     present:             string[];

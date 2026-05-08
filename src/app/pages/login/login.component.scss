@@ -1,15 +1,15 @@
 /* src/app/pages/login/login.component.scss */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-$bg:      #080910;
-$surface: #0f1018;
-$s2:      #14151f;
-$s3:      #1c1d2a;
-$border:  #22233a;
-$accent:  #00e5c0;
-$red:     #ff6b7a;
-$text:    #dde1f0;
-$muted:   #5a5b72;
+$bg:     var(--bg);
+$surface: var(--s1);
+$s2:     var(--s2);
+$s3:     var(--s3);
+$border: var(--border);
+$accent: var(--accent);
+$red:    var(--red);
+$text:   var(--text);
+$muted:  var(--muted);
 
 :host {
   display: block;
@@ -32,8 +32,8 @@ $muted:   #5a5b72;
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,229,192,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,229,192,.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--accent) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 3%, transparent) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
 
@@ -83,8 +83,8 @@ $muted:   #5a5b72;
 
 .logo-icon {
   width: 48px; height: 48px;
-  background: rgba($accent, .08);
-  border: 1px solid rgba($accent, .2);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -130,8 +130,8 @@ $muted:   #5a5b72;
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba($red, .08);
-  border: 1px solid rgba($red, .2);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
   border-radius: 8px;
   font-size: 13px;
   color: $red;
@@ -170,8 +170,8 @@ $muted:   #5a5b72;
   transition: border-color .15s;
   overflow: hidden;
 
-  &:focus-within { border-color: rgba($accent, .5); }
-  &.err          { border-color: rgba($red, .5); }
+  &:focus-within { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+  &.err          { border-color: color-mix(in srgb, var(--red) 50%, transparent); }
 }
 
 .input-icon {

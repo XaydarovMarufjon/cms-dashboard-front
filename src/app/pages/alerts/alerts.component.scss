@@ -1,16 +1,16 @@
 /* src/app/pages/alerts/alerts.component.scss */
-$bg:       #080910;
-$s1:       #0f1018;
-$s2:       #14151f;
-$s3:       #1c1d2a;
-$border:   #22233a;
-$text:     #dde1f0;
-$muted:    #5a5b72;
-$accent:   #00e5c0;
-$red:      #ff6b7a;
-$yellow:   #ffc84a;
-$orange:   #fb923c;
-$green:    #22c55e;
+$bg:     var(--bg);
+$s1:     var(--s1);
+$s2:     var(--s2);
+$s3:     var(--s3);
+$border: var(--border);
+$text:   var(--text);
+$muted:  var(--muted);
+$accent: var(--accent);
+$red:    var(--red);
+$yellow: var(--yellow);
+$orange: #fb923c;
+$green:  #22c55e;
 
 :host { display: block; font-family: 'IBM Plex Sans', sans-serif; }
 
@@ -55,9 +55,9 @@ $green:    #22c55e;
 }
 
 .total-badge {
-  background: rgba($yellow, .15);
+  background: color-mix(in srgb, var(--yellow) 15%, transparent);
   color: $yellow;
-  border: 1px solid rgba($yellow, .25);
+  border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
@@ -86,10 +86,10 @@ $green:    #22c55e;
     background: currentColor;
   }
 
-  &.chip-urgent   { color: $red;    background: rgba($red,.12);    border-color: rgba($red,.3); font-weight: 700; }
-  &.chip-critical { color: $red;    background: rgba($red,.08);    border-color: rgba($red,.2); }
+  &.chip-urgent   { color: $red;    background: color-mix(in srgb, var(--red) 12%, transparent);    border-color: color-mix(in srgb, var(--red) 30%, transparent); font-weight: 700; }
+  &.chip-critical { color: $red;    background: color-mix(in srgb, var(--red) 8%, transparent);    border-color: color-mix(in srgb, var(--red) 20%, transparent); }
   &.chip-warning  { color: $orange; background: rgba($orange,.08); border-color: rgba($orange,.2); }
-  &.chip-notice   { color: $yellow; background: rgba($yellow,.08); border-color: rgba($yellow,.2); }
+  &.chip-notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 8%, transparent); border-color: color-mix(in srgb, var(--yellow) 20%, transparent); }
 }
 
 // ── STATES ─────────────────────────────────────────
@@ -106,7 +106,7 @@ $green:    #22c55e;
 .spinner {
   display: inline-block;
   width: 28px; height: 28px;
-  border: 2px solid rgba($accent,.15);
+  border: 2px solid color-mix(in srgb, var(--accent) 15%, transparent);
   border-top-color: $accent;
   border-radius: 50%;
   animation: spin .7s linear infinite;
@@ -141,10 +141,10 @@ $green:    #22c55e;
 
   &:hover { box-shadow: 0 4px 24px rgba(0,0,0,.3); }
 
-  &.alert-expiry_urgent   { border-left-color: $red;    border-left-width: 4px; background: linear-gradient(90deg, rgba($red,.08) 0%, $s1 60%); }
-  &.alert-expiry_critical { border-left-color: $red;    background: linear-gradient(90deg, rgba($red,.04) 0%, $s1 60%); }
+  &.alert-expiry_urgent   { border-left-color: $red;    border-left-width: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--red) 8%, transparent) 0%, $s1 60%); }
+  &.alert-expiry_critical { border-left-color: $red;    background: linear-gradient(90deg, color-mix(in srgb, var(--red) 4%, transparent) 0%, $s1 60%); }
   &.alert-expiry_warning  { border-left-color: $orange; background: linear-gradient(90deg, rgba($orange,.04) 0%, $s1 60%); }
-  &.alert-expiry_notice   { border-left-color: $yellow; background: linear-gradient(90deg, rgba($yellow,.04) 0%, $s1 60%); }
+  &.alert-expiry_notice   { border-left-color: $yellow; background: linear-gradient(90deg, color-mix(in srgb, var(--yellow) 4%, transparent) 0%, $s1 60%); }
 
   &.alert-urgent-pulse {
     animation: urgentPulse 2s ease-in-out infinite;
@@ -167,10 +167,10 @@ $green:    #22c55e;
   align-items: center;
   justify-content: center;
 
-  &.icon-expiry_urgent   { color: $red;    background: rgba($red,.18);    border: 1px solid rgba($red,.35); }
-  &.icon-expiry_critical { color: $red;    background: rgba($red,.12);    border: 1px solid rgba($red,.2); }
+  &.icon-expiry_urgent   { color: $red;    background: color-mix(in srgb, var(--red) 18%, transparent);    border: 1px solid color-mix(in srgb, var(--red) 35%, transparent); }
+  &.icon-expiry_critical { color: $red;    background: color-mix(in srgb, var(--red) 12%, transparent);    border: 1px solid color-mix(in srgb, var(--red) 20%, transparent); }
   &.icon-expiry_warning  { color: $orange; background: rgba($orange,.12); border: 1px solid rgba($orange,.2); }
-  &.icon-expiry_notice   { color: $yellow; background: rgba($yellow,.12); border: 1px solid rgba($yellow,.2); }
+  &.icon-expiry_notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 12%, transparent); border: 1px solid color-mix(in srgb, var(--yellow) 20%, transparent); }
 }
 
 .alert-body {
@@ -189,7 +189,7 @@ $green:    #22c55e;
 
 .alert-message {
   font-size: 12px;
-  color: rgba($text, .65);
+  color: color-mix(in srgb, var(--text) 65%, transparent);
   line-height: 1.5;
 }
 
@@ -210,16 +210,16 @@ $green:    #22c55e;
   padding: 2px 7px;
   border: 1px solid;
 
-  &.type-badge-expiry_urgent   { color: $red;    background: rgba($red,.15);   border-color: rgba($red,.3); font-weight: 800; letter-spacing: .08em; }
-  &.type-badge-expiry_critical { color: $red;    background: rgba($red,.1);    border-color: rgba($red,.2); }
+  &.type-badge-expiry_urgent   { color: $red;    background: color-mix(in srgb, var(--red) 15%, transparent);   border-color: color-mix(in srgb, var(--red) 30%, transparent); font-weight: 800; letter-spacing: .08em; }
+  &.type-badge-expiry_critical { color: $red;    background: color-mix(in srgb, var(--red) 10%, transparent);    border-color: color-mix(in srgb, var(--red) 20%, transparent); }
   &.type-badge-expiry_warning  { color: $orange; background: rgba($orange,.1); border-color: rgba($orange,.2); }
-  &.type-badge-expiry_notice   { color: $yellow; background: rgba($yellow,.1); border-color: rgba($yellow,.2); }
+  &.type-badge-expiry_notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 10%, transparent); border-color: color-mix(in srgb, var(--yellow) 20%, transparent); }
 }
 
 .days-left {
   font-size: 12px;
   font-weight: 600;
-  color: rgba($text, .6);
+  color: color-mix(in srgb, var(--text) 60%, transparent);
 
   &.days-overdue { color: $red; }
 }
@@ -261,10 +261,10 @@ $green:    #22c55e;
 }
 
 .btn-skip {
-  background: rgba($muted, .08);
+  background: color-mix(in srgb, var(--muted) 8%, transparent);
   color: $muted;
-  border: 1px solid rgba($muted, .15);
-  &:not(:disabled):hover { background: rgba($muted, .14); color: $text; }
+  border: 1px solid color-mix(in srgb, var(--muted) 15%, transparent);
+  &:not(:disabled):hover { background: color-mix(in srgb, var(--muted) 14%, transparent); color: $text; }
 }
 
 .btn-spinner {
@@ -279,8 +279,8 @@ $green:    #22c55e;
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @keyframes urgentPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba($red, 0); }
-  50%       { box-shadow: 0 0 0 6px rgba($red, .15); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 0%, transparent); }
+  50%       { box-shadow: 0 0 0 6px color-mix(in srgb, var(--red) 15%, transparent); }
 }
 
 .chip-pulse {

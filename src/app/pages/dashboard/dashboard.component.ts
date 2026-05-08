@@ -8,6 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ScannerService, Alert } from '../../core/services/scanner.service';
 import { WebsiteService } from '../../core/services/website.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService, Theme } from '../../core/services/theme.service';
 import { ScanResult, Website, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
 import { NetworkMonitorComponent } from '../../shared/network-monitor/network-monitor.component';
 
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private sanitizer      = inject(DomSanitizer);
   private router         = inject(Router);
   auth                   = inject(AuthService);
+  themeService           = inject(ThemeService);
 
   // ── SIGNALS ───────────────────────────────────
   results         = signal<ScanResult[]>([]);
@@ -37,6 +39,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   addingWebsite   = signal(false);
   searchQuery     = signal('');
   filterCms       = signal('all');
+  controlsOpen    = signal(false);
   sortBy          = signal<'confidence' | 'date' | 'url'>('confidence');
   successMsg      = signal<string | null>(null);
   error           = signal<string | null>(null);
@@ -56,6 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   refreshInterval = signal(60);
   countdown       = signal(0);
   showScheduler   = signal(false);
+  viewMode        = signal<'grid' | 'table'>('grid');
 
   private refreshSub?: Subscription;
   private countSub?:   Subscription;

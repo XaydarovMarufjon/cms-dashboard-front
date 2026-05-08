@@ -46,5 +46,11 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/admin/admin.component').then(m => m.AdminComponent),
     },
+    {
+        path: 'nuclei',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/nuclei/nuclei.component').then(m => m.NucleiComponent),
+    },
     { path: '**', redirectTo: '' },
 ];
