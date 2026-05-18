@@ -52,5 +52,11 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/nuclei/nuclei.component').then(m => m.NucleiComponent),
     },
+    {
+        path: 'statistics',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
+    },
     { path: '**', redirectTo: '' },
 ];

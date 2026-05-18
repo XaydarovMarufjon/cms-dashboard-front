@@ -74,7 +74,15 @@
         </svg>
         CVE Scanner
       </a>
-      @if (auth.role() === 'ADMIN') {
+      <a class="sidenav-item" routerLink="/statistics">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <rect x="1.5" y="9" width="2.5" height="4.5" rx=".6" fill="currentColor"/>
+          <rect x="6.25" y="5.5" width="2.5" height="8" rx=".6" fill="currentColor" opacity=".7"/>
+          <rect x="11" y="2" width="2.5" height="11.5" rx=".6" fill="currentColor" opacity=".4"/>
+        </svg>
+        Statistika
+      </a>
+@if (auth.role() === 'ADMIN') {
       <a class="sidenav-item" routerLink="/admin">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4" />

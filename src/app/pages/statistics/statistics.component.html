@@ -1,0 +1,618 @@
+<div class="stats-page" [attr.data-theme]="themeService.theme()">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1.5" y="9" width="2.5" height="5.5" rx=".6" fill="currentColor"/>
+          <rect x="6.5" y="5" width="2.5" height="9.5" rx=".6" fill="currentColor" opacity=".7"/>
+          <rect x="11.5" y="2" width="2.5" height="12.5" rx=".6" fill="currentColor" opacity=".4"/>
+        </svg>
+      </span>
+      <span class="brand-name">Statistika</span>
+    </div>
+    <nav class="nav">
+      <a routerLink="/" class="nav-item">Dashboard</a>
+      <a routerLink="/checker" class="nav-item">Checker</a>
+      <a routerLink="/alerts" class="nav-item">Alertlar</a>
+      <a routerLink="/statistics" class="nav-item active">Statistika</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="current-user">
+        <span class="cu-role">{{ auth.role() }}</span>
+        <span class="cu-name">{{ auth.currentUser()?.username }}</span>
+      </div>
+      <button class="btn-logout" (click)="logout()">Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main">
+
+    <header class="page-header">
+      <div>
+        <h1>Statistika</h1>
+        <p class="subtitle">Excel fayl yuklang — Zaifliklar, Kiberxavfsizlik hodisalari, Texnik hodisa avtomatik aniqlanadi</p>
+      </div>
+      @if (hasAnyData()) {
+        <button class="btn-secondary" (click)="resetAll()">Hammasini tozalash</button>
+      }
+    </header>
+
+    <!-- Universal upload -->
+    <label class="dropzone" [class.dragging]="uniDrag()" [class.loading]="uniLoading()"
+           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+      <input type="file" hidden accept=".xlsx,.xls" multiple
+             (change)="onFiles($event)" [disabled]="uniLoading()" />
+      @if (uniLoading()) {
+        <div class="dz-loading"><div class="dz-spinner"></div><p>O'qilmoqda…</p></div>
+      } @else {
+        <div class="dz-content">
+          <h3>Excel fayl(lar)ni yuklang</h3>
+          <p>Заифликларга_хат_статистика.xlsx, Отчёты Группы.xlsx — fayl ichidagi sheet'lar avtomatik tahlil qilinadi</p>
+          <span class="dz-btn">Fayl tanlash</span>
+        </div>
+      }
+    </label>
+    @if (uniError()) { <div class="error">{{ uniError() }}</div> }
+    @if (uniFiles().length) {
+      <div class="loaded-files">
+        @for (f of uniFiles(); track f.name) {
+          <div class="loaded-file">
+            <span class="lf-name">{{ f.name }}</span>
+            @for (s of f.sections; track s) { <span class="lf-tag">{{ s }}</span> }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Section tabs -->
+    @if (hasAnyData()) {
+      <div class="section-tabs">
+        <button class="sec-tab" [class.active]="activeSection() === 'vuln'" [class.disabled]="!vuln()"
+                (click)="vuln() && setSection('vuln')">
+          Zaifliklar
+          @if (vuln()) { <span class="cnt">{{ vuln()!.rows.length }}</span> }
+        </button>
+        <button class="sec-tab" [class.active]="activeSection() === 'cyber'" [class.disabled]="!cyber()"
+                (click)="cyber() && setSection('cyber')">
+          Kiberxavfsizlik hodisalari
+          @if (cyber()) { <span class="cnt">{{ cyber()!.rows.length }}</span> }
+        </button>
+        <button class="sec-tab" [class.active]="activeSection() === 'tech'" [class.disabled]="!tech()"
+                (click)="tech() && setSection('tech')">
+          Texnik hodisa
+          @if (tech()) { <span class="cnt">{{ tech()!.rows.length }}</span> }
+        </button>
+      </div>
+    }
+
+    <!-- ═══════════ ZAIFLIKLAR ═══════════ -->
+    @if (activeSection() === 'vuln' && vuln(); as v) {
+      <section class="section">
+        <div class="toolbar">
+          <div class="file-info">
+            <span class="file-name">{{ v.fileName }}</span>
+            <span class="file-meta">{{ v.rows.length }} yozuv · {{ v.headers.length }} ustun</span>
+          </div>
+          <button class="btn-secondary" (click)="exportVuln()">CSV eksport</button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label>Davr:</label>
+            <div class="chip-row">
+              <button class="chip" [class.active]="vulnPeriod() === 'all'" (click)="setVulnPeriod('all')">Hammasi</button>
+              <button class="chip" [class.active]="vulnPeriod() === 'q1'" (click)="setVulnPeriod('q1')">Q1</button>
+              <button class="chip" [class.active]="vulnPeriod() === 'q2'" (click)="setVulnPeriod('q2')">Q2</button>
+              <button class="chip" [class.active]="vulnPeriod() === 'q3'" (click)="setVulnPeriod('q3')">Q3</button>
+              <button class="chip" [class.active]="vulnPeriod() === 'q4'" (click)="setVulnPeriod('q4')">Q4</button>
+              <span class="chip-sep"></span>
+              <button class="chip" [class.active]="vulnPeriod() === 'h1'" (click)="setVulnPeriod('h1')">1-yarim yil</button>
+              <button class="chip" [class.active]="vulnPeriod() === 'h2'" (click)="setVulnPeriod('h2')">2-yarim yil</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="select-wrap">
+              <label>Yil</label>
+              <select [ngModel]="vulnYear()" (ngModelChange)="vulnYear.set($event)">
+                <option value="all">Barchasi</option>
+                @for (y of vulnYears(); track y) { <option [value]="y">{{ y }}</option> }
+              </select>
+            </div>
+            <div class="select-wrap wide">
+              <label>OWASP oilasi</label>
+              <select [ngModel]="vulnFamily()" (ngModelChange)="vulnFamily.set($event)">
+                <option value="all">Barchasi</option>
+                @for (f of OWASP_FAMILIES; track f) { <option [value]="f">{{ f }}</option> }
+              </select>
+            </div>
+            <div class="select-wrap grow">
+              <label>Qidiruv</label>
+              <input type="text" [ngModel]="vulnSearch()" (ngModelChange)="vulnSearch.set($event)"
+                     placeholder="Tashkilot, veb-sayt, zaiflik turi…" />
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-card primary">
+            <div class="hero-title">Jami zaifliklar</div>
+            <div class="hero-value">{{ vulnFiltered().length }}</div>
+            <div class="hero-sub">{{ vulnUniqueOrgs() }} tashkilot · {{ vulnUniqueWebsites() }} veb-sayt</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Eng faol OWASP oilasi</div>
+            <div class="hero-value top-text">{{ vulnFamilyCounts()[0]?.key || '—' }}</div>
+            <div class="hero-sub">{{ vulnFamilyCounts()[0]?.count || 0 }} ta zaiflik</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Davlat ulushi</div>
+            <div class="hero-value">{{ vulnGovPercent() }}<small>%</small></div>
+            <div class="hero-sub">{{ vulnGovCounts()[0].count }} davlat / {{ vulnGovCounts()[1].count }} hususiy</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Yillik</div>
+            @if (vulnYearCounts().length) {
+              <div class="hero-value">{{ vulnYearCounts()[vulnYearCounts().length - 1].count }}</div>
+              <div class="hero-sub">{{ vulnYearCounts()[vulnYearCounts().length - 1].key }} y. — eng so'nggi</div>
+            } @else { <div class="hero-value">—</div> }
+          </div>
+        </div>
+
+        <h2 class="section-h">
+          Davlat va Hususiy taqsimoti
+          <span class="section-h-sub">{{ vulnSectorStats().gov.count }} davlat · {{ vulnSectorStats().priv.count }} hususiy@if (vulnSectorStats().unknown) { · {{ vulnSectorStats().unknown }} aniqlanmagan }</span>
+        </h2>
+        <div class="sector-grid">
+          <div class="sector-card gov">
+            <div class="sector-head">
+              <span class="sector-tag">DAVLAT</span>
+              <span class="sector-count">{{ vulnSectorStats().gov.count }} <small>zaiflik</small></span>
+            </div>
+            <div class="sector-stats">
+              <div class="sector-stat"><div class="ss-label">Veb-saytlar</div><div class="ss-val">{{ vulnSectorStats().gov.sites }}</div></div>
+              <div class="sector-stat"><div class="ss-label">Tashkilotlar</div><div class="ss-val">{{ vulnSectorStats().gov.orgs }}</div></div>
+              <div class="sector-stat wide"><div class="ss-label">Top OWASP</div><div class="ss-val ss-text">{{ vulnSectorStats().gov.topFamily || '—' }}</div><div class="ss-hint">{{ vulnSectorStats().gov.topFamilyCount }} ta</div></div>
+            </div>
+            @if (vulnSectorStats().gov.families.length) {
+              <div class="sector-fams">
+                @for (f of vulnSectorStats().gov.families; track f.key) {
+                  <div class="sf-row">
+                    <span class="sf-key" [title]="f.key">{{ f.key }}</span>
+                    <span class="sf-bar"><span class="sf-bar-fg gov-fg" [style.width.%]="(f.count / vulnSectorStats().gov.families[0].count) * 100"></span></span>
+                    <span class="sf-count">{{ f.count }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          <div class="sector-card priv">
+            <div class="sector-head">
+              <span class="sector-tag">HUSUSIY</span>
+              <span class="sector-count">{{ vulnSectorStats().priv.count }} <small>zaiflik</small></span>
+            </div>
+            <div class="sector-stats">
+              <div class="sector-stat"><div class="ss-label">Veb-saytlar</div><div class="ss-val">{{ vulnSectorStats().priv.sites }}</div></div>
+              <div class="sector-stat"><div class="ss-label">Tashkilotlar</div><div class="ss-val">{{ vulnSectorStats().priv.orgs }}</div></div>
+              <div class="sector-stat wide"><div class="ss-label">Top OWASP</div><div class="ss-val ss-text">{{ vulnSectorStats().priv.topFamily || '—' }}</div><div class="ss-hint">{{ vulnSectorStats().priv.topFamilyCount }} ta</div></div>
+            </div>
+            @if (vulnSectorStats().priv.families.length) {
+              <div class="sector-fams">
+                @for (f of vulnSectorStats().priv.families; track f.key) {
+                  <div class="sf-row">
+                    <span class="sf-key" [title]="f.key">{{ f.key }}</span>
+                    <span class="sf-bar"><span class="sf-bar-fg priv-fg" [style.width.%]="(f.count / vulnSectorStats().priv.families[0].count) * 100"></span></span>
+                    <span class="sf-count">{{ f.count }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (vulnInsights().length) {
+          <div class="insights">
+            <h3 class="insights-h">Asosiy topilmalar</h3>
+            <div class="insights-list">
+              @for (i of vulnInsights(); track $index) {
+                <div class="insight" [attr.data-level]="i.level">
+                  <div class="ins-label">{{ i.label }}</div>
+                  <div class="ins-value">{{ i.value }}</div>
+                  @if (i.hint) { <div class="ins-hint">{{ i.hint }}</div> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="chart-card focus">
+          <h3>OWASP oilalari taqsimoti</h3>
+          @if (vulnFamilyCounts().length) {
+            <div class="bar-list">
+              @for (e of vulnFamilyCounts(); track e.key) {
+                <div class="bar-item">
+                  <div class="bar-label">{{ e.key }}</div>
+                  <div class="bar-track"><div class="bar-fill" [style.width.%]="(e.count / vulnFamilyCounts()[0].count) * 100"></div></div>
+                  <div class="bar-count">{{ e.count }}</div>
+                </div>
+              }
+            </div>
+          } @else { <p class="empty">Ma'lumot yo'q</p> }
+        </div>
+
+        <h2 class="section-h">
+          Veb-saytlar va ulardagi zaifliklar
+          <span class="section-h-sub">{{ vulnSiteBreakdown().length }} ta noyob veb-sayt · jami {{ vulnFiltered().length }} ta zaiflik · {{ vulnDuplicateSites() }} ta saytda dublikat</span>
+        </h2>
+        <div class="site-list">
+          @if (vulnSiteBreakdown().length) {
+            <div class="site-row site-head with-sector">
+              <span>Veb-sayt</span>
+              <span>Sektor</span>
+              <span>Asosiy OWASP oilasi</span>
+              <span class="ta-right">Noyob turlar</span>
+              <span class="ta-right">Takror</span>
+              <span class="ta-right">Hajm</span>
+              <span class="ta-right">Jami</span>
+            </div>
+            @for (s of vulnSiteBreakdown(); track s.site) {
+              <div class="site-row with-sector">
+                <span class="site-name">{{ s.site }}</span>
+                <span class="sector-badge" [attr.data-sector]="s.sector" [title]="'Davlat: ' + s.govCount + ' · Hususiy: ' + s.privCount">
+                  @if (s.sector === 'gov') { DAVLAT }
+                  @else if (s.sector === 'priv') { HUSUSIY }
+                  @else if (s.sector === 'mixed') { ARALASH }
+                  @else { — }
+                </span>
+                <span class="site-fam">
+                  @if (s.topFamily) {
+                    <span class="fam-badge">{{ s.topFamily }}</span>
+                    @if (s.familyCount > 1) { <span class="fam-more" [title]="s.familyCount + ' ta oila'">+{{ s.familyCount - 1 }}</span> }
+                  } @else { <span class="muted-dash">—</span> }
+                </span>
+                <span class="ta-right num">{{ s.uniqueTypes }}</span>
+                <span class="ta-right num" [class.warn]="s.duplicates > 0">{{ s.duplicates }}</span>
+                <span class="site-bar"><span class="site-bar-fg" [style.width.%]="(s.count / vulnSiteBreakdown()[0].count) * 100"></span></span>
+                <span class="site-count" [class.dup]="s.count > 1">{{ s.count }}</span>
+              </div>
+            }
+          } @else { <p class="empty">Ma'lumot yo'q</p> }
+        </div>
+
+        <h2 class="section-h">
+          Zaiflik turlari
+          <span class="section-h-sub">{{ vulnTypeBreakdown().length }} ta noyob tur · jami {{ vulnFiltered().length }} ta yozuv</span>
+        </h2>
+        <div class="site-list">
+          @if (vulnTypeBreakdown().length) {
+            <div class="site-row type-head">
+              <span>Zaiflik turi</span>
+              <span>OWASP oilasi</span>
+              <span class="ta-right">Saytlar</span>
+              <span class="ta-right">Takror</span>
+              <span class="ta-right">Hajm</span>
+              <span class="ta-right">Jami</span>
+            </div>
+            @for (t of vulnTypeBreakdown(); track t.type) {
+              <div class="site-row type-row">
+                <span class="site-name type-name" [title]="t.type">{{ t.type }}</span>
+                <span class="site-fam">
+                  @if (t.topFamily) {
+                    <span class="fam-badge">{{ t.topFamily }}</span>
+                    @if (t.families.length > 1) { <span class="fam-more" [title]="t.families.length + ' ta oilada uchraydi'">+{{ t.families.length - 1 }}</span> }
+                  } @else { <span class="muted-dash">—</span> }
+                </span>
+                <span class="ta-right num">{{ t.sites }}</span>
+                <span class="ta-right num" [class.warn]="t.duplicates > 0" [title]="t.duplicates > 0 ? 'Bir saytda bir necha marta uchragan' : ''">{{ t.duplicates }}</span>
+                <span class="site-bar"><span class="site-bar-fg yellow" [style.width.%]="(t.count / vulnTypeBreakdown()[0].count) * 100"></span></span>
+                <span class="site-count">{{ t.count }}</span>
+              </div>
+            }
+          } @else { <p class="empty">Ma'lumot yo'q</p> }
+        </div>
+
+        <!-- Data table -->
+        <h2 class="section-h">Filtrlangan yozuvlar</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>№</th><th>Gov</th><th>Tashkilot</th><th>Veb-sayt</th><th>Zaiflik turi</th><th>OWASP</th><th>Chiquvchi xat</th><th>Yil</th></tr>
+            </thead>
+            <tbody>
+              @for (r of vulnFiltered(); track $index) {
+                <tr>
+                  <td>{{ r.num }}</td>
+                  <td><span class="badge" [class.gov]="r.gov.toLowerCase() === 'да' || r.gov.toLowerCase() === 'ha'">{{ r.gov }}</span></td>
+                  <td class="org">{{ r.organization }}</td>
+                  <td class="web">{{ r.website }}</td>
+                  <td>{{ r.rawType }}</td>
+                  <td><span class="owasp-tag">{{ r.owasp }}</span></td>
+                  <td class="letter">{{ r.outLetter }}</td>
+                  <td>{{ r.sheetYear }}</td>
+                </tr>
+              }
+              @if (!vulnFiltered().length) { <tr><td colspan="8" class="empty-row">Mos yozuv topilmadi</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- ═══════════ KIBERXAVFSIZLIK ═══════════ -->
+    @if (activeSection() === 'cyber' && cyber(); as c) {
+      <section class="section">
+        <div class="toolbar">
+          <div class="file-info">
+            <span class="file-name">{{ c.fileName }}</span>
+            <span class="file-meta">{{ c.rows.length }} yozuv · {{ c.headers.length }} ustun</span>
+          </div>
+          <button class="btn-secondary" (click)="exportCyber()">CSV eksport</button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label>Aniqlangan sana:</label>
+            <div class="chip-row">
+              <button class="chip" [class.active]="cyberPeriod() === 'all'" (click)="setCyberPeriod('all')">Hammasi</button>
+              <button class="chip" [class.active]="cyberPeriod() === 'q1'" (click)="setCyberPeriod('q1')">Q1</button>
+              <button class="chip" [class.active]="cyberPeriod() === 'q2'" (click)="setCyberPeriod('q2')">Q2</button>
+              <button class="chip" [class.active]="cyberPeriod() === 'q3'" (click)="setCyberPeriod('q3')">Q3</button>
+              <button class="chip" [class.active]="cyberPeriod() === 'q4'" (click)="setCyberPeriod('q4')">Q4</button>
+              <span class="chip-sep"></span>
+              <button class="chip" [class.active]="cyberPeriod() === 'h1'" (click)="setCyberPeriod('h1')">1-yarim yil</button>
+              <button class="chip" [class.active]="cyberPeriod() === 'h2'" (click)="setCyberPeriod('h2')">2-yarim yil</button>
+            </div>
+          </div>
+          @if (cyberOptions(); as opts) {
+            <div class="filter-row">
+              <div class="select-wrap"><label>Veb-sayt</label>
+                <select [ngModel]="cyberFilters()['website']" (ngModelChange)="setCyberFilter('website', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.website; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Manba</label>
+                <select [ngModel]="cyberFilters()['source']" (ngModelChange)="setCyberFilter('source', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.source; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Xoster</label>
+                <select [ngModel]="cyberFilters()['hoster']" (ngModelChange)="setCyberFilter('hoster', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.hoster; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>CMS</label>
+                <select [ngModel]="cyberFilters()['cms']" (ngModelChange)="setCyberFilter('cms', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.cms; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Hodisa turi</label>
+                <select [ngModel]="cyberFilters()['incidentType']" (ngModelChange)="setCyberFilter('incidentType', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.incidentType; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Gov/не</label>
+                <select [ngModel]="cyberFilters()['gov']" (ngModelChange)="setCyberFilter('gov', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.gov; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap wide"><label>Tashkilot</label>
+                <select [ngModel]="cyberFilters()['organization']" (ngModelChange)="setCyberFilter('organization', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.organization; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Vx. xat</label>
+                <select [ngModel]="cyberFilters()['inLetter']" (ngModelChange)="setCyberFilter('inLetter', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.inLetter; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap grow"><label>Qidiruv</label>
+                <input type="text" [ngModel]="cyberSearch()" (ngModelChange)="cyberSearch.set($event)" placeholder="Tashkilot, veb-sayt, hodisa…" /></div>
+            </div>
+          }
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-card primary">
+            <div class="hero-title">Jami hodisalar</div>
+            <div class="hero-value">{{ cyberFiltered().length }}</div>
+            <div class="hero-sub">{{ cyberUniqueOrgs() }} tashkilot · {{ cyberUniqueWebsites() }} veb-sayt</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Eng ko'p uchragan hodisa</div>
+            <div class="hero-value top-text">{{ cyberIncidentCounts()[0]?.key || '—' }}</div>
+            <div class="hero-sub">{{ cyberIncidentCounts()[0]?.count || 0 }} hodisa</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Davlat ulushi</div>
+            <div class="hero-value">{{ cyberGovPercent() }}<small>%</small></div>
+            <div class="hero-sub">{{ cyberUniqueHosters() }} ta xoster</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Top xoster</div>
+            <div class="hero-value top-text">{{ cyberHosterCounts()[0]?.key || '—' }}</div>
+            <div class="hero-sub">{{ cyberHosterCounts()[0]?.count || 0 }} hodisa</div>
+          </div>
+        </div>
+
+        @if (cyberInsights().length) {
+          <div class="insights">
+            <h3 class="insights-h">Asosiy topilmalar</h3>
+            <div class="insights-list">
+              @for (i of cyberInsights(); track $index) {
+                <div class="insight" [attr.data-level]="i.level">
+                  <div class="ins-label">{{ i.label }}</div>
+                  <div class="ins-value">{{ i.value }}</div>
+                  @if (i.hint) { <div class="ins-hint">{{ i.hint }}</div> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="chart-card focus">
+          <h3>Oylar bo'yicha hodisalar</h3>
+          <div class="bar-list">
+            @for (e of cyberMonthCounts(); track e.key) {
+              <div class="bar-item">
+                <div class="bar-label">{{ e.key }}</div>
+                <div class="bar-track"><div class="bar-fill blue" [style.width.%]="cyberFiltered().length ? (e.count / cyberFiltered().length) * 100 : 0"></div></div>
+                <div class="bar-count">{{ e.count }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <h2 class="section-h">Filtrlangan yozuvlar</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>№</th><th>Gov</th><th>Tashkilot</th><th>Veb-sayt</th><th>Manba</th><th>Sana</th><th>Xoster</th><th>CMS</th><th>Hodisa</th><th>Vx.xat</th></tr>
+            </thead>
+            <tbody>
+              @for (r of cyberFiltered(); track $index) {
+                <tr>
+                  <td>{{ r.num }}</td>
+                  <td><span class="badge" [class.gov]="r.gov.toLowerCase() === 'да'">{{ r.gov }}</span></td>
+                  <td class="org">{{ r.organization }}</td>
+                  <td class="web">{{ r.website }}</td>
+                  <td>{{ r.source }}</td>
+                  <td>{{ fmtDate(r.detectedDate) }}</td>
+                  <td>{{ r.hoster }}</td>
+                  <td>{{ r.cms }}</td>
+                  <td>{{ r.incidentType }}</td>
+                  <td class="letter">{{ r.inLetter }}</td>
+                </tr>
+              }
+              @if (!cyberFiltered().length) { <tr><td colspan="10" class="empty-row">Mos yozuv topilmadi</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- ═══════════ TEXNIK HODISA ═══════════ -->
+    @if (activeSection() === 'tech' && tech(); as t) {
+      <section class="section">
+        <div class="toolbar">
+          <div class="file-info">
+            <span class="file-name">{{ t.fileName }}</span>
+            <span class="file-meta">{{ t.rows.length }} yozuv · {{ t.headers.length }} ustun</span>
+          </div>
+          <button class="btn-secondary" (click)="exportTech()">CSV eksport</button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label>Boshlanish sanasi:</label>
+            <div class="chip-row">
+              <button class="chip" [class.active]="techPeriod() === 'all'" (click)="setTechPeriod('all')">Hammasi</button>
+              <button class="chip" [class.active]="techPeriod() === 'q1'" (click)="setTechPeriod('q1')">Q1</button>
+              <button class="chip" [class.active]="techPeriod() === 'q2'" (click)="setTechPeriod('q2')">Q2</button>
+              <button class="chip" [class.active]="techPeriod() === 'q3'" (click)="setTechPeriod('q3')">Q3</button>
+              <button class="chip" [class.active]="techPeriod() === 'q4'" (click)="setTechPeriod('q4')">Q4</button>
+              <span class="chip-sep"></span>
+              <button class="chip" [class.active]="techPeriod() === 'h1'" (click)="setTechPeriod('h1')">1-yarim yil</button>
+              <button class="chip" [class.active]="techPeriod() === 'h2'" (click)="setTechPeriod('h2')">2-yarim yil</button>
+            </div>
+          </div>
+          @if (techOptions(); as opts) {
+            <div class="filter-row">
+              <div class="select-wrap"><label>Veb-sayt</label>
+                <select [ngModel]="techFilters()['website']" (ngModelChange)="setTechFilter('website', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.website; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap wide"><label>Tashkilot</label>
+                <select [ngModel]="techFilters()['organization']" (ngModelChange)="setTechFilter('organization', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.organization; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap"><label>Xosting</label>
+                <select [ngModel]="techFilters()['hosting']" (ngModelChange)="setTechFilter('hosting', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.hosting; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap wide"><label>Izoh (sabab)</label>
+                <select [ngModel]="techFilters()['note']" (ngModelChange)="setTechFilter('note', $event)">
+                  <option value="all">Barchasi</option>@for (o of opts.note; track o) { <option [value]="o">{{ o }}</option> }
+                </select></div>
+              <div class="select-wrap grow"><label>Qidiruv</label>
+                <input type="text" [ngModel]="techSearch()" (ngModelChange)="techSearch.set($event)" placeholder="Tashkilot, veb-sayt, sabab…" /></div>
+            </div>
+          }
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-card primary">
+            <div class="hero-title">Jami hodisalar</div>
+            <div class="hero-value">{{ techFiltered().length }}</div>
+            <div class="hero-sub">{{ techUniqueOrgs() }} tashkilot · {{ techUniqueWebsites() }} veb-sayt</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Umumiy davomiyligi</div>
+            <div class="hero-value">{{ techTotalHours() }}<small>soat</small></div>
+            <div class="hero-sub">o'rtacha {{ techDurations().avgHours }} soat / hodisa</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Eng uzun hodisa</div>
+            <div class="hero-value">{{ techDurations().maxHours }}<small>soat</small></div>
+            @if (techDurations().maxRow) {
+              <div class="hero-sub" [title]="techDurations().maxRow!.website">{{ techDurations().maxRow!.website }}</div>
+            } @else { <div class="hero-sub">—</div> }
+          </div>
+          <div class="hero-card">
+            <div class="hero-title">Top sabab</div>
+            <div class="hero-value top-text">{{ techNoteCounts()[0]?.key || '—' }}</div>
+            <div class="hero-sub">{{ techNoteCounts()[0]?.count || 0 }} hodisa</div>
+          </div>
+        </div>
+
+        @if (techInsights().length) {
+          <div class="insights">
+            <h3 class="insights-h">Asosiy topilmalar</h3>
+            <div class="insights-list">
+              @for (i of techInsights(); track $index) {
+                <div class="insight" [attr.data-level]="i.level">
+                  <div class="ins-label">{{ i.label }}</div>
+                  <div class="ins-value">{{ i.value }}</div>
+                  @if (i.hint) { <div class="ins-hint">{{ i.hint }}</div> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="chart-card focus">
+          <h3>Sabablar bo'yicha hodisalar</h3>
+          @if (techNoteCounts().length) {
+            <div class="bar-list">
+              @for (e of techNoteCounts(); track e.key) {
+                <div class="bar-item">
+                  <div class="bar-label">{{ e.key }}</div>
+                  <div class="bar-track"><div class="bar-fill" [style.width.%]="(e.count / techNoteCounts()[0].count) * 100"></div></div>
+                  <div class="bar-count">{{ e.count }}</div>
+                </div>
+              }
+            </div>
+          } @else { <p class="empty">Ma'lumot yo'q</p> }
+        </div>
+
+        <h2 class="section-h">Filtrlangan yozuvlar</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>№</th><th>Tashkilot</th><th>Veb-sayt</th><th>Xosting</th><th>Boshlanish</th><th>Tugash</th><th>Davomiyligi</th><th>Izoh</th></tr>
+            </thead>
+            <tbody>
+              @for (r of techFiltered(); track $index) {
+                <tr>
+                  <td>{{ r.num }}</td>
+                  <td class="org">{{ r.organization }}</td>
+                  <td class="web">{{ r.website }}</td>
+                  <td>{{ r.hosting }}</td>
+                  <td>{{ fmtDate(r.start) }}</td>
+                  <td>{{ fmtDate(r.finish) }}</td>
+                  <td>{{ r.duration }}</td>
+                  <td>{{ r.note }}</td>
+                </tr>
+              }
+              @if (!techFiltered().length) { <tr><td colspan="8" class="empty-row">Mos yozuv topilmadi</td></tr> }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+  </main>
+</div>
