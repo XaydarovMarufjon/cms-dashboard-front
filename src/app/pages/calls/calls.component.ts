@@ -55,6 +55,7 @@ export class CallsComponent implements OnInit {
   editCategory = signal<string>('');
   editDate     = signal<string>('');   // YYYY-MM-DD
   editTime     = signal<string>('');   // HH:mm
+  editNote     = signal<string>('');
 
   totalCount = computed(() => this.calls().length);
 
@@ -184,6 +185,7 @@ export class CallsComponent implements OnInit {
     this.editCategory.set(row.category);
     this.editDate.set(this.toDateInput(d));
     this.editTime.set(this.toTimeInput(d));
+    this.editNote.set(row.note ?? '');
   }
   cancelEdit() { this.editingId.set(null); }
 
@@ -192,6 +194,7 @@ export class CallsComponent implements OnInit {
     const cat   = this.editCategory().trim();
     const date  = this.editDate();
     const time  = this.editTime();
+    const note  = this.editNote().trim();
 
     let createdAt: string | undefined;
     if (date) {
@@ -203,6 +206,7 @@ export class CallsComponent implements OnInit {
       const updated = await firstValueFrom(this.api.updateCall(row.id, {
         phoneNumber: phone || null,
         category: cat || row.category,
+        note: note || null,
         createdAt,
       }));
       this.calls.update(list => list.map(c => c.id === row.id ? updated : c));

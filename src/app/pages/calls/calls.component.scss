@@ -318,9 +318,9 @@ select.input { padding-right: 24px; }
 
 .row {
   display: grid;
-  grid-template-columns: 140px 100px 1fr 1.3fr 140px;
+  grid-template-columns: 130px 90px 280px 190px minmax(160px, 1fr) 120px;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   padding: 10px 16px;
   border-bottom: 1px solid $border;
   border-left: 3px solid transparent;
@@ -368,6 +368,32 @@ select.input { padding-right: 24px; }
 .phone-val { color: $text; font-variant-numeric: tabular-nums; }
 .phone-empty { color: $muted; }
 
+.note-val {
+  color: $text;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.note-empty { color: $muted; }
+
+.cell-note {
+  width: 100%;
+  .input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    padding: 4px 0;
+    border-radius: 0;
+    color: $text;
+    box-shadow: none;
+    &:focus {
+      border: 0;
+      box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+  }
+}
+
 // ── STATES ─────────────────────────────────
 .state-block {
   display: flex;
@@ -401,7 +427,7 @@ select.input { padding-right: 24px; }
   .row {
     grid-template-columns: 110px 1fr 110px;
     gap: 16px;
-    .cell-time { display: none; }
+    .cell-time, .cell-note { display: none; }
   }
   .calls-page { padding: 18px 14px; }
 }

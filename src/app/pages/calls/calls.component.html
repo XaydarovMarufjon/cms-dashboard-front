@@ -158,6 +158,7 @@
         <div class="cell cell-time">Vaqt</div>
         <div class="cell cell-cat">Kategoriya</div>
         <div class="cell cell-phone">Tel. raqam</div>
+        <div class="cell cell-note">Izoh</div>
         <div class="cell cell-actions">Amallar</div>
       </div>
 
@@ -209,6 +210,23 @@
           <span class="phone-val">{{ row.phoneNumber }}</span>
           } @else {
           <span class="phone-empty">—</span>
+          }
+          }
+        </div>
+
+        <div class="cell cell-note">
+          @if (editingId() === row.id) {
+          <input class="input input-sm"
+                 type="text"
+                 placeholder="Izoh..."
+                 [ngModel]="editNote()"
+                 (ngModelChange)="editNote.set($event)"
+                 (keyup.enter)="saveEdit(row)" />
+          } @else {
+          @if (row.note) {
+          <span class="note-val" [title]="row.note">{{ row.note }}</span>
+          } @else {
+          <span class="note-empty">—</span>
           }
           }
         </div>
