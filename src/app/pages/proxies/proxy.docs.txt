@@ -1,0 +1,31 @@
+1. Menda haqiqiy ishlaydigan proxy ro'yxati yo'q. Men IP'larni "haqiqiy" deb
+  taxmin qilib yozsam, ular:
+  - aslida ishlamaydi (skanerlash bekor bo'ladi)
+  - yoki begona shaxslarning xosti bo'lib chiqadi (huquqiy muammo)
+  - yoki honeypot bo'ladi (so'rovlaringiz log qilinadi)
+
+  2. Bepul ommaviy proxy'lar tezda o'zgaradi. Bugun ishlagani ertaga o'lik.
+  .envga 100 ta qo'yib qo'yish foyda bermaydi — har skan uchun httpAgent
+  yaratiladi, ishlamaydiganlar timeout yeydi va skanni sekinlashtiradi.
+
+  Tavsiyalar
+
+  Variant A — bepul (sinov uchun)
+  Manbalar:
+  - https://www.proxy-list.download/api/v1/get?type=socks5
+  - https://api.proxyscrape.com/v2/?request=getproxies&protocol=socks5
+  - https://github.com/TheSpeedX/PROXY-List
+
+  Avtomatik yangilash kerak bo'ladi (cron orqali bir necha soatda bir marta
+  .envni yangilash yoki DBga o'tkazish).
+
+  Variant B — pullik (ishonchli)
+  - Bright Data, Smartproxy, Oxylabs, Webshare — bir nechta endpoint, har biri
+  ichida o'zining rotation'i 
+  - Misol: http://user-rotating:pass@proxy.webshare.io:80 — bitta yozuv, lekin
+  orqada minglab IP
+  
+  Variant C — o'zingiznikilar
+  SOCKS5 server'lar VPS'larda (3proxy, dante-server, microsocks) — to'liq
+  nazorat.
+

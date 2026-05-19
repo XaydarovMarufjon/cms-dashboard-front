@@ -4,6 +4,62 @@ import { Observable } from 'rxjs';
 import { ScanResult } from '../../shared/models/website.model';
 import { environment } from '../../../environments/environment';
 
+export interface ProxyEntry {
+  index:     number;
+  protocol:  string;
+  host:      string;
+  port:      string;
+  hasAuth:   boolean;
+  active:    boolean;
+  dead:      boolean;
+  fails:     number;
+  deadUntil: string | null;
+}
+
+export interface ProxySourceStatus {
+  url:       string;
+  protocol:  string;
+  ok:        boolean;
+  count:     number;
+  error?:    string;
+  fetchedAt: string;
+}
+
+export interface ProxyAutoRefresh {
+  enabled:         boolean;
+  available:       boolean;
+  intervalMinutes: number;
+  maxProxies:      number;
+  lastRefresh:     string | null;
+  refreshing:      boolean;
+  sources:         ProxySourceStatus[];
+}
+
+export interface ProxyTestResult {
+  mode:       'proxy' | 'own-ip';
+  proxy:      { protocol: string; host: string; port: string; hasAuth: boolean } | null;
+  working:    boolean;
+  latencyMs:  number;
+  outboundIp: string | null;
+  error?:     string;
+}
+
+export interface ProxyStats {
+  total:        number;
+  alive:        number;
+  dead:         number;
+  currentIndex: number;
+  rotations:    number;
+  proxies:      ProxyEntry[];
+  autoRefresh:  ProxyAutoRefresh;
+  domainCooldowns: { host: string; remainingSec: number }[];
+  health: {
+    deadAfterFails:    number;
+    reviveMinutes:     number;
+    domainCooldownSec: number;
+  };
+}
+
 export interface WhoisData {
   domainName:     string | null;
   registrar:      string | null;
@@ -51,6 +107,28 @@ export class ScannerService {
 
     getInterval(): Observable<{ interval: number }> {
         return this.http.get<{ interval: number }>(`${this.api}/scanner/interval`);
+    }
+
+    getProxies(): Observable<ProxyStats> {
+        return this.http.get<ProxyStats>(`${this.api}/scanner/proxies`);
+    }
+
+    refreshProxies(): Observable<ProxyStats> {
+        return this.http.post<ProxyStats>(`${this.api}/scanner/proxies/refresh`, {});
+    }
+
+    setAutoRefreshEnabled(enabled: boolean): Observable<ProxyStats> {
+        return this.http.post<ProxyStats>(`${this.api}/scanner/proxies/auto-refresh`, { enabled });
+    }
+
+    getIsp(): Observable<{ isp: string | null; ip: string | null; country: string | null; city: string | null }> {
+        return this.http.get<{ isp: string | null; ip: string | null; country: string | null; city: string | null }>(
+            `${this.api}/scanner/isp`,
+        );
+    }
+
+    testProxy(input?: { proxy?: string; index?: number }): Observable<ProxyTestResult> {
+        return this.http.post<ProxyTestResult>(`${this.api}/scanner/proxies/test`, input || {});
     }
 
     checkCanEmbed(url: string): Observable<{ canEmbed: boolean }> {

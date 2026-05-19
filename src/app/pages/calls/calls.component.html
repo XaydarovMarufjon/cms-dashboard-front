@@ -1,0 +1,297 @@
+<div class="calls-layout">
+  <app-side-nav></app-side-nav>
+
+  <main class="calls-page">
+
+    <!-- HEADER -->
+    <div class="calls-header">
+      <div class="header-title">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M3.5 3.5l2-1 2 3-1.5 1.5c.8 1.6 2.4 3.2 4 4l1.5-1.5 3 2-1 2c-.6.5-1.4.5-2 .5C6.5 14 3 10.5 3 5.5c0-.6 0-1.4.5-2Z"
+            stroke="#00e5c0" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+        <span>Qo'ng'iroqlar</span>
+        @if (totalCount() > 0) {
+        <span class="total-badge">{{ totalCount() }}</span>
+        }
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-ghost btn-sm" (click)="openManage()" title="Kategoriyalarni boshqarish">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.6 2.6l1.1 1.1M10.3 10.3l1.1 1.1M2.6 11.4l1.1-1.1M10.3 3.7l1.1-1.1"
+              stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Boshqarish
+        </button>
+        <button class="btn-primary btn-sm" [disabled]="calls().length === 0" (click)="exportExcel()" title="Excel'ga yuklab olish">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 1h5l3 3v9H3V1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M8 1v3h3" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M5 8l4 3M9 8l-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- CATEGORY BUTTONS -->
+    <div class="category-bar">
+      <div class="cat-bar-label">Yangi qo'ng'iroq:</div>
+      <div class="cat-buttons">
+        @for (cat of categories(); track cat.id) {
+        <button class="cat-btn"
+                [class.cat-btn-green]="isGreen(cat.name)"
+                [disabled]="busyCatId() === cat.id"
+                (click)="addCall(cat)">
+          @if (busyCatId() === cat.id) {
+          <span class="btn-spinner"></span>
+          } @else {
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          }
+          <span class="cat-name">{{ cat.name }}</span>
+          <span class="cat-count">{{ categoryCount(cat.name) }}</span>
+        </button>
+        }
+
+        <button class="cat-btn cat-btn-add" (click)="openAddCat()" title="Yangi kategoriya qo'shish">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Yangi kategoriya
+        </button>
+      </div>
+
+      @if (showAddCat()) {
+      <div class="add-cat-row">
+        <input class="input"
+               placeholder="Kategoriya nomi"
+               [ngModel]="newCatName()"
+               (ngModelChange)="newCatName.set($event)"
+               (keyup.enter)="submitNewCat()"
+               [disabled]="addingCat()" />
+
+        <div class="color-segmented">
+          <button type="button"
+                  [class.active]="newCatColor() === 'normal'"
+                  (click)="newCatColor.set('normal')">
+            <span class="color-dot color-dot-normal"></span>Oddiy
+          </button>
+          <button type="button"
+                  [class.active]="newCatColor() === 'green'"
+                  (click)="newCatColor.set('green')">
+            <span class="color-dot color-dot-green"></span>Yashil
+          </button>
+        </div>
+
+        <button class="btn-primary" [disabled]="addingCat()" (click)="submitNewCat()">
+          @if (addingCat()) { <span class="btn-spinner"></span> } @else { Saqlash }
+        </button>
+        <button class="btn-ghost" (click)="closeAddCat()">Bekor</button>
+        @if (addCatError()) {
+        <span class="add-cat-err">{{ addCatError() }}</span>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <div class="filter-segmented">
+        <button [class.active]="mode() === 'all'"    (click)="setMode('all')">Hammasi</button>
+        <button [class.active]="mode() === 'month'"  (click)="setMode('month')">Oylik</button>
+        <button [class.active]="mode() === 'period'" (click)="setMode('period')">Period</button>
+      </div>
+
+      @if (mode() === 'month') {
+      <input type="month" class="input input-sm"
+             [value]="month()"
+             (change)="onMonthChange($any($event.target).value)" />
+      }
+      @if (mode() === 'period') {
+      <div class="period-inputs">
+        <input type="date" class="input input-sm"
+               [value]="from()"
+               (change)="onFromChange($any($event.target).value)" />
+        <span class="dash">—</span>
+        <input type="date" class="input input-sm"
+               [value]="to()"
+               (change)="onToChange($any($event.target).value)" />
+      </div>
+      }
+
+      <select class="input input-sm"
+              [value]="catFilter()"
+              (change)="onCatFilterChange($any($event.target).value)">
+        <option value="">Barcha kategoriyalar</option>
+        @for (cat of categories(); track cat.id) {
+        <option [value]="cat.name">{{ cat.name }}</option>
+        }
+      </select>
+
+      <button class="btn-ghost btn-sm" (click)="clearFilters()">Tozalash</button>
+    </div>
+
+    <!-- TABLE -->
+    @if (loading()) {
+    <div class="state-block">
+      <span class="spinner"></span>
+      <span class="state-text">Yuklanmoqda…</span>
+    </div>
+    } @else if (calls().length === 0) {
+    <div class="state-block empty-state">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="22" stroke="#666" stroke-opacity=".3" stroke-width="1.5"/>
+        <path d="M16 24h16M24 16v16" stroke="#666" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="empty-title">Qo'ng'iroqlar yo'q</div>
+      <div class="empty-desc">Yuqoridagi kategoriyalardan birini bosing</div>
+    </div>
+    } @else {
+    <div class="calls-table">
+      <div class="row row-head">
+        <div class="cell cell-date">Sana</div>
+        <div class="cell cell-time">Vaqt</div>
+        <div class="cell cell-cat">Kategoriya</div>
+        <div class="cell cell-phone">Tel. raqam</div>
+        <div class="cell cell-actions">Amallar</div>
+      </div>
+
+      @for (row of calls(); track trackId($index, row)) {
+      <div class="row row-data" [class.row-green]="isGreen(row.category)">
+        <div class="cell cell-date">
+          @if (editingId() === row.id) {
+          <input type="date" class="input input-sm"
+                 [value]="editDate()"
+                 (change)="editDate.set($any($event.target).value)" />
+          } @else {
+          {{ row.createdAt | date:'dd.MM.yyyy' }}
+          }
+        </div>
+        <div class="cell cell-time">
+          @if (editingId() === row.id) {
+          <input type="time" class="input input-sm"
+                 [value]="editTime()"
+                 (change)="editTime.set($any($event.target).value)" />
+          } @else {
+          {{ row.createdAt | date:'HH:mm' }}
+          }
+        </div>
+
+        <div class="cell cell-cat">
+          @if (editingId() === row.id) {
+          <select class="input input-sm"
+                  [value]="editCategory()"
+                  (change)="editCategory.set($any($event.target).value)">
+            @for (cat of categories(); track cat.id) {
+            <option [value]="cat.name">{{ cat.name }}</option>
+            }
+          </select>
+          } @else {
+          <span class="cat-tag" [class.cat-tag-green]="isGreen(row.category)">{{ row.category }}</span>
+          }
+        </div>
+
+        <div class="cell cell-phone">
+          @if (editingId() === row.id) {
+          <input class="input input-sm"
+                 type="tel"
+                 placeholder="+998 90 123 45 67"
+                 [ngModel]="editPhone()"
+                 (ngModelChange)="editPhone.set($event)"
+                 (keyup.enter)="saveEdit(row)" />
+          } @else {
+          @if (row.phoneNumber) {
+          <span class="phone-val">{{ row.phoneNumber }}</span>
+          } @else {
+          <span class="phone-empty">—</span>
+          }
+          }
+        </div>
+
+        <div class="cell cell-actions">
+          @if (editingId() === row.id) {
+          <button class="btn-primary btn-sm" (click)="saveEdit(row)">Saqlash</button>
+          <button class="btn-ghost btn-sm" (click)="cancelEdit()">Bekor</button>
+          } @else {
+          <button class="btn-icon" title="Tahrirlash" (click)="startEdit(row)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9.5 1.5l3 3-7.5 7.5H2v-3l7.5-7.5Z" stroke="currentColor" stroke-width="1.3"
+                stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="btn-icon btn-icon-danger" title="O'chirish" (click)="deleteRow(row)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 3.5h9M5 3.5V2h4v1.5M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </main>
+</div>
+
+<!-- MANAGE CATEGORIES MODAL -->
+@if (showManage()) {
+<div class="modal-overlay" (click)="closeManage()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">Kategoriyalarni boshqarish</div>
+      <button class="btn-icon" (click)="closeManage()" title="Yopish">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      @for (cat of categories(); track cat.id) {
+      <div class="manage-row" [class.manage-row-green]="cat.color === 'green'">
+        <div class="manage-name">
+          <span class="manage-dot" [class.manage-dot-green]="cat.color === 'green'"></span>
+          <span class="manage-text">{{ cat.name }}</span>
+          <span class="manage-count">{{ categoryCount(cat.name) }} ta</span>
+        </div>
+
+        <div class="manage-color">
+          <div class="color-segmented">
+            <button type="button"
+                    [class.active]="cat.color === 'normal'"
+                    (click)="setCategoryColor(cat, 'normal', $event)">
+              <span class="color-dot color-dot-normal"></span>Oddiy
+            </button>
+            <button type="button"
+                    [class.active]="cat.color === 'green'"
+                    (click)="setCategoryColor(cat, 'green', $event)">
+              <span class="color-dot color-dot-green"></span>Yashil
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-icon btn-icon-danger" title="O'chirish" (click)="removeCategory(cat, $event)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2.5 3.5h9M5 3.5V2h4v1.5M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      }
+
+      @if (categories().length === 0) {
+      <div class="manage-empty">Kategoriyalar yo'q</div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost btn-sm" (click)="closeManage()">Yopish</button>
+    </div>
+  </div>
+</div>
+}

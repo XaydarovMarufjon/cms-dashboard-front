@@ -1,6 +1,7 @@
 
 import { Component, AfterViewInit, OnDestroy, NgZone, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-network-monitor',
@@ -75,15 +76,12 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
 
   private async fetchIsp() {
     try {
-      const r = await fetch('https://ipapi.co/json/', {
+      const r = await fetch(`${environment.apiUrl}/scanner/isp`, {
         cache: 'no-store',
-        signal: AbortSignal.timeout(6000),
+        signal: AbortSignal.timeout(8000),
       });
       const d = await r.json();
-      const raw: string = d.org ?? d.isp ?? '';
-      // strip "AS12345 " prefix
-      const name = raw.replace(/^AS\d+\s+/i, '').trim();
-      this.zone.run(() => this.isp.set(name || null));
+      this.zone.run(() => this.isp.set(d?.isp || null));
     } catch {
       // silently ignore — ISP optional info
     }

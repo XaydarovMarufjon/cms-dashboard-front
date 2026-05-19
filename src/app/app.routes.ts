@@ -58,5 +58,17 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
     },
+    {
+        path: 'proxies',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/proxies/proxies.component').then(m => m.ProxiesComponent),
+    },
+    {
+        path: 'calls',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/calls/calls.component').then(m => m.CallsComponent),
+    },
     { path: '**', redirectTo: '' },
 ];
