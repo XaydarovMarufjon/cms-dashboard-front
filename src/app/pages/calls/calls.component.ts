@@ -43,6 +43,12 @@ export class CallsComponent implements OnInit {
   // Manage categories modal
   showManage = signal(false);
 
+  // Edit category name (inside manage modal)
+  editingNameId    = signal<string | null>(null);
+  editingNameValue = signal<string>('');
+  savingName       = signal(false);
+  nameError        = signal<string | null>(null);
+
   // Edit-row state
   editingId    = signal<string | null>(null);
   editPhone    = signal<string>('');
@@ -246,7 +252,46 @@ export class CallsComponent implements OnInit {
 
   // ── Manage modal ─────────────────────────
   openManage()  { this.showManage.set(true); }
-  closeManage() { this.showManage.set(false); }
+  closeManage() {
+    this.showManage.set(false);
+    this.cancelEditName();
+  }
+
+  // ── Edit category name ───────────────────
+  startEditName(cat: CallCategory, ev: Event) {
+    ev.stopPropagation();
+    this.editingNameId.set(cat.id);
+    this.editingNameValue.set(cat.name);
+    this.nameError.set(null);
+  }
+
+  cancelEditName() {
+    this.editingNameId.set(null);
+    this.editingNameValue.set('');
+    this.nameError.set(null);
+  }
+
+  async saveEditName(cat: CallCategory) {
+    const newName = this.editingNameValue().trim();
+    if (!newName) { this.nameError.set('Nom bo\'sh'); return; }
+    if (newName === cat.name) { this.cancelEditName(); return; }
+
+    const oldName = cat.name;
+    this.savingName.set(true);
+    this.nameError.set(null);
+    try {
+      const updated = await firstValueFrom(this.api.updateCategory(cat.id, { name: newName }));
+      this.categories.update(list => list.map(c => c.id === cat.id ? updated : c));
+      // Update calls that referenced old name
+      this.calls.update(list => list.map(c => c.category === oldName ? { ...c, category: updated.name } : c));
+      if (this.catFilter() === oldName) this.catFilter.set(updated.name);
+      this.cancelEditName();
+    } catch (e: any) {
+      this.nameError.set(e?.error?.message || 'Xatolik');
+    } finally {
+      this.savingName.set(false);
+    }
+  }
 
   // ── Excel export ─────────────────────────
   exportExcel() {

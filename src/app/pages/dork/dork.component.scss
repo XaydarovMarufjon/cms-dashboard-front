@@ -6,6 +6,17 @@ $border:  var(--border);
 $text:    var(--text);
 $muted:   var(--muted);
 
+.dork-layout {
+  display: flex;
+  min-height: 100vh;
+  background: $bg;
+}
+
+.dork-main {
+  flex: 1;
+  min-width: 0;
+}
+
 .dork-page {
   display: flex;
   flex-direction: column;

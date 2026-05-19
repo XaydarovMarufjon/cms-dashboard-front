@@ -104,6 +104,9 @@ $green:  #22c55e;
   padding: 8px 14px 8px 12px;
   cursor: pointer;
   transition: transform .12s, background .2s, border-color .2s;
+  width: 200px;
+  flex-shrink: 0;
+  justify-content: flex-start;
 
   &:hover:not(:disabled) {
     background: $s3;
@@ -112,6 +115,15 @@ $green:  #22c55e;
   }
   &:disabled { opacity: .55; cursor: wait; }
 
+  .cat-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+  }
+
   .cat-count {
     font-size: 11px;
     color: $muted;
@@ -119,6 +131,7 @@ $green:  #22c55e;
     border-radius: 10px;
     padding: 1px 7px;
     margin-left: 2px;
+    flex-shrink: 0;
   }
 
   &.cat-btn-green {
@@ -484,6 +497,27 @@ select.input { padding-right: 24px; }
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   margin-left: auto;
+}
+
+.manage-edit-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity .15s, color .15s, background .15s, border-color .15s;
+}
+
+.manage-row:hover .manage-edit-btn { opacity: 1; }
+
+.manage-name-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.manage-name-err {
+  font-size: 11px;
+  color: $red;
+  margin-left: 4px;
 }
 
 .manage-dot {

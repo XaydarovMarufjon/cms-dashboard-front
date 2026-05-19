@@ -10,7 +10,17 @@ $yellow: var(--yellow);
 $text:   var(--text);
 $muted:  var(--muted);
 
-:host { display: block; font-family: 'IBM Plex Sans', sans-serif; }
+:host { display: block; font-family: 'IBM Plex Sans', sans-serif; background: $bg; }
+
+.detail-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.detail-main {
+  flex: 1;
+  min-width: 0;
+}
 
 .detail-page {
   min-height: 100vh;

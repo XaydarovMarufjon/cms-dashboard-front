@@ -2,6 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 
 interface UzDomain {
   value: string;
@@ -68,7 +69,7 @@ const DORK_PRESETS: DorkPreset[] = [
 @Component({
   selector: 'app-dork',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SideNavComponent],
   templateUrl: './dork.component.html',
   styleUrls: ['./dork.component.scss'],
 })

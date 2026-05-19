@@ -6,6 +6,7 @@ import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
 import { firstValueFrom } from 'rxjs';
 import { ScannerService, WhoisData, SiteInfoData, NucleiResult } from '../../core/services/scanner.service';
 import { ScanResult, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
+import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 
 export interface DiscoveredSub {
   subdomain: string;
@@ -19,7 +20,7 @@ export interface DiscoveredSub {
 @Component({
   selector: 'app-site-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeUrlPipe],
+  imports: [CommonModule, RouterLink, SafeUrlPipe, SideNavComponent],
   templateUrl: './site-detail.component.html',
   styleUrls: ['./site-detail.component.scss'],
 })

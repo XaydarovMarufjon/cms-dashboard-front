@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ScannerService, Alert, AlertType } from '../../core/services/scanner.service';
+import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 
 @Component({
   selector: 'app-alerts',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SideNavComponent],
   templateUrl: './alerts.component.html',
   styleUrls: ['./alerts.component.scss'],
 })

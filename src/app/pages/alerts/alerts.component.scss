@@ -12,7 +12,17 @@ $yellow: var(--yellow);
 $orange: #fb923c;
 $green:  #22c55e;
 
-:host { display: block; font-family: 'IBM Plex Sans', sans-serif; }
+:host { display: block; font-family: 'IBM Plex Sans', sans-serif; background: $bg; }
+
+.alerts-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.alerts-main {
+  flex: 1;
+  min-width: 0;
+}
 
 .alerts-page {
   min-height: 100vh;
