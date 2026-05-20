@@ -45,6 +45,12 @@ export class AuthService {
 
   // ── LOGOUT ─────────────────────────────────────
   logout() {
+    if (this.token()) {
+      this.http.post(`${this.api}/auth/logout`, {}).subscribe({
+        next: () => {},
+        error: () => {},
+      });
+    }
     this.token.set(null);
     this.currentUser.set(null);
     if (this.isBrowser) {
@@ -52,6 +58,18 @@ export class AuthService {
       localStorage.removeItem(USER_KEY);
     }
     this.router.navigate(['/login']);
+  }
+
+  // ── REFRESH (sliding 10d) ──────────────────────
+  refresh() {
+    return this.http.post<{ access_token: string; expiresAt: string }>(
+      `${this.api}/auth/refresh`, {},
+    ).pipe(
+      tap(res => {
+        this.token.set(res.access_token);
+        if (this.isBrowser) localStorage.setItem(TOKEN_KEY, res.access_token);
+      }),
+    );
   }
 
   getToken(): string | null {

@@ -70,5 +70,11 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/calls/calls.component').then(m => m.CallsComponent),
     },
+    {
+        path: 'logs',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+            import('./pages/logs/logs.component').then(m => m.LogsComponent),
+    },
     { path: '**', redirectTo: '' },
 ];
