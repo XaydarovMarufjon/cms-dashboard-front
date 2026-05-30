@@ -135,9 +135,17 @@ export class ScannerService {
         return this.http.get<{ canEmbed: boolean }>(`${this.api}/scanner/can-embed`, { params: { url } });
     }
 
-    discoverSubdomains(domain: string): Observable<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string }>> {
-        return this.http.get<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string }>>(
-            `${this.api}/scanner/subdomains`, { params: { domain } }
+    getCachedSubdomains(domain: string): Observable<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string; cached?: boolean; discoveredAt?: string }>> {
+        return this.http.get<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string; cached?: boolean; discoveredAt?: string }>>(
+            `${this.api}/scanner/subdomains/cache`, { params: { domain } }
+        );
+    }
+
+    discoverSubdomains(domain: string, websiteId?: string): Observable<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string; cached?: boolean; discoveredAt?: string }>> {
+        const params: Record<string, string> = { domain };
+        if (websiteId) params['websiteId'] = websiteId;
+        return this.http.get<Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string; cached?: boolean; discoveredAt?: string }>>(
+            `${this.api}/scanner/subdomains`, { params }
         );
     }
 

@@ -602,7 +602,7 @@
           <path d="M8.5 8.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           <path d="M5.5 3v5M3 5.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
         </svg>
-        <span class="btn-text">Subdomenlari qidirish</span>
+        <span class="btn-text">{{ discoverDone() ? 'Subdomenlarni yangilash' : 'Subdomenlari qidirish' }}</span>
         }
       </button>
     </div>
@@ -727,6 +727,9 @@
           <div class="sub-sources">
             @for (src of sub.source; track src) {
             <span class="src-chip">{{ src }}</span>
+            }
+            @if (sub.cached) {
+            <span class="src-chip in-db-chip">Cache</span>
             }
             @if (displayResult) {
             <span class="src-chip in-db-chip">{{ scanRes ? 'Yangi' : 'DB' }}</span>
@@ -858,7 +861,7 @@
         <path d="M10 2c-3 3-3 10 0 16M10 2c3 3 3 10 0 16M1 10h18" stroke="#22233a" stroke-width="1.5"
           stroke-linecap="round" />
       </svg>
-      <span>DB da subdomenlar yo'q. "Subdomenlari qidirish" tugmasini bosing</span>
+      <span>Cache da subdomenlar yo'q. "Subdomenlari qidirish" tugmasini bosing</span>
     </div>
     }
   </div>
@@ -880,7 +883,7 @@
             <span class="nuclei-title-text">CVE Skan</span>
             <span class="via-badge">via Nuclei</span>
           </div>
-          <p class="nuclei-subtitle">Tirik subdomenlarni ma'lum zaifliklar uchun tekshirish</p>
+          <p class="nuclei-subtitle">Asosiy sayt va tirik subdomenlarni ma'lum zaifliklar uchun tekshirish</p>
         </div>
       </div>
       <button class="btn-nuclei" (click)="runNuclei()" [disabled]="nucleiRunning()">
@@ -918,7 +921,7 @@
           <span class="step-arrow">→</span>
           <span class="step active">CVE shablonlar yuklanmoqda</span>
           <span class="step-arrow">→</span>
-          <span class="step active">Subdomenlar tekshirilmoqda...</span>
+          <span class="step active">Targetlar tekshirilmoqda...</span>
         </div>
         <p class="nuclei-scan-note">Nuclei skan bir necha daqiqa davom etishi mumkin</p>
       </div>
@@ -930,7 +933,7 @@
           <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.3"/>
           <path d="M5.5 9l2.5 2.5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>CVE topilmadi — subdomenlar tozadan chiqdi</span>
+        <span>CVE topilmadi — targetlar tozadan chiqdi</span>
       </div>
     }
 
@@ -992,7 +995,7 @@
           <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/>
           <path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
-        <span>Subdomenlarni CVE zaifliklar uchun skanlashtirish uchun tugmani bosing</span>
+        <span>Sayt va subdomenlarni CVE zaifliklar uchun skanlashtirish uchun tugmani bosing</span>
       </div>
     }
 

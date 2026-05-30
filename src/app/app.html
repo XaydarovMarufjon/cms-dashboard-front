@@ -1,2 +1,10 @@
-
-<router-outlet />
+@if (showShell()) {
+  <div class="app-shell">
+    <app-side-nav></app-side-nav>
+    <main class="app-shell-content">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <router-outlet />
+}
