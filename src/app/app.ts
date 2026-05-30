@@ -1,17 +1,18 @@
-import { Component, inject, signal, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, computed, inject, signal, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { ThemeService } from './core/services/theme.service';
 import { AuthService } from './core/services/auth.service';
+import { SideNavComponent } from './shared/side-nav/side-nav.component';
 
 const SLIDING_ROUTES = new Set(['/', '/checker']);
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 min
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, SideNavComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -23,15 +24,23 @@ export class App implements OnDestroy {
   private auth = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
+  private routeUrl = signal(this.router.url);
 
   private heartbeatId: ReturnType<typeof setInterval> | null = null;
   private routeSub: Subscription | null = null;
+
+  readonly showShell = computed(() =>
+    this.auth.isLoggedIn() && !this.routeUrl().startsWith('/login')
+  );
 
   constructor() {
     if (!this.isBrowser) return;
     this.routeSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(e => this.syncHeartbeat(e.urlAfterRedirects.split('?')[0]));
+      .subscribe(e => {
+        this.routeUrl.set(e.urlAfterRedirects);
+        this.syncHeartbeat(e.urlAfterRedirects.split('?')[0]);
+      });
   }
 
   private syncHeartbeat(path: string) {

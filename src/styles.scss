@@ -76,3 +76,23 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: background 0.25s ease, color 0.25s ease;
 }
+
+/* Authenticated layout owns the sidebar. Page-level sidebars are legacy copies. */
+.app-shell-content {
+  app-side-nav,
+  .dash > .sidebar,
+  .admin-wrap > .sidebar,
+  .nuclei-page > .sidebar,
+  .proxies-page > .sidebar,
+  .stats-page > .sidebar {
+    display: none !important;
+  }
+
+  .dork-layout > app-side-nav,
+  .detail-layout > app-side-nav,
+  .alerts-layout > app-side-nav,
+  .calls-layout > app-side-nav,
+  .logs-layout > app-side-nav {
+    display: none !important;
+  }
+}

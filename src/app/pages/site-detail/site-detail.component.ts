@@ -14,6 +14,8 @@ export interface DiscoveredSub {
   source: string[];
   statusCode?: number;
   title?: string;
+  cached?: boolean;
+  discoveredAt?: string;
   inDb: ScanResult | null;
 }
 
@@ -107,6 +109,8 @@ export class SiteDetailComponent implements OnInit {
     } catch { /* ignore */ }
     finally { this.loading.set(false); }
 
+    await this.loadCachedSubdomains();
+
     // Load saved nuclei results (fire-and-forget)
     try {
       const saved = await firstValueFrom(this.scanner.getNucleiResults(this._fetchWebsiteId));
@@ -115,6 +119,18 @@ export class SiteDetailComponent implements OnInit {
   }
 
   // ── Subdomain discovery ───────────────────────────────────────────────────
+  private async loadCachedSubdomains() {
+    const domain = this.rootDomain();
+    if (!domain) return;
+
+    try {
+      const cached = await firstValueFrom(this.scanner.getCachedSubdomains(domain));
+      if (!cached.length) return;
+      this.discovered.set(this.mergeDiscovered(cached));
+      this.discoverDone.set(true);
+    } catch { /* ignore */ }
+  }
+
   async discoverSubdomains() {
     const domain = this.rootDomain();
     if (!domain || this.discovering()) return;
@@ -129,31 +145,33 @@ export class SiteDetailComponent implements OnInit {
     this.discovered.set([]);
 
     try {
-      const raw = await firstValueFrom(this.scanner.discoverSubdomains(domain));
-
-      // Cross-reference with what's already in DB
-      const dbByHost = new Map<string, ScanResult>();
-      for (const r of this.allResults) {
-        const h = this.hostname(r.website?.url ?? '');
-        dbByHost.set(h, r);
-      }
-
-      const merged: DiscoveredSub[] = raw.map(s => ({
-        subdomain:  s.subdomain,
-        alive:      s.alive,
-        source:     s.source,
-        statusCode: (s as any).statusCode,
-        title:      (s as any).title,
-        inDb:       dbByHost.get(s.subdomain) ?? null,
-      }));
-
-      this.discovered.set(merged);
+      const raw = await firstValueFrom(this.scanner.discoverSubdomains(domain, this._fetchWebsiteId));
+      this.discovered.set(this.mergeDiscovered(raw));
       this.discoverDone.set(true);
     } catch (err) {
       this.discoverError.set('Subdomen qidirish muvaffaqiyatsiz tugadi');
     } finally {
       this.discovering.set(false);
     }
+  }
+
+  private mergeDiscovered(raw: Array<{ subdomain: string; alive: boolean; source: string[]; statusCode?: number; title?: string; cached?: boolean; discoveredAt?: string }>): DiscoveredSub[] {
+    const dbByHost = new Map<string, ScanResult>();
+    for (const r of this.allResults) {
+      const h = this.hostname(r.website?.url ?? '');
+      dbByHost.set(h, r);
+    }
+
+    return raw.map(s => ({
+      subdomain:  s.subdomain,
+      alive:      s.alive,
+      source:     s.source,
+      statusCode: s.statusCode,
+      title:      s.title,
+      cached:     s.cached,
+      discoveredAt: s.discoveredAt,
+      inDb:       dbByHost.get(s.subdomain) ?? null,
+    }));
   }
 
   openDetail(r: ScanResult) {
@@ -214,9 +232,12 @@ export class SiteDetailComponent implements OnInit {
   // ── Nuclei CVE scan ───────────────────────────────────────────────────────
   async runNuclei() {
     if (this.nucleiRunning()) return;
-    const targets = this.aliveSubdomains().map(s => s.subdomain);
+    const targets = [
+      this._fetchUrl,
+      ...this.aliveSubdomains().map(s => s.subdomain),
+    ].filter(Boolean);
     if (!targets.length) {
-      this.nucleiError.set('Tirik subdomenlar topilmadi. Avval subdomains qidiring.');
+      this.nucleiError.set('Nuclei uchun target topilmadi.');
       return;
     }
     this.nucleiRunning.set(true);
