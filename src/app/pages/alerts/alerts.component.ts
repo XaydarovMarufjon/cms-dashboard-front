@@ -52,7 +52,7 @@ export class AlertsComponent implements OnInit {
   }
 
   isUrgent(type: AlertType): boolean {
-    return type === 'expiry_urgent' || type === 'ssl_expiry_urgent' || type === 'site_down';
+    return type === 'expiry_urgent' || type === 'ssl_expiry_urgent' || type === 'site_down' || type === 'defacement_change';
   }
 
   isSsl(type: AlertType): boolean {
@@ -67,17 +67,30 @@ export class AlertsComponent implements OnInit {
     return type === 'site_down';
   }
 
+  isDefacement(type: AlertType): boolean {
+    return type === 'defacement_change';
+  }
+
   typeLabel(type: AlertType): string {
     if (type === 'expiry_urgent'      || type === 'ssl_expiry_urgent')   return 'SHOSHILINCH';
     if (type === 'expiry_critical'    || type === 'ssl_expiry_critical') return 'Kritik';
     if (type === 'expiry_warning'     || type === 'ssl_expiry_warning')  return 'Ogohlantirish';
     if (type === 'cms_change') return 'CMS O\'zgardi';
     if (type === 'site_down')  return 'Sayt Ishlamayapti';
+    if (type === 'defacement_change') return 'Defacement';
     return 'Eslatma';
   }
 
+  expiredLabel(type: AlertType): string {
+    if (this.isSsl(type))      return 'SSL sertifikati muddati tugagan';
+    if (this.isSiteDown(type)) return 'Sayt ishlamayapti';
+    if (this.isCmsChange(type)) return 'CMS o\'zgargan';
+    if (this.isDefacement(type)) return 'Defacement gumoni';
+    return 'Domen muddati tugagan';
+  }
+
   cssType(type: AlertType): string {
-    if (type === 'expiry_urgent'   || type === 'ssl_expiry_urgent' || type === 'site_down') return 'expiry_urgent';
+    if (type === 'expiry_urgent'   || type === 'ssl_expiry_urgent' || type === 'site_down' || type === 'defacement_change') return 'expiry_urgent';
     if (type === 'expiry_critical' || type === 'ssl_expiry_critical') return 'expiry_critical';
     if (type === 'expiry_warning'  || type === 'ssl_expiry_warning')  return 'expiry_warning';
     if (type === 'cms_change') return 'expiry_warning';
@@ -90,4 +103,5 @@ export class AlertsComponent implements OnInit {
   noticeCount()     { return this.alerts().filter(a => a.type === 'expiry_notice'    || a.type === 'ssl_expiry_notice').length; }
   cmsChangeCount()  { return this.alerts().filter(a => a.type === 'cms_change').length; }
   siteDownCount()   { return this.alerts().filter(a => a.type === 'site_down').length; }
+  defacementCount() { return this.alerts().filter(a => a.type === 'defacement_change').length; }
 }

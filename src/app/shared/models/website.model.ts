@@ -23,8 +23,11 @@ export type SiteCategory =
 export interface Website {
   id: string;
   url: string;
-  label?: string;    // ? = ixtiyoriy
+  label?: string | null;    // ? = ixtiyoriy
   createdAt: string;
+  cveScannedAt?: string | null;
+  cveFindingsCount?: number;
+  subdomainsScannedAt?: string | null;
   scans?: ScanResult[];
 }
 export interface ScanResult {
@@ -37,6 +40,7 @@ export interface ScanResult {
   detectionMethods: string[];
   serverTech: string[];
   jsFrameworks: string[];
+  rawSignals?: Record<string, unknown>;
   httpStatus: number | null;
   pageTitle: string | null;
   scannedAt: string;
@@ -44,9 +48,31 @@ export interface ScanResult {
   website?: Website;
 }
 
+export interface DetectionEvidence {
+  name: string;
+  method: string;
+  type: 'file' | 'meta' | 'cookie' | 'inline' | 'header' | 'asset' | 'crawl' | 'comment' | 'bundle' | 'pattern' | 'other';
+  confidence: number;
+  version: string | null;
+  source: string | null;
+}
+
 export interface CreateWebsiteDto {
   url: string;
-  label?: string;
+  label?: string | null;
+}
+
+export interface UrlCheckerSite {
+  id: string;
+  url: string;
+  label?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateUrlCheckerSiteDto {
+  url: string;
+  label?: string | null;
 }
 
 // ── RANGLAR ────────────────────────────────────

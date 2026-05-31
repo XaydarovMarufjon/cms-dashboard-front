@@ -111,6 +111,7 @@
             [value]="newUrl()"
             (input)="newUrl.set($any($event.target).value)"
             (keydown.enter)="addSite()"
+            [disabled]="isRunning() || savingSite() || loadingSites()"
             [class.err]="urlError()"
           />
           <input
@@ -120,9 +121,10 @@
             [value]="newLabel()"
             (input)="newLabel.set($any($event.target).value)"
             (keydown.enter)="addSite()"
+            [disabled]="isRunning() || savingSite() || loadingSites()"
           />
-          <button class="btn-add-site" (click)="addSite()" [disabled]="isRunning()">
-            Qo'shish
+          <button class="btn-add-site" (click)="addSite()" [disabled]="isRunning() || savingSite() || loadingSites()">
+            {{ savingSite() && !editingId() ? 'Saqlanmoqda...' : "Qo'shish" }}
           </button>
         </div>
         @if (urlError()) {
@@ -134,30 +136,85 @@
       <div class="site-list">
         <div class="list-header">
           <span>Saytlar ro'yxati</span>
-          <span class="site-count">{{ sites().length }} ta</span>
+          <span class="site-count">{{ loadingSites() ? '...' : sites().length + ' ta' }}</span>
         </div>
 
-        @if (sites().length === 0) {
+        @if (sitesError()) {
+          <div class="url-error list-error">{{ sitesError() }}</div>
+        }
+
+        @if (loadingSites()) {
+          <div class="empty-list">Yuklanmoqda...</div>
+        } @else if (sites().length === 0) {
           <div class="empty-list">Hali sayt qo'shilmagan</div>
         }
 
         @for (site of sites(); track site.id; let i = $index) {
-          <div class="site-item" [class.active]="currentIndex() === i && isRunning() && !isPaused()">
+          <div class="site-item" [class.active]="currentIndex() === i && isRunning() && !isPaused()" [class.editing]="editingId() === site.id">
             <div class="site-num">{{ i + 1 }}</div>
-            <div class="site-info">
-              @if (site.label) {
-                <div class="site-label">{{ site.label }}</div>
-              }
-              <div class="site-url">{{ site.url }}</div>
-            </div>
-            <button class="btn-remove"
-              (click)="removeSite(site.id)"
-              [disabled]="isRunning()"
-              title="O'chirish">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </button>
+            @if (editingId() === site.id) {
+              <div class="site-edit-form">
+                <input
+                  class="add-input edit-input"
+                  type="text"
+                  [value]="editUrl()"
+                  (input)="editUrl.set($any($event.target).value)"
+                  (keydown.enter)="saveEdit(site)"
+                  [disabled]="savingSite()"
+                  [class.err]="editError()"
+                />
+                <input
+                  class="add-input edit-input label-input"
+                  type="text"
+                  placeholder="Nomi (ixtiyoriy)"
+                  [value]="editLabel()"
+                  (input)="editLabel.set($any($event.target).value)"
+                  (keydown.enter)="saveEdit(site)"
+                  [disabled]="savingSite()"
+                />
+                @if (editError()) {
+                  <div class="url-error">{{ editError() }}</div>
+                }
+              </div>
+              <div class="site-actions">
+                <button class="btn-save" (click)="saveEdit(site)" [disabled]="savingSite()" title="Saqlash">
+                  Saqlash
+                </button>
+                <button class="btn-cancel" (click)="cancelEdit()" [disabled]="savingSite()" title="Bekor qilish">
+                  Bekor
+                </button>
+              </div>
+            } @else {
+              <div class="site-info">
+                @if (site.label) {
+                  <div class="site-label">{{ site.label }}</div>
+                }
+                <div class="site-url">{{ site.url }}</div>
+              </div>
+              <div class="site-actions">
+                <button class="btn-edit"
+                  (click)="startEdit(site)"
+                  [disabled]="isRunning() || deletingSite() !== null"
+                  title="Tahrirlash">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M7.9 2.1l3 3L4.6 11.4H1.7V8.5L7.9 2.1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                    <path d="M7 3l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button class="btn-remove"
+                  (click)="removeSite(site.id)"
+                  [disabled]="isRunning() || deletingSite() === site.id"
+                  title="O'chirish">
+                  @if (deletingSite() === site.id) {
+                    ...
+                  } @else {
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+            }
           </div>
         }
       </div>
@@ -200,7 +257,7 @@
         <!-- Boshlash / Davom etish -->
         <button class="btn-start"
           (click)="start()"
-          [disabled]="(isRunning() && !isPaused()) || sites().length === 0">
+          [disabled]="(isRunning() && !isPaused()) || loadingSites() || sites().length === 0">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M3 1.5l10 5.5L3 12.5V1.5z" fill="currentColor"/>
           </svg>

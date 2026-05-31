@@ -42,6 +42,14 @@ $yellow: #ffc84a;
   white-space: nowrap;
 }
 
+.nm-type {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  color: $muted;
+  white-space: nowrap;
+}
+
 .nm-isp {
   font-size: 10px;
   font-family: 'IBM Plex Mono', monospace;
@@ -55,6 +63,20 @@ $yellow: #ffc84a;
 }
 
 .spin { animation: spin .8s linear infinite; display: inline-block; }
+
+:host-context(.sidebar.collapsed) {
+  .nm-bar {
+    justify-content: center;
+    padding: 7px 0;
+  }
+
+  .nm-dot,
+  .nm-type,
+  .nm-val,
+  .nm-isp {
+    display: none;
+  }
+}
 
 @keyframes spin  { to { transform: rotate(360deg); } }
 @keyframes pulse {

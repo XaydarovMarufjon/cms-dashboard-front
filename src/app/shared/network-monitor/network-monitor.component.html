@@ -10,6 +10,7 @@
   </svg>
 
   <span class="nm-dot" [attr.data-status]="status()"></span>
+  <span class="nm-type" [title]="connectionTitle()">{{ connectionLabel() }}</span>
   <span class="nm-val" [class.spin]="measuring()">{{ fmtSpeed(speed()) }}</span>
 
   @if (isp()) {

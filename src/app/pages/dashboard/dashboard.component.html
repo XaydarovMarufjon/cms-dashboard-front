@@ -23,9 +23,6 @@
       </svg>
     </button>
 
-    <!-- Network status (single row) -->
-    <app-network-monitor></app-network-monitor>
-
     <!-- Nav -->
     <nav class="sidenav">
       <div class="sidenav-label">Navigation</div>
@@ -201,13 +198,13 @@
         </button>
       </div>
 
-      <button class="btn-scanall" (click)="scanAll()" [disabled]="scanningAll()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" [class.spin]="scanningAll()">
+      <button class="btn-scanall" (click)="scanAll()" [disabled]="bulkRunning() || bulkLoading()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" [class.spin]="bulkRunning() || bulkLoading()">
           <path d="M13 7A6 6 0 1 1 7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           <path d="M7 1l2.5 2.5L7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
             stroke-linejoin="round" />
         </svg>
-        <span class="btn-scanall-text">{{ scanningAll() ? 'Skanerlanmoqda...' : 'Hammasini skaner qil' }}</span>
+        <span class="btn-scanall-text">{{ bulkRunning() ? 'Bulk skan...' : 'Hammasini skaner qil' }}</span>
       </button>
 
       <div class="sidebar-user">
@@ -300,7 +297,12 @@
               <div class="interval-grid">
                 @for (opt of INTERVAL_OPTIONS; track opt.value) {
                 <button class="interval-btn" [class.active]="refreshInterval() === opt.value"
-                  (click)="setRefreshInterval(opt.value)">{{ opt.label }}</button>
+                  [class.danger]="opt.dangerous" (click)="setRefreshInterval(opt.value)">
+                  <span>{{ opt.label }}</span>
+                  @if (opt.dangerous) {
+                  <span class="interval-danger">danger</span>
+                  }
+                </button>
                 }
               </div>
               <div class="sch-status">
@@ -365,6 +367,149 @@
 
       </div>
     </header>
+
+    <!-- OVERVIEW -->
+    @let metrics = dashboardMetrics();
+    <section class="overview-shell">
+      <div class="overview-head">
+        <div>
+          <div class="overview-title">Bosh panel</div>
+          <div class="overview-sub">
+            Oxirgi scan: {{ formatRelativeTime(metrics.latestScan) }} · Auto interval: {{ getIntervalLabel() || '6 soat' }}
+          </div>
+        </div>
+        <div class="overview-health" [class.warn]="metrics.healthPct < 80" [class.bad]="metrics.healthPct < 55">
+          <span class="health-ring" [style.--p]="metrics.healthPct + '%'">{{ metrics.healthPct }}%</span>
+          <span>health</span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <button class="kpi-tile" (click)="filterCms.set('all')">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="5" height="5" rx="1.2" fill="currentColor"/>
+              <rect x="9" y="2" width="5" height="5" rx="1.2" fill="currentColor" opacity=".45"/>
+              <rect x="2" y="9" width="5" height="5" rx="1.2" fill="currentColor" opacity=".45"/>
+              <rect x="9" y="9" width="5" height="5" rx="1.2" fill="currentColor" opacity=".25"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.total }}</span>
+          <span class="kpi-label">Jami sayt</span>
+        </button>
+        <button class="kpi-tile good" (click)="filterCms.set('all')">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8.5l3 3L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.detected }}</span>
+          <span class="kpi-label">Aniqlangan</span>
+        </button>
+        <button class="kpi-tile warn" (click)="filterCms.set('no-cms')">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M8 4.5v4M8 11.5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.unknown }}</span>
+          <span class="kpi-label">Noma'lum</span>
+        </button>
+        <div class="kpi-tile danger">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.offline }}</span>
+          <span class="kpi-label">Offline/xato</span>
+        </div>
+        <div class="kpi-tile violet">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2l5 2v3.6c0 3.1-2 5.2-5 6.4-3-1.2-5-3.3-5-6.4V4l5-2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.cveFindings }}</span>
+          <span class="kpi-label">CVE topilmalar</span>
+        </div>
+        <div class="kpi-tile cyan">
+          <span class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="3.5" r="2" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="4" cy="12.5" r="2" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="12" cy="12.5" r="2" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M7.2 5.3L4.8 10.5M8.8 5.3l2.4 5.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="kpi-value">{{ metrics.subdomainScanned }}</span>
+          <span class="kpi-label">Subdomain scan</span>
+        </div>
+      </div>
+
+      <div class="insight-grid">
+        <div class="insight-panel">
+          <div class="insight-title">Coverage</div>
+          <div class="coverage-list">
+            <div class="coverage-row">
+              <span>CMS detection</span>
+              <strong>{{ metrics.coveragePct }}%</strong>
+              <div class="coverage-track"><div [style.width.%]="metrics.coveragePct"></div></div>
+            </div>
+            <div class="coverage-row">
+              <span>CVE scan</span>
+              <strong>{{ metrics.cveCoveragePct }}%</strong>
+              <div class="coverage-track"><div [style.width.%]="metrics.cveCoveragePct"></div></div>
+            </div>
+            <div class="coverage-row">
+              <span>Subdomain scan</span>
+              <strong>{{ metrics.subdomainCoveragePct }}%</strong>
+              <div class="coverage-track"><div [style.width.%]="metrics.subdomainCoveragePct"></div></div>
+            </div>
+          </div>
+          <div class="coverage-foot">
+            <span>O'rtacha ishonch: {{ metrics.avgConfidence }}%</span>
+            <span>Eskirgan scan: {{ metrics.staleScans }}</span>
+          </div>
+        </div>
+
+        <div class="insight-panel">
+          <div class="insight-title">Top texnologiyalar</div>
+          @if (topCmsSummary().length > 0) {
+          <div class="top-tech-list">
+            @for (entry of topCmsSummary(); track entry.name) {
+            <button class="top-tech-row" (click)="filterCms.set(entry.name)">
+              <span class="tech-dot" [style.background]="getCmsColor(entry.name)"></span>
+              <span>{{ entry.name }}</span>
+              <strong>{{ entry.count }}</strong>
+              <div class="tech-bar"><div [style.width.%]="entry.pct" [style.background]="getCmsColor(entry.name)"></div></div>
+            </button>
+            }
+          </div>
+          } @else {
+          <div class="insight-empty">Hali CMS aniqlanmagan</div>
+          }
+        </div>
+
+        <div class="insight-panel">
+          <div class="insight-title">E'tibor kerak</div>
+          @if (attentionSites().length > 0) {
+          <div class="attention-list">
+            @for (item of attentionSites(); track item.id) {
+            <button class="attention-row" [class]="getAttentionClass(item)" (click)="openDetail(item)">
+              <span class="attention-mark"></span>
+              <span class="attention-url">{{ stripProtocol(item.website?.url) }}</span>
+              <strong>{{ getAttentionLabel(item) }}</strong>
+            </button>
+            }
+          </div>
+          } @else {
+          <div class="insight-empty">Muammo topilmadi</div>
+          }
+        </div>
+      </div>
+    </section>
 
     <!-- SORT + FILTER ACCORDION -->
     <div class="filter-accordion" [class.open]="controlsOpen()">
@@ -435,6 +580,113 @@
         </button>
         }
       </div>
+      }
+    </div>
+
+    <!-- BULK SCAN ACCORDION -->
+    <div class="filter-accordion bulk-accordion" [class.open]="bulkAccordionOpen()" [class.is-running]="bulkRunning()">
+      <button class="filter-accordion-toggle bulk-accordion-toggle"
+        (click)="bulkAccordionOpen.set(!bulkAccordionOpen())">
+        <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span>Bulk CMS scan</span>
+        <span class="bulk-status" [class]="'bulk-status status-' + (bulkJob()?.status || 'IDLE')">
+          {{ bulkStatusLabel(bulkJob()?.status) }}
+        </span>
+        @if (bulkJob()) {
+        <span class="sort-count">{{ bulkDone() }} / {{ bulkJob()?.total }} · {{ bulkJob()?.progressPercent }}%</span>
+        } @else {
+        <span class="sort-count">{{ bulkMode() }} · {{ bulkConcurrency() }} worker</span>
+        }
+      </button>
+
+      @if (bulkAccordionOpen()) {
+      <section class="bulk-scan-panel">
+        <div class="bulk-main">
+          <div class="bulk-controls">
+            <div class="bulk-segment">
+              <button [class.active]="bulkMode() === 'FAST'" (click)="setBulkMode('FAST')" [disabled]="bulkRunning()">FAST</button>
+              <button [class.active]="bulkMode() === 'FULL'" (click)="setBulkMode('FULL')" [disabled]="bulkRunning()">FULL</button>
+            </div>
+
+            <label class="bulk-input">
+              <span>Worker</span>
+              <input type="number" min="1" [max]="bulkMode() === 'FAST' ? 50 : 10" [value]="bulkConcurrency()"
+                (input)="updateBulkConcurrency($any($event.target).value)" [disabled]="bulkRunning()" />
+            </label>
+
+            <label class="bulk-input">
+              <span>Timeout</span>
+              <input type="number" min="2000" max="30000" step="500" [value]="bulkTimeoutMs()"
+                (input)="updateBulkTimeout($any($event.target).value)" [disabled]="bulkRunning()" />
+            </label>
+
+            <label class="bulk-check">
+              <input type="checkbox" [checked]="bulkSkipRecent()"
+                (change)="bulkSkipRecent.set($any($event.target).checked)" [disabled]="bulkRunning()" />
+              <span>6 soat ichida skanlanganlarni o'tkazib yubor</span>
+            </label>
+
+            <button class="bulk-start" (click)="startBulkScan()" [disabled]="bulkRunning() || bulkLoading()">
+              @if (bulkLoading()) {
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="spin">
+                <path d="M12 6.5A5.5 5.5 0 1 1 6.5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              }
+              {{ bulkLoading() ? 'Boshlanmoqda...' : 'Start' }}
+            </button>
+
+            @if (bulkRunning()) {
+            <button class="bulk-cancel" (click)="cancelBulkScan()" [disabled]="bulkCancelling()">
+              {{ bulkCancelling() ? 'Toxtatilmoqda...' : 'Stop' }}
+            </button>
+            }
+          </div>
+
+          <div class="bulk-docs">
+            <div class="bulk-doc-title">Ishlash tartibi</div>
+            <div class="bulk-doc-grid">
+              <div><b>FAST</b><span>asosiy sahifadan CMS signal oladi, katta ro'yxatlar uchun.</span></div>
+              <div><b>FULL</b><span>robots, sitemap, asset va file probe bilan chuqurroq tekshiradi.</span></div>
+              <div><b>Worker</b><span>bir vaqtda nechta sayt tekshirilishini belgilaydi.</span></div>
+              <div><b>Timeout</b><span>bitta sayt javobini kutish vaqti, millisekundda.</span></div>
+              <div><b>Skip</b><span>yaqinda skanlangan saytlarni o'tkazib yuboradi.</span></div>
+              <div><b>Progress</b><span>Done, Running, Pending, Skip va Fail hisoblarini ko'rsatadi.</span></div>
+            </div>
+          </div>
+        </div>
+
+        @if (bulkJob()) {
+        <div class="bulk-progress">
+          <div class="bulk-progress-head">
+            <span>{{ bulkModeLabel(bulkJob()?.mode) }} · {{ bulkJob()?.concurrency }} worker · {{ bulkJob()?.timeoutMs }}ms</span>
+            <span>{{ bulkDone() }} / {{ bulkJob()?.total }} · {{ bulkJob()?.progressPercent }}%</span>
+          </div>
+          <div class="bulk-bar">
+            <div class="bulk-bar-fill" [style.width.%]="bulkJob()?.progressPercent || 0"></div>
+          </div>
+          <div class="bulk-counts">
+            <span class="done">Done {{ bulkJob()?.completed }}</span>
+            <span class="running">Running {{ bulkJob()?.running }}</span>
+            <span class="pending">Pending {{ bulkJob()?.pending }}</span>
+            <span class="skipped">Skip {{ bulkJob()?.skipped }}</span>
+            <span class="failed">Fail {{ bulkJob()?.failed }}</span>
+          </div>
+          @if ((bulkJob()?.items?.length || 0) > 0) {
+          <div class="bulk-items">
+            @for (item of bulkJob()?.items || []; track item.id) {
+            <div class="bulk-item" [class]="'item-' + item.status">
+              <span class="bulk-item-url">{{ stripProtocol(item.website?.url || item.url) }}</span>
+              <span class="bulk-item-status">{{ item.status }}</span>
+            </div>
+            }
+          </div>
+          }
+        </div>
+        }
+      </section>
       }
     </div>
 
@@ -647,8 +899,21 @@
             </td>
 
             <td class="td-url">
-              <div class="tbl-url">{{ stripProtocol(result.website?.url) | slice:0:40 }}{{
-                stripProtocol(result.website?.url).length > 40 ? '…' : '' }}</div>
+              <div class="tbl-url-row">
+                <div class="tbl-url">{{ stripProtocol(result.website?.url) | slice:0:40 }}{{
+                  stripProtocol(result.website?.url).length > 40 ? '…' : '' }}</div>
+                @if (result.website?.cveScannedAt || result.website?.subdomainsScannedAt) {
+                <div class="scan-badge-row">
+                  @if (result.website?.cveScannedAt) {
+                  <span class="scan-complete-badge cve" [class.has-findings]="hasCveFindings(result)"
+                    [title]="cveBadgeTitle(result)">+CVE</span>
+                  }
+                  @if (result.website?.subdomainsScannedAt) {
+                  <span class="scan-complete-badge subdomains">+Sb</span>
+                  }
+                </div>
+                }
+              </div>
               @if (result.website?.label) {
               <div class="tbl-label">{{ result.website?.label }}</div>
               }
@@ -794,8 +1059,21 @@
           </div>
 
           <div class="site-meta">
-            <div class="site-url">{{ stripProtocol(result.website?.url) | slice:0:32 }}{{
-              stripProtocol(result.website?.url).length > 32 ? '…' : '' }}</div>
+            <div class="site-url-row">
+              <div class="site-url">{{ stripProtocol(result.website?.url) | slice:0:32 }}{{
+                stripProtocol(result.website?.url).length > 32 ? '…' : '' }}</div>
+              @if (result.website?.cveScannedAt || result.website?.subdomainsScannedAt) {
+              <div class="scan-badge-row">
+                @if (result.website?.cveScannedAt) {
+                <span class="scan-complete-badge cve" [class.has-findings]="hasCveFindings(result)"
+                  [title]="cveBadgeTitle(result)">+CVE</span>
+                }
+                @if (result.website?.subdomainsScannedAt) {
+                <span class="scan-complete-badge subdomains">+Sb</span>
+                }
+              </div>
+              }
+            </div>
             @if (result.website?.label || result.pageTitle) {
             <div class="site-label">
               {{ result.website?.label || result.pageTitle }}

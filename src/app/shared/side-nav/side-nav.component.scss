@@ -108,6 +108,31 @@ $muted:  var(--muted);
   letter-spacing: .1em;
   padding: 0 8px;
   margin-bottom: 6px;
+  &:not(:first-child) { margin-top: 14px; }
+}
+
+/* accent picker */
+.accent-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0 10px;
+  &.collapsed { flex-wrap: wrap; justify-content: center; }
+}
+.accent-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .12s, border-color .12s;
+  &:hover { transform: scale(1.15); }
+  &.active { border-color: $text; }
+  &.ac-default { background: linear-gradient(135deg, #00e5c0, #009e8a); }
+  &.ac-teal    { background: #00d3b8; }
+  &.ac-blue    { background: #4a9fff; }
+  &.ac-violet  { background: #a78bfa; }
+  &.ac-amber   { background: #f5a623; }
 }
 .sidenav-item {
   display: flex;
@@ -153,6 +178,7 @@ $muted:  var(--muted);
 
 .theme-switcher {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   padding: 6px 0 10px;
   &.collapsed {

@@ -7,12 +7,12 @@
 
   <!-- HEADER -->
   <div class="detail-header">
-    <a class="btn-back" routerLink="/">
+    <a class="btn-back" routerLink="/sites">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
-      Dashboard
+      Saytlar
     </a>
 
     <div class="header-main">
@@ -70,6 +70,14 @@
               }
             </span>
           </div>
+          @if (versionSource(r)) {
+          <div class="info-row">
+            <span class="info-key">Versiya manbasi</span>
+            <span class="info-val">
+              <span class="source-pill">{{ versionSource(r) }}</span>
+            </span>
+          </div>
+          }
           <div class="info-row">
             <span class="info-key">Kategoriya</span>
             <span class="info-val">
@@ -116,15 +124,20 @@
             <span class="level-desc">{{ level.desc }}</span>
           </div>
 
-          @if (r.detectionMethods.length > 0) {
+          @if (evidenceRows(r).length > 0) {
           <div class="evidence-list">
-            @for (m of r.detectionMethods; track m) {
-            @let ev = categorizeMethod(m);
+            @for (evidence of evidenceRows(r); track evidence.method + evidence.source) {
+            @let ev = categorizeEvidence(evidence);
             <div class="evidence-row">
               <span class="ev-icon" [class]="ev.cls">{{ ev.icon }}</span>
               <div class="ev-texts">
                 <span class="ev-label">{{ ev.label }}</span>
-                <span class="ev-method">{{ m }}</span>
+                <span class="ev-method">{{ evidence.method }}</span>
+                <span class="ev-meta-line">
+                  @if (evidence.source) { <span>{{ evidence.source }}</span> }
+                  @if (evidence.version) { <span>v{{ evidence.version }}</span> }
+                  <span class="ev-confidence">{{ evidence.confidence }}%</span>
+                </span>
               </div>
             </div>
             }
@@ -147,6 +160,26 @@
         <div class="chip-list">
           @for (m of r.detectionMethods; track m) {
           <span class="method-chip">{{ m }}</span>
+          }
+        </div>
+      </div>
+      }
+
+      @if (rawSignalEntries(r).length > 0) {
+      <div class="detail-card">
+        <div class="card-title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 3h10M2 7h10M2 11h10" stroke="currentColor" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+          Signal tafsilotlari
+          <span class="count-badge">{{ rawSignalEntries(r).length }}</span>
+        </div>
+        <div class="raw-signal-list">
+          @for (signal of rawSignalEntries(r); track signal.key) {
+          <div class="raw-signal-row">
+            <span class="raw-key">{{ signal.key }}</span>
+            <span class="raw-value">{{ signal.value }}</span>
+          </div>
           }
         </div>
       </div>
@@ -574,16 +607,6 @@
         @if (subdomains().length > 0) {
         <span class="sub-count">DB: {{ subdomains().length }}</span>
         }
-        @if (discoverDone()) {
-        <span class="sub-count alive-count">
-          <span class="dot dot-green"></span>{{ aliveSubdomains().length }} tirik
-        </span>
-        @if (deadSubdomains().length > 0) {
-        <span class="sub-count dead-count">
-          <span class="dot dot-red"></span>{{ deadSubdomains().length }} o'lik
-        </span>
-        }
-        }
       </div>
 
       <!-- ── Search button with pulse + ripple animation ── -->
@@ -606,6 +629,25 @@
         }
       </button>
     </div>
+
+    @if (discoverDone()) {
+    <div class="sub-summary-bar">
+      <div class="sub-summary-item total">
+        <span>Umumiy</span>
+        <strong>{{ totalDiscovered() }}</strong>
+      </div>
+      <div class="sub-summary-item alive">
+        <span class="dot dot-green"></span>
+        <span>Tirik</span>
+        <strong>{{ aliveSubdomains().length }}</strong>
+      </div>
+      <div class="sub-summary-item dead">
+        <span class="dot dot-red"></span>
+        <span>O'lik</span>
+        <strong>{{ deadSubdomains().length }}</strong>
+      </div>
+    </div>
+    }
 
     @if (discoverError()) {
     <div class="discover-error">{{ discoverError() }}</div>
@@ -685,7 +727,7 @@
     }
 
     <!-- ══════════════════════════════════════════════ -->
-    <!-- ALIVE subdomains — card grid                  -->
+    <!-- ALIVE subdomains — table                      -->
     <!-- ══════════════════════════════════════════════ -->
     @if (discoverDone() && aliveSubdomains().length > 0) {
     <div class="sub-section-label alive-label">
@@ -693,106 +735,123 @@
       Ishlaydigan subdomenlar
       <span class="label-count green">{{ aliveSubdomains().length }}</span>
     </div>
-    <div class="sub-grid">
-      @for (sub of aliveSubdomains(); track sub.subdomain) {
-      @let scanRes = getScanResult(sub.subdomain);
-      @let scanning = isScanning(sub.subdomain);
-      @let scanErr = getScanError(sub.subdomain);
-      @let displayResult = scanRes ?? sub.inDb;
-
-      <div class="sub-card discovered-card alive-card" [class.in-db]="!!displayResult" [class.is-scanning]="scanning"
-        (click)="quickScan(sub)" role="button">
-
-        <div class="alive-indicator"></div>
-        <div class="sub-accent" [style.background]="displayResult ? getCmsColor(displayResult.cms) : '#1a2a1a'"></div>
-
-        <!-- Scanning overlay -->
-        @if (scanning) {
-        <div class="card-scan-overlay">
-          <div class="card-scan-spinner">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="9" stroke="#00e5c0" stroke-opacity=".2" stroke-width="1.5" />
-              <path d="M20 11A9 9 0 1 1 11 2" stroke="#00e5c0" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </div>
-          <span class="card-scan-text">Skanerlanyapti...</span>
-        </div>
-        }
-
-        <div class="sub-top">
-          <div class="sub-url">{{ sub.subdomain }}</div>
-          @if (sub.title || (displayResult && displayResult.website?.label)) {
-          <div class="sub-label sub-title-text">{{ displayResult?.website?.label || sub.title }}</div>
-          }
-          <div class="sub-sources">
-            @for (src of sub.source; track src) {
-            <span class="src-chip">{{ src }}</span>
-            }
-            @if (sub.cached) {
-            <span class="src-chip in-db-chip">Cache</span>
-            }
-            @if (displayResult) {
-            <span class="src-chip in-db-chip">{{ scanRes ? 'Yangi' : 'DB' }}</span>
-            }
-          </div>
-        </div>
-
-        @if (scanErr) {
-        <div class="card-scan-error">{{ scanErr }}</div>
-        } @else if (displayResult) {
-        <!-- Has result (DB or just scanned) -->
-        <div class="sub-badges">
-          @if (displayResult.cms) {
-          <span class="sub-cms" [style.--c]="getCmsColor(displayResult.cms)">{{ displayResult.cms }}</span>
-          @if (displayResult.version) {
-            <span class="sub-ver">v{{ displayResult.version }}</span>
-          } @else {
-            <span class="sub-ver unknown">v<span class="ver-q">?</span></span>
-          }
-          @if (displayResult.category) {
-          <span class="cat-pill" [style.--cc]="getCategoryColor(displayResult.category)">{{
-            getCategoryLabel(displayResult.category) }}</span>
-          }
-          } @else if (displayResult.errorMessage) {
-          <span class="sub-offline">offline</span>
-          } @else {
-          <span class="sub-unknown">CMS aniqlanmadi</span>
-          }
-        </div>
-        <div class="sub-foot">
-          <div class="sub-conf">
-            <div class="sub-conf-bar">
-              <div class="sub-conf-fill" [class]="getConfidenceClass(displayResult.confidence)"
-                [style.width.%]="displayResult.confidence"></div>
-            </div>
-            <span class="sub-conf-num" [class]="getConfidenceClass(displayResult.confidence)">{{
-              displayResult.confidence }}%</span>
-          </div>
-          @if (displayResult.httpStatus) {
-          <span class="sub-http" [class]="getHttpStatusClass(displayResult.httpStatus)">{{ displayResult.httpStatus
-            }}</span>
-          }
-          @if (displayResult.serverTech.length) {
-          <span class="sub-tech-hint">{{ displayResult.serverTech[0] }}</span>
-          }
-        </div>
-        } @else {
-        <!-- Not yet scanned -->
-        <div class="sub-foot not-scanned-foot">
-          <span class="not-scanned">
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-              <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-opacity=".5" stroke-width="1" />
-              <path d="M5.5 3v3M5.5 7.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-            </svg>
-            Bosib aniqlang
-          </span>
-          @if (sub.statusCode) {
-          <span class="sub-http" [class]="getHttpStatusClass(sub.statusCode)">{{ sub.statusCode }}</span>
-          }
-        </div>
+    <div class="sub-table-toolbar alive-toolbar">
+      <div class="page-size-group" aria-label="Ishlaydigan subdomenlar soni">
+        @for (size of subdomainPageSizeOptions; track size) {
+        <button type="button" class="page-size-btn" [class.active]="alivePageSize() === size"
+          (click)="setAlivePageSize(size)">
+          {{ pageSizeLabel(size) }}
+        </button>
         }
       </div>
-      }
+      <div class="pager-controls">
+        <span class="pager-range">{{ aliveRangeStart() }}-{{ aliveRangeEnd() }} / {{ aliveSubdomains().length }}</span>
+        <button type="button" class="pager-btn" title="Oldingi sahifa" aria-label="Oldingi sahifa"
+          [disabled]="aliveDisplayPage() <= 1" (click)="changeAlivePage(-1)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M8.5 3.5L5 7l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="pager-position">{{ aliveDisplayPage() }} / {{ alivePageCount() }}</span>
+        <button type="button" class="pager-btn" title="Keyingi sahifa" aria-label="Keyingi sahifa"
+          [disabled]="aliveDisplayPage() >= alivePageCount()" (click)="changeAlivePage(1)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5.5 3.5L9 7l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="alive-table-wrap">
+      <table class="alive-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Subdomen</th>
+            <th>Status</th>
+            <th>Manba</th>
+            <th>CMS / DB</th>
+            <th>Amal</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sub of paginatedAliveSubdomains(); track sub.subdomain; let i = $index) {
+          @let scanRes = getScanResult(sub.subdomain);
+          @let scanning = isScanning(sub.subdomain);
+          @let scanErr = getScanError(sub.subdomain);
+          @let displayResult = scanRes ?? sub.inDb;
+          <tr [class.in-db]="!!displayResult" [class.is-scanning]="scanning">
+            <td class="row-num">{{ aliveRangeStart() + i }}</td>
+            <td class="row-domain">
+              <span class="alive-dot"></span>
+              <div class="alive-domain-cell">
+                <button class="alive-domain-btn" type="button" [disabled]="!displayResult"
+                  (click)="openSubdomainCard(sub)">
+                  {{ sub.subdomain }}
+                </button>
+                @if (sub.title || (displayResult && displayResult.website?.label)) {
+                <span class="alive-title">{{ displayResult?.website?.label || sub.title }}</span>
+                }
+                @if (scanErr) {
+                <span class="alive-error">{{ scanErr }}</span>
+                }
+              </div>
+            </td>
+            <td>
+              <div class="alive-status-cell">
+                @if (sub.statusCode) {
+                <span class="sub-http" [ngClass]="getHttpStatusClass(sub.statusCode)">{{ sub.statusCode }}</span>
+                } @else {
+                <span class="muted-dash">—</span>
+                }
+                @if (scanning) {
+                <span class="mini-spinner"></span>
+                <span class="scan-inline-text">Qo'shilmoqda...</span>
+                }
+              </div>
+            </td>
+            <td class="row-sources">
+              @for (src of sub.source; track src) {
+              <span class="src-chip-sm">{{ src }}</span>
+              }
+              @if (sub.cached) {
+              <span class="src-chip-sm cache-chip">Cache</span>
+              }
+            </td>
+            <td>
+              @if (displayResult) {
+              <div class="alive-db-cell">
+                <span class="src-chip-sm in-db-chip">{{ scanRes ? 'Yangi' : 'DB' }}</span>
+                @if (displayResult.cms) {
+                <span class="sub-cms" [style.--c]="getCmsColor(displayResult.cms)">{{ displayResult.cms }}</span>
+                } @else {
+                <span class="sub-unknown">CMS aniqlanmadi</span>
+                }
+              </div>
+              } @else {
+              <span class="not-scanned">Cache'da saqlandi</span>
+              }
+            </td>
+            <td class="alive-actions">
+              @if (displayResult) {
+              <button class="btn-open-dashboard" type="button" (click)="openSubdomainCard(sub)">
+                Ochish
+              </button>
+              } @else {
+              <button class="btn-add-dashboard" type="button" [disabled]="scanning"
+                (click)="addSubdomainToDashboard(sub, $event)">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 2v7M2 5.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Dashboardga qo'shish
+              </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
     </div>
     }
 
@@ -805,6 +864,34 @@
       Ishlamaydigan subdomenlar
       <span class="label-count red">{{ deadSubdomains().length }}</span>
     </div>
+    <div class="sub-table-toolbar dead-toolbar">
+      <div class="page-size-group" aria-label="Ishlamaydigan subdomenlar soni">
+        @for (size of subdomainPageSizeOptions; track size) {
+        <button type="button" class="page-size-btn" [class.active]="deadPageSize() === size"
+          (click)="setDeadPageSize(size)">
+          {{ pageSizeLabel(size) }}
+        </button>
+        }
+      </div>
+      <div class="pager-controls">
+        <span class="pager-range">{{ deadRangeStart() }}-{{ deadRangeEnd() }} / {{ deadSubdomains().length }}</span>
+        <button type="button" class="pager-btn" title="Oldingi sahifa" aria-label="Oldingi sahifa"
+          [disabled]="deadDisplayPage() <= 1" (click)="changeDeadPage(-1)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M8.5 3.5L5 7l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="pager-position">{{ deadDisplayPage() }} / {{ deadPageCount() }}</span>
+        <button type="button" class="pager-btn" title="Keyingi sahifa" aria-label="Keyingi sahifa"
+          [disabled]="deadDisplayPage() >= deadPageCount()" (click)="changeDeadPage(1)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5.5 3.5L9 7l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
     <div class="dead-table-wrap">
       <table class="dead-table">
         <thead>
@@ -816,9 +903,9 @@
           </tr>
         </thead>
         <tbody>
-          @for (sub of deadSubdomains(); track sub.subdomain; let i = $index) {
+          @for (sub of paginatedDeadSubdomains(); track sub.subdomain; let i = $index) {
           <tr>
-            <td class="row-num">{{ i + 1 }}</td>
+            <td class="row-num">{{ deadRangeStart() + i }}</td>
             <td class="row-domain">
               <span class="dead-dot"></span>
               {{ sub.subdomain }}
@@ -962,13 +1049,16 @@
                 </td>
                 <td class="cve-id">
                   @if (hit.cveId) {
-                    <a [href]="'https://nvd.nist.gov/vuln/detail/' + hit.cveId"
+                    <a [href]="hit.referenceUrl || ('https://nvd.nist.gov/vuln/detail/' + hit.cveId)"
                        target="_blank" rel="noopener" class="cve-link">
                       {{ hit.cveId }}
                     </a>
                   } @else {
                     <span class="muted-text">{{ hit.templateId }}</span>
                   }
+                  <span class="source-badge" [class]="cveSourceClass(hit)">
+                    {{ cveSourceLabel(hit) }}
+                  </span>
                 </td>
                 <td class="cve-name" [title]="hit.description ?? ''">{{ hit.name }}</td>
                 <td class="cve-sub">{{ hit.subdomain }}</td>
@@ -999,6 +1089,96 @@
       </div>
     }
 
+  </div>
+
+  <!-- ── PORT SCANNER ───────────────────────────── -->
+  <div class="port-section">
+    <div class="port-header">
+      <div class="port-title">
+        <div class="port-icon-wrap">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="5" cy="4" r="1" fill="currentColor"/>
+            <circle cx="8" cy="8" r="1" fill="currentColor"/>
+            <circle cx="11" cy="12" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <div class="port-title-row">
+            <span class="port-title-text">Port Scanner</span>
+            @if (openPorts().length > 0) {
+            <span class="open-port-badge">{{ openPorts().length }} ochiq</span>
+            }
+          </div>
+          <p class="port-subtitle">Asosiy domenning muhim TCP portlarini tekshirish</p>
+        </div>
+      </div>
+
+      <div class="port-actions">
+        <input class="port-input" [value]="portInput()" (input)="portInput.set($any($event.target).value)"
+          placeholder="80,443,8080" />
+        <button class="btn-port-scan" (click)="runPortScan()" [disabled]="portRunning()">
+          @if (portRunning()) {
+          <span class="scan-dots"><span></span><span></span><span></span></span>
+          Skanlanmoqda...
+          } @else {
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2 6.5a4.5 4.5 0 1 1 4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M2 9V6.5H4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Port skan
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (portError()) {
+    <div class="port-alert error">{{ portError() }}</div>
+    }
+    @if (portTaskSuccess()) {
+    <div class="port-alert ok">{{ portTaskSuccess() }}</div>
+    }
+
+    @if (portResults().length > 0) {
+    <div class="port-table-wrap">
+      <table class="port-table">
+        <thead>
+          <tr>
+            <th>Port</th>
+            <th>Servis</th>
+            <th>Status</th>
+            <th>Latency</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (port of portResults(); track port.id) {
+          <tr [class.port-open-row]="port.status === 'OPEN'">
+            <td class="port-number">{{ port.port }}/{{ port.protocol }}</td>
+            <td>{{ port.service || 'Nomaʼlum' }}</td>
+            <td>
+              <span class="port-status" [class]="portStatusClass(port.status)">
+                {{ portStatusLabel(port.status) }}
+              </span>
+            </td>
+            <td>{{ port.latencyMs === null ? '—' : port.latencyMs + ' ms' }}</td>
+            <td class="port-task-cell">
+              @if (port.status === 'OPEN') {
+              <button class="btn-port-task" (click)="createPortTask(port, $event)" [disabled]="portTaskLoading() === port.id">
+                {{ portTaskLoading() === port.id ? 'Yaratilmoqda...' : 'Vazifa' }}
+              </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else if (!portRunning()) {
+    <div class="port-empty">
+      <span>Port natijalari yo'q. Skan boshlash uchun port ro'yxatini tekshiring.</span>
+    </div>
+    }
   </div>
 
 </div>

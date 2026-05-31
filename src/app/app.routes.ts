@@ -9,9 +9,16 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/login/login.component').then(m => m.LoginComponent),
     },
-    // Dashboard — faqat login bo'lganlar kiradi
+    // Bosh panel — asosiy sahifa
     {
         path: '',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/overview/overview.component').then(m => m.OverviewComponent),
+    },
+    // Saytlar skaner dashboard
+    {
+        path: 'sites',
         canActivate: [authGuard],
         loadComponent: () =>
             import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
@@ -53,6 +60,18 @@ export const routes: Routes = [
             import('./pages/nuclei/nuclei.component').then(m => m.NucleiComponent),
     },
     {
+        path: 'ports',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/port-scanner/port-scanner.component').then(m => m.PortScannerComponent),
+    },
+    {
+        path: 'tasks',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/tasks/tasks.component').then(m => m.TasksComponent),
+    },
+    {
         path: 'statistics',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -69,6 +88,12 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () =>
             import('./pages/calls/calls.component').then(m => m.CallsComponent),
+    },
+    {
+        path: 'transliterator',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/transliterator/transliterator.component').then(m => m.TransliteratorComponent),
     },
     {
         path: 'logs',

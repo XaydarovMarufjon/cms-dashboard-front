@@ -201,6 +201,7 @@ $muted:  var(--muted);
   &:focus  { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
   &.err    { border-color: color-mix(in srgb, var(--red) 50%, transparent); }
   &::placeholder { color: $muted; }
+  &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
 .label-input { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; }
@@ -217,6 +218,7 @@ $muted:  var(--muted);
 }
 
 .url-error { font-size: 11px; color: $red; margin-top: 4px; }
+.list-error { padding: 10px 16px; margin: 0; border-bottom: 1px solid $border; background: color-mix(in srgb, var(--red) 5%, transparent); }
 
 // ── SITE LIST ─────────────────────────────────────
 .site-list {
@@ -245,6 +247,7 @@ $muted:  var(--muted);
   &:last-child { border-bottom: none; }
   &:hover { background: $s2; }
   &.active { background: color-mix(in srgb, var(--accent) 6%, transparent); border-left: 2px solid $accent; }
+  &.editing { align-items: flex-start; background: $s2; }
 }
 
 .site-num {
@@ -257,12 +260,74 @@ $muted:  var(--muted);
 .site-label { font-size: 12px; font-weight: 500; color: $text; margin-bottom: 1px; }
 .site-url   { font-size: 11px; color: $muted; font-family: 'IBM Plex Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+.site-edit-form {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-input {
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.site-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-edit,
 .btn-remove {
   background: none; border: none; color: $muted; cursor: pointer;
   padding: 4px; border-radius: 4px; display: flex; flex-shrink: 0;
   transition: color .15s;
-  &:hover:not(:disabled) { color: $red; }
+  min-width: 24px;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  line-height: 1;
   &:disabled { opacity: .3; cursor: not-allowed; }
+}
+
+.btn-edit {
+  &:hover:not(:disabled) { color: $yellow; }
+}
+
+.btn-remove {
+  &:hover:not(:disabled) { color: $red; }
+}
+
+.btn-save,
+.btn-cancel {
+  border-radius: 7px;
+  padding: 7px 9px;
+  border: 1px solid $border;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+.btn-save {
+  background: $accent;
+  border-color: $accent;
+  color: #000;
+  &:hover:not(:disabled) { background: color-mix(in srgb, $accent 88%, white); }
+}
+
+.btn-cancel {
+  background: $s3;
+  color: $muted;
+  &:hover:not(:disabled) { color: $text; border-color: color-mix(in srgb, var(--muted) 45%, transparent); }
 }
 
 // ── RIGHT PANEL ───────────────────────────────────

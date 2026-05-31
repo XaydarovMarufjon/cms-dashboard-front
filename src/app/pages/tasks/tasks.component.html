@@ -1,0 +1,136 @@
+<div class="tasks-layout">
+  <app-side-nav></app-side-nav>
+
+  <main class="tasks-page">
+    <header class="tasks-header">
+      <div>
+        <h1>Vazifalar va javobgarlar</h1>
+        <div class="task-stats">
+          <span>Jami {{ stats().total }}</span>
+          <span>Ochiq {{ stats().open }}</span>
+          <span>Jarayonda {{ stats().progress }}</span>
+          <span>Kritik {{ stats().critical }}</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="showForm.set(!showForm())">
+        {{ showForm() ? 'Yopish' : 'Vazifa qo‘shish' }}
+      </button>
+    </header>
+
+    @if (error()) {
+    <div class="alert error" (click)="error.set('')">{{ error() }}</div>
+    }
+    @if (success()) {
+    <div class="alert ok">{{ success() }}</div>
+    }
+
+    @if (showForm()) {
+    <section class="task-form">
+      <input class="input title-input" [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="Vazifa nomi" />
+      <textarea class="input" [ngModel]="description()" (ngModelChange)="description.set($event)" rows="3" placeholder="Izoh"></textarea>
+
+      <div class="form-grid">
+        <select class="input" [ngModel]="priority()" (ngModelChange)="priority.set($event)">
+          @for (item of priorities; track item) {
+          <option [ngValue]="item">{{ priorityLabel(item) }}</option>
+          }
+        </select>
+        <select class="input" [ngModel]="source()" (ngModelChange)="source.set($event)">
+          @for (item of sources; track item) {
+          <option [ngValue]="item">{{ sourceLabel(item) }}</option>
+          }
+        </select>
+        <select class="input" [ngModel]="assigneeId()" (ngModelChange)="assigneeId.set($event)">
+          <option value="">Javobgar tanlanmagan</option>
+          @for (user of users(); track user.id) {
+          <option [value]="user.id">{{ user.username }} · {{ user.role }}</option>
+          }
+        </select>
+        <select class="input" [ngModel]="websiteId()" (ngModelChange)="websiteId.set($event)">
+          <option value="">Sayt tanlanmagan</option>
+          @for (site of websites(); track site.id) {
+          <option [value]="site.id">{{ site.label || site.url }}</option>
+          }
+        </select>
+        <input class="input" type="date" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" />
+      </div>
+
+      <button class="btn-primary" [disabled]="saving() || !title().trim()" (click)="createTask()">
+        {{ saving() ? 'Saqlanmoqda...' : 'Saqlash' }}
+      </button>
+    </section>
+    }
+
+    <div class="task-filters">
+      @for (status of statuses; track status) {
+      <button [class.active]="statusFilter() === status" (click)="statusFilter.set(status)">
+        {{ statusLabel(status) }}
+      </button>
+      }
+    </div>
+
+    <section class="task-table-wrap">
+      <table class="task-table">
+        <thead>
+          <tr>
+            <th>Vazifa</th>
+            <th>Manba</th>
+            <th>Prioritet</th>
+            <th>Javobgar</th>
+            <th>Status</th>
+            <th>Muddat</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (task of filteredTasks(); track task.id) {
+          <tr>
+            <td class="task-main">
+              <strong>{{ task.title }}</strong>
+              @if (task.description) {
+              <span>{{ task.description }}</span>
+              }
+              @if (task.website) {
+              <small>{{ task.website.label || task.website.url }}</small>
+              }
+            </td>
+            <td><span class="source-chip">{{ sourceLabel(task.source) }}</span></td>
+            <td><span class="priority-chip" [class]="'p-' + task.priority.toLowerCase()">{{ priorityLabel(task.priority) }}</span></td>
+            <td>
+              <select class="mini-select" [ngModel]="task.assigneeId || ''" (ngModelChange)="updateAssignee(task, $event)">
+                <option value="">—</option>
+                @for (user of users(); track user.id) {
+                <option [value]="user.id">{{ user.username }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              <select class="mini-select" [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
+                <option value="OPEN">Ochiq</option>
+                <option value="IN_PROGRESS">Jarayonda</option>
+                <option value="DONE">Bajarildi</option>
+                <option value="CANCELLED">Bekor</option>
+              </select>
+            </td>
+            <td>{{ task.dueDate ? (task.dueDate | date:'yyyy-MM-dd') : '—' }}</td>
+            <td class="actions">
+              @if (auth.role() === 'ADMIN') {
+              <button class="icon-btn danger" (click)="remove(task)" title="O‘chirish">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                  <path d="M3 3h7M5 3V2h3v1M4 5v5M6.5 5v5M9 5v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </button>
+              }
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="7" class="empty">Vazifa yo‘q</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>

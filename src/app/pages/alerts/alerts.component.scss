@@ -181,6 +181,7 @@ $green:  #22c55e;
   &.icon-expiry_critical { color: $red;    background: color-mix(in srgb, var(--red) 12%, transparent);    border: 1px solid color-mix(in srgb, var(--red) 20%, transparent); }
   &.icon-expiry_warning  { color: $orange; background: rgba($orange,.12); border: 1px solid rgba($orange,.2); }
   &.icon-expiry_notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 12%, transparent); border: 1px solid color-mix(in srgb, var(--yellow) 20%, transparent); }
+  &.icon-defacement_change { color: $red; background: color-mix(in srgb, var(--red) 18%, transparent); border: 1px solid color-mix(in srgb, var(--red) 35%, transparent); }
 }
 
 .alert-body {

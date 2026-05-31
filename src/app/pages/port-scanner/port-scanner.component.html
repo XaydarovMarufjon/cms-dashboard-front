@@ -1,0 +1,120 @@
+<div class="ports-layout">
+  <app-side-nav></app-side-nav>
+
+  <main class="ports-page">
+    <header class="ports-header">
+      <div>
+        <h1>Port Scanner</h1>
+        <div class="port-stats">
+          <span>Jami {{ results().length }}</span>
+          <span>Ochiq {{ openPorts().length }}</span>
+          <span>Yopiq {{ closedPorts().length }}</span>
+          <span>Filtrlangan {{ filteredPorts().length }}</span>
+        </div>
+      </div>
+
+      <button class="btn-ghost" (click)="loadWebsites()" [disabled]="loadingSites()">
+        Yangilash
+      </button>
+    </header>
+
+    @if (error()) {
+    <div class="alert error" (click)="error.set('')">{{ error() }}</div>
+    }
+    @if (success()) {
+    <div class="alert ok">{{ success() }}</div>
+    }
+
+    <section class="scanner-panel">
+      <div class="scanner-controls">
+        <label>
+          <span>Saqlangan sayt yoki yangi URL</span>
+          <input class="input mono" list="saved-websites" [ngModel]="siteInput()" (ngModelChange)="onSiteInput($event)"
+            (keyup.enter)="runScan()" placeholder="example.com yoki https://example.com" />
+          <datalist id="saved-websites">
+            @for (site of websites(); track site.id) {
+            <option [value]="site.url">{{ siteLabel(site) }}</option>
+            }
+          </datalist>
+        </label>
+
+        <label class="ports-field">
+          <span>Portlar</span>
+          <input class="input mono" [ngModel]="portInput()" (ngModelChange)="portInput.set($event)"
+            placeholder="80,443,8080" />
+        </label>
+
+        <button class="btn-scan" (click)="runScan()" [disabled]="preparingSite() || scanning() || !siteInput().trim()">
+          @if (preparingSite()) {
+          Tayyorlanmoqda...
+          } @else if (scanning()) {
+          Skanlanmoqda...
+          } @else {
+          Port skan
+          }
+        </button>
+      </div>
+
+      @if (selectedWebsite(); as site) {
+      <div class="selected-site">
+        <div>
+          <strong>{{ siteLabel(site) }}</strong>
+          <span>{{ site.url }}</span>
+        </div>
+        <a [routerLink]="['/site', site.id]">Detail</a>
+      </div>
+      }
+    </section>
+
+    <section class="port-table-wrap">
+      <table class="port-table">
+        <thead>
+          <tr>
+            <th>Host</th>
+            <th>Port</th>
+            <th>Servis</th>
+            <th>Status</th>
+            <th>Latency</th>
+            <th>Skan vaqti</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of results(); track row.id) {
+          <tr [class.open-row]="row.status === 'OPEN'">
+            <td class="mono">{{ row.host }}</td>
+            <td class="mono strong">{{ row.port }}/{{ row.protocol }}</td>
+            <td>{{ row.service || 'Nomaʼlum' }}</td>
+            <td>
+              <span class="status-chip" [class]="statusClass(row.status)">
+                {{ statusLabel(row.status) }}
+              </span>
+            </td>
+            <td>{{ row.latencyMs === null ? '—' : row.latencyMs + ' ms' }}</td>
+            <td>{{ row.scannedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+            <td class="actions">
+              @if (row.status === 'OPEN') {
+              <button class="btn-task" (click)="createTask(row)" [disabled]="taskLoading() === row.id">
+                {{ taskLoading() === row.id ? 'Yaratilmoqda...' : 'Vazifa' }}
+              </button>
+              }
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="7" class="empty">
+              @if (loadingResults()) {
+              Natijalar yuklanmoqda...
+              } @else if (websites().length === 0) {
+              Website yozib Port skan tugmasini bosing.
+              } @else {
+              Hali port scan natijasi yo'q. Port skan tugmasini bosing.
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>

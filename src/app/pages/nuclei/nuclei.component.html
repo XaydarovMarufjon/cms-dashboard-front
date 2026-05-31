@@ -517,13 +517,16 @@
                         </td>
                         <td class="cve-id">
                           @if (hit.cveId) {
-                            <a [href]="'https://nvd.nist.gov/vuln/detail/' + hit.cveId"
+                            <a [href]="hit.referenceUrl || ('https://nvd.nist.gov/vuln/detail/' + hit.cveId)"
                                target="_blank" rel="noopener" class="cve-link">
                               {{ hit.cveId }}
                             </a>
                           } @else {
                             <span class="muted">{{ hit.templateId }}</span>
                           }
+                          <span class="source-badge" [class]="sourceClass(hit)" [title]="sourceTitle(hit)">
+                            {{ sourceLabel(hit) }}
+                          </span>
                         </td>
                         <td class="cve-name" [title]="hit.enrichment?.description ?? hit.description ?? ''">{{ hit.name }}</td>
                         <td class="cve-cvss">

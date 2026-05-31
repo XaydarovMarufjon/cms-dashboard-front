@@ -1,11 +1,12 @@
 // src/app/pages/checker/checker.component.ts
-import { Component, signal, computed, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
 import { ScannerService } from '../../core/services/scanner.service';
+import { UrlCheckerSiteService } from '../../core/services/url-checker-site.service';
+import { UrlCheckerSite } from '../../shared/models/website.model';
 
 interface CheckSite {
   id: string;
@@ -27,29 +28,31 @@ interface SiteResult {
 @Component({
   selector: 'app-checker',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SafeUrlPipe],
+  imports: [CommonModule, RouterLink, SafeUrlPipe],
   templateUrl: './checker.component.html',
   styleUrls: ['./checker.component.scss'],
 })
-export class CheckerComponent implements OnDestroy {
+export class CheckerComponent implements OnInit, OnDestroy {
   private scannerService = inject(ScannerService);
+  private urlCheckerSites = inject(UrlCheckerSiteService);
 
   // ── SITES ─────────────────────────────────────
-  sites = signal<CheckSite[]>([
-    { id: '1', url: 'https://senat.uz/', label: 'Senat' },
-    { id: '2', url: 'https://president.uz/', label: 'Prezident' },
-    { id: '3', url: 'https://e-saylov.uz/', label: 'E-Saylov' },
-    { id: '4', url: 'https://my.gov.uz/', label: 'My Gov UZ' },
-    { id: '5', url: 'https://saylov.uz/', label: 'Saylov' },
-    { id: '6', url: 'https://ijro.gov.uz/', label: 'Ijro' },
-    { id: '7', url: 'https://parliament.gov.uz/', label: 'Parlament' },
-    { id: '8', url: 'https://gov.uz/', label: 'Hukumat Sayti', forceWindow: true },
-  ]);
+  sites = signal<CheckSite[]>([]);
+  loadingSites = signal(true);
+  sitesError = signal('');
 
   // ── URL QOSHISH ───────────────────────────────
   newUrl = signal('');
   newLabel = signal('');
   urlError = signal('');
+  savingSite = signal(false);
+  deletingSite = signal<string | null>(null);
+
+  // ── URL TAHRIRLASH ────────────────────────────
+  editingId = signal<string | null>(null);
+  editUrl = signal('');
+  editLabel = signal('');
+  editError = signal('');
 
   // ── CHECKER STATE ─────────────────────────────
   results = signal<SiteResult[]>([]);
@@ -85,32 +88,125 @@ export class CheckerComponent implements OnDestroy {
     { label: '1 min', value: 60000 },
   ];
 
-  // ── SAYT QO'SHISH ─────────────────────────────
-  addSite() {
-    const url = this.newUrl().trim();
-    if (!url) { this.urlError.set('URL kiriting'); return; }
-    if (!/^https?:\/\/.+/.test(url)) { this.urlError.set('https:// bilan boshlash kerak'); return; }
-    if (this.sites().some(s => s.url === url)) { this.urlError.set('Bu URL allaqachon bor'); return; }
-
-    this.urlError.set('');
-    this.sites.update(list => [...list, {
-      id: Date.now().toString(),
-      url,
-      label: this.newLabel().trim() || undefined,
-    }]);
-    this.newUrl.set('');
-    this.newLabel.set('');
+  ngOnInit() {
+    void this.loadSites();
   }
 
-  removeSite(id: string) {
-    if (this.isRunning()) return;
-    this.sites.update(list => list.filter(s => s.id !== id));
+  private async loadSites() {
+    this.loadingSites.set(true);
+    this.sitesError.set('');
+
+    try {
+      const sites = await firstValueFrom(this.urlCheckerSites.getAll());
+      this.sites.set(sites.map(site => this.toCheckSite(site)));
+    } catch (err: any) {
+      this.sitesError.set(err?.error?.message || "Saytlar ro'yxati yuklanmadi");
+    } finally {
+      this.loadingSites.set(false);
+    }
+  }
+
+  // ── SAYT QO'SHISH ─────────────────────────────
+  async addSite() {
+    if (this.isRunning() || this.savingSite()) return;
+
+    const url = this.normalizeUrlInput(this.newUrl());
+    if (!url) { this.urlError.set("URL noto'g'ri. Masalan: example.uz yoki https://example.uz"); return; }
+    if (this.isDuplicateUrl(url)) { this.urlError.set('Bu URL allaqachon bor'); return; }
+
+    this.urlError.set('');
+    this.sitesError.set('');
+    this.savingSite.set(true);
+
+    try {
+      const label = this.newLabel().trim();
+      const saved = await firstValueFrom(this.urlCheckerSites.create({
+        url,
+        label: label || undefined,
+      }));
+      const checkSite = this.toCheckSite(saved);
+      this.sites.update(list => [checkSite, ...list]);
+      if (this.results().length) {
+        this.results.update(list => [{ id: checkSite.id, url: checkSite.url, label: checkSite.label, status: 'idle' }, ...list]);
+      }
+      this.newUrl.set('');
+      this.newLabel.set('');
+    } catch (err: any) {
+      this.urlError.set(err?.error?.message || "Sayt DBga saqlanmadi");
+    } finally {
+      this.savingSite.set(false);
+    }
+  }
+
+  startEdit(site: CheckSite) {
+    if (this.isRunning() || this.deletingSite()) return;
+    this.editingId.set(site.id);
+    this.editUrl.set(site.url);
+    this.editLabel.set(site.label || '');
+    this.editError.set('');
+  }
+
+  cancelEdit() {
+    this.editingId.set(null);
+    this.editUrl.set('');
+    this.editLabel.set('');
+    this.editError.set('');
+  }
+
+  async saveEdit(site: CheckSite) {
+    if (this.isRunning() || this.savingSite()) return;
+
+    const url = this.normalizeUrlInput(this.editUrl());
+    if (!url) { this.editError.set("URL noto'g'ri. Masalan: example.uz yoki https://example.uz"); return; }
+    if (this.isDuplicateUrl(url, site.id)) { this.editError.set('Bu URL allaqachon bor'); return; }
+
+    this.editError.set('');
+    this.sitesError.set('');
+    this.savingSite.set(true);
+
+    try {
+      const label = this.editLabel().trim();
+      const saved = await firstValueFrom(this.urlCheckerSites.update(site.id, {
+        url,
+        label: label || null,
+      }));
+      const checkSite = this.toCheckSite(saved);
+      this.sites.update(list => list.map(row => row.id === site.id ? checkSite : row));
+      this.results.update(list => list.map(row => row.id === site.id
+        ? { ...row, url: checkSite.url, label: checkSite.label }
+        : row
+      ));
+      this.cancelEdit();
+    } catch (err: any) {
+      this.editError.set(err?.error?.message || "Sayt ma'lumotlari yangilanmadi");
+    } finally {
+      this.savingSite.set(false);
+    }
+  }
+
+  async removeSite(id: string) {
+    if (this.isRunning() || this.deletingSite()) return;
+
+    this.sitesError.set('');
+    this.deletingSite.set(id);
+    try {
+      await firstValueFrom(this.urlCheckerSites.delete(id));
+      this.sites.update(list => list.filter(s => s.id !== id));
+      this.results.update(list => list.filter(s => s.id !== id));
+      if (this.editingId() === id) this.cancelEdit();
+    } catch (err: any) {
+      this.sitesError.set(err?.error?.message || "Sayt o'chirilmadi");
+    } finally {
+      this.deletingSite.set(null);
+    }
   }
 
   // ── ISHGA TUSHIRISH ───────────────────────────
   start() {
     if (this.isRunning() && !this.isPaused()) return;
+    if (this.loadingSites()) return;
     if (!this.sites().length) return;
+    this.cancelEdit();
 
     this.clearTimers();
     this.isRunning.set(true);
@@ -244,6 +340,54 @@ export class CheckerComponent implements OnDestroy {
   setIntervalMs(ms: number) {
     if (this.isRunning() && !this.isPaused()) return;
     this.intervalMs.set(ms);
+  }
+
+  private toCheckSite(site: UrlCheckerSite): CheckSite {
+    return {
+      id: site.id,
+      url: site.url,
+      label: site.label || undefined,
+      forceWindow: this.shouldForceWindow(site.url),
+    };
+  }
+
+  private shouldForceWindow(url: string) {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '') === 'gov.uz';
+    } catch {
+      return false;
+    }
+  }
+
+  private normalizeUrlInput(value: string): string | null {
+    const text = value.trim();
+    if (!text) return null;
+
+    const withProtocol = /^https?:\/\//i.test(text) ? text : `https://${text}`;
+    try {
+      const url = new URL(withProtocol);
+      if (!['http:', 'https:'].includes(url.protocol)) return null;
+      if (!url.hostname.includes('.')) return null;
+      url.hash = '';
+      return url.toString();
+    } catch {
+      return null;
+    }
+  }
+
+  private isDuplicateUrl(url: string, excludeId?: string) {
+    const key = this.urlKey(url);
+    return this.sites().some(site => site.id !== excludeId && this.urlKey(site.url) === key);
+  }
+
+  private urlKey(url: string) {
+    try {
+      const parsed = new URL(url);
+      const path = parsed.pathname.replace(/\/$/, '');
+      return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}${parsed.search}`;
+    } catch {
+      return url.trim().toLowerCase().replace(/\/$/, '');
+    }
   }
 
   ngOnDestroy() {

@@ -124,7 +124,7 @@
                 </svg>
               </div>
               <h4>Boot vaqti</h4>
-              <p><code>.env</code>dan <code>PROXY_SOURCES</code> o'qiladi, <code>onModuleInit</code>'da darrov birinchi yuklab oladi.</p>
+              <p><code>.env</code>dan <code>PROXY_SOURCES</code> o'qiladi; bo'sh bo'lsa ichki default manbalardan foydalanadi.</p>
             </div>
           </div>
 
@@ -234,7 +234,7 @@
             <div class="cfg-row">
               <code class="cfg-key">PROXY_SOURCES</code>
               <span class="cfg-val">{{ stats()?.autoRefresh?.sources?.length || 0 }} manba</span>
-              <span class="cfg-eff">Bo'sh qoldirsangiz — avto-yangilash o'chadi, faqat statik <code>PROXY_LIST</code> ishlatiladi.</span>
+              <span class="cfg-eff">Bo'sh qoldirsangiz — ichki default manbalar ishlaydi; xohlasangiz o'z manbalaringiz bilan almashtirasiz.</span>
             </div>
             <div class="cfg-row">
               <code class="cfg-key">PROXY_REFRESH_MINUTES</code>
@@ -442,7 +442,7 @@
             </svg>
             <div class="empty-title">O'z IP'ingiz orqali ulanmoqda</div>
             <div class="empty-desc">
-              Avto-yangilash o'chirilgan. Skaner va detektor proxysiz — to'g'ridan-to'g'ri sizning serveringiz IP'i orqali so'rov yuboradi.
+              Avto-yangilash o'chirilgan. Agar <code>PROXY_LIST</code> bo'lmasa, skaner to'g'ridan-to'g'ri sizning serveringiz IP'i orqali so'rov yuboradi.
             </div>
           } @else {
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -451,8 +451,7 @@
             </svg>
             <div class="empty-title">Proxy ro'yxati bo'sh</div>
             <div class="empty-desc">
-              <code>.env</code> faylida <code>PROXY_LIST</code> o'zgaruvchisini sozlang (vergul bilan ajratilgan).
-              Misol: <code>socks5://1.2.3.4:1080,http://user:pass&#64;5.6.7.8:8080</code>
+              "Manbadan yangilash" tugmasini bosing. <code>PROXY_SOURCES</code> bo'sh bo'lsa ham default manbalardan proxy olinadi.
             </div>
           }
         </div>

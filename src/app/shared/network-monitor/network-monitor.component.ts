@@ -3,6 +3,18 @@ import { Component, AfterViewInit, OnDestroy, NgZone, inject, signal, computed }
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
 
+type NetworkConnection = EventTarget & {
+  effectiveType?: string;
+  type?: string;
+  downlink?: number;
+};
+
+type NavigatorWithConnection = Navigator & {
+  connection?: NetworkConnection;
+  mozConnection?: NetworkConnection;
+  webkitConnection?: NetworkConnection;
+};
+
 @Component({
   selector: 'app-network-monitor',
   standalone: true,
@@ -18,13 +30,17 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
   speed     = signal<number | null>(null);
   measuring = signal(false);
   isp       = signal<string | null>(null);
+  connectionType = signal('Online');
+  browserDownlink = signal<number | null>(null);
 
   private pingId    = 0;
   private destroyed = false;
   private speedRunning = false;
+  private connection: NetworkConnection | null = null;
 
   private onOnline  = () => this.zone.run(() => this.isOnline.set(true));
   private onOffline = () => this.zone.run(() => this.isOnline.set(false));
+  private onConnectionChange = () => this.zone.run(() => this.updateConnectionInfo());
 
   status = computed(() => {
     if (!this.isOnline()) return 'offline';
@@ -40,6 +56,17 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
     offline: 'Offline', connecting: 'Ulanmoqda…',
     excellent: 'A\'lo', good: 'Yaxshi', slow: 'Sekin', bad: 'Yomon',
   }[this.status()] ?? '…'));
+
+  connectionLabel = computed(() => {
+    if (!this.isOnline()) return 'Offline';
+    return this.connectionType();
+  });
+
+  connectionTitle = computed(() => {
+    const estimate = this.browserDownlink();
+    if (estimate === null) return this.statusLabel();
+    return `${this.statusLabel()} · brauzer taxmini: ${this.fmtSpeed(estimate)}`;
+  });
 
   signalBars = computed(() => ({
     excellent:  4,
@@ -62,6 +89,9 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     window.addEventListener('online',  this.onOnline);
     window.addEventListener('offline', this.onOffline);
+    this.connection = this.getConnection();
+    this.connection?.addEventListener('change', this.onConnectionChange);
+    this.updateConnectionInfo();
     this.runPingLoop();
     this.runSpeedLoop();
     this.fetchIsp();
@@ -71,7 +101,43 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
     this.destroyed = true;
     window.removeEventListener('online',  this.onOnline);
     window.removeEventListener('offline', this.onOffline);
+    this.connection?.removeEventListener('change', this.onConnectionChange);
     clearInterval(this.pingId);
+  }
+
+  private getConnection(): NetworkConnection | null {
+    const nav = navigator as NavigatorWithConnection;
+    return nav.connection ?? nav.mozConnection ?? nav.webkitConnection ?? null;
+  }
+
+  private updateConnectionInfo() {
+    const connection = this.connection ?? this.getConnection();
+    const type = connection?.type || connection?.effectiveType;
+    const downlink = typeof connection?.downlink === 'number' ? connection.downlink : null;
+
+    this.connectionType.set(this.normalizeConnectionType(type));
+    this.browserDownlink.set(downlink);
+  }
+
+  private normalizeConnectionType(type?: string): string {
+    const value = type?.toLowerCase();
+    if (!value || value === 'unknown' || value === 'other') return 'Online';
+
+    const labels: Record<string, string> = {
+      wifi: 'WiFi',
+      ethernet: 'Ethernet',
+      cellular: 'Mobile',
+      bluetooth: 'Bluetooth',
+      wimax: 'WiMAX',
+      none: 'Offline',
+      'slow-2g': '2G-',
+      '2g': '2G',
+      '3g': '3G',
+      '4g': '4G',
+      '5g': '5G',
+    };
+
+    return labels[value] ?? value.toUpperCase();
   }
 
   private async fetchIsp() {

@@ -44,7 +44,7 @@ export class ProxiesComponent implements OnInit, OnDestroy {
 
   liveMode = computed<'proxy' | 'own-ip'>(() => {
     const s = this.stats();
-    return s && s.autoRefresh.enabled && s.total > 0 ? 'proxy' : 'own-ip';
+    return s && s.total > 0 ? 'proxy' : 'own-ip';
   });
 
   filtered = computed<ProxyEntry[]>(() => {

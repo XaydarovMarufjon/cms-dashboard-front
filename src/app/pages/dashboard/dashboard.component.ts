@@ -5,17 +5,16 @@ import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { interval, timer, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ScannerService, Alert } from '../../core/services/scanner.service';
+import { ScannerService, BulkScanJob, BulkScanMode } from '../../core/services/scanner.service';
 import { WebsiteService } from '../../core/services/website.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService, Theme } from '../../core/services/theme.service';
 import { ScanResult, Website, CMS_COLORS, CATEGORY_META, SiteCategory } from '../../shared/models/website.model';
-import { NetworkMonitorComponent } from '../../shared/network-monitor/network-monitor.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NetworkMonitorComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -34,7 +33,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   results         = signal<ScanResult[]>([]);
   loading         = signal(false);
   scanning        = signal<string | null>(null);
-  scanningAll     = signal(false);
+  bulkJob         = signal<BulkScanJob | null>(null);
+  bulkLoading     = signal(false);
+  bulkCancelling  = signal(false);
+  bulkMode        = signal<BulkScanMode>('FAST');
+  bulkConcurrency = signal(16);
+  bulkTimeoutMs   = signal(5000);
+  bulkSkipRecent  = signal(true);
+  bulkAccordionOpen = signal(false);
   showAddForm     = signal(false);
   addingWebsite   = signal(false);
   searchQuery     = signal('');
@@ -56,7 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // ── AUTO REFRESH SIGNALS ───────────────────────
   autoRefresh     = signal(false);
-  refreshInterval = signal(60);
+  refreshInterval = signal(360);
   countdown       = signal(0);
   showScheduler   = signal(false);
   viewMode        = signal<'grid' | 'table'>('grid');
@@ -64,15 +70,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private refreshSub?: Subscription;
   private countSub?:   Subscription;
   private pollSub?:    Subscription;
+  private badgeRefreshSub?: Subscription;
+  private bulkPollSub?: Subscription;
 
   readonly INTERVAL_OPTIONS = [
-    { label: '5 daqiqa',  value: 5    },
-    { label: '15 daqiqa', value: 15   },
-    { label: '30 daqiqa', value: 30   },
-    { label: '1 soat',    value: 60   },
-    { label: '6 soat',    value: 360  },
-    { label: '12 soat',   value: 720  },
-    { label: 'Har kuni',  value: 1440 },
+    { label: '15 daqiqa', value: 15,   dangerous: true  },
+    { label: '30 daqiqa', value: 30,   dangerous: true  },
+    { label: '1 soat',    value: 60,   dangerous: true  },
+    { label: '6 soat',    value: 360,  dangerous: false },
+    { label: '12 soat',   value: 720,  dangerous: false },
+    { label: 'Har kuni',  value: 1440, dangerous: false },
   ];
 
   // ── PREVIEW SIGNALS ───────────────────────────
@@ -138,6 +145,92 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .map(e => e[0])
   );
 
+  dashboardMetrics = computed(() => {
+    const rows = this.results();
+    const total = rows.length;
+    const detected = rows.filter(r => !!r.cms).length;
+    const unknown = rows.filter(r => !r.cms && !r.errorMessage).length;
+    const offline = rows.filter(r => !!r.errorMessage || (r.httpStatus ?? 0) >= 500).length;
+    const httpProblem = rows.filter(r => (r.httpStatus ?? 0) >= 400).length;
+    const unhealthy = rows.filter(r => !!r.errorMessage || (r.httpStatus ?? 0) >= 400).length;
+    const highConfidence = rows.filter(r => !!r.cms && r.confidence >= 80).length;
+    const lowConfidence = rows.filter(r => !!r.cms && r.confidence > 0 && r.confidence < 50).length;
+    const cveScanned = rows.filter(r => !!r.website?.cveScannedAt).length;
+    const cveFindings = rows.reduce((sum, r) => sum + (r.website?.cveFindingsCount ?? 0), 0);
+    const subdomainScanned = rows.filter(r => !!r.website?.subdomainsScannedAt).length;
+    const timestamps = rows
+      .map(r => new Date(r.scannedAt).getTime())
+      .filter(t => Number.isFinite(t));
+    const latestScan = timestamps.length ? Math.max(...timestamps) : null;
+    const staleAfterMs = 6 * 60 * 60 * 1000;
+    const staleScans = timestamps.length
+      ? rows.filter(r => Date.now() - new Date(r.scannedAt).getTime() > staleAfterMs).length
+      : 0;
+    const avgConfidence = detected
+      ? Math.round(rows.filter(r => !!r.cms).reduce((sum, r) => sum + r.confidence, 0) / detected)
+      : 0;
+
+    return {
+      total,
+      detected,
+      unknown,
+      offline,
+      httpProblem,
+      highConfidence,
+      lowConfidence,
+      cveScanned,
+      cveFindings,
+      subdomainScanned,
+      latestScan,
+      staleScans,
+      avgConfidence,
+      coveragePct: total ? Math.round((detected / total) * 100) : 0,
+      healthPct: total ? Math.max(0, Math.round(((total - unhealthy) / total) * 100)) : 0,
+      cveCoveragePct: total ? Math.round((cveScanned / total) * 100) : 0,
+      subdomainCoveragePct: total ? Math.round((subdomainScanned / total) * 100) : 0,
+    };
+  });
+
+  topCmsSummary = computed(() => {
+    const total = this.dashboardMetrics().total || 1;
+    return Object.entries(this.stats().cms)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count, pct: Math.round((count / total) * 100) }));
+  });
+
+  categorySummary = computed(() => {
+    const total = this.dashboardMetrics().total || 1;
+    const counts: Record<string, number> = {};
+    for (const row of this.results()) {
+      const key = row.category || 'Unknown';
+      counts[key] = (counts[key] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([name, count]) => ({ name, count, pct: Math.round((count / total) * 100) }));
+  });
+
+  attentionSites = computed(() =>
+    this.results()
+      .filter(r =>
+        !!r.errorMessage ||
+        (r.httpStatus ?? 0) >= 400 ||
+        !r.cms ||
+        (!!r.cms && r.confidence < 50)
+      )
+      .sort((a, b) => this.attentionWeight(b) - this.attentionWeight(a))
+      .slice(0, 5)
+  );
+
+  bulkRunning = computed(() => this.isBulkStatusRunning(this.bulkJob()?.status));
+
+  bulkDone = computed(() => {
+    const job = this.bulkJob();
+    return job ? job.completed + job.failed + job.skipped : 0;
+  });
+
   // ── FORMALAR ──────────────────────────────────
   addForm = this.fb.group({
     url:   ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
@@ -158,6 +251,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (this.scanner.autoRefreshEnabled) this.startAutoRefresh();
     });
     this.scanner.getAlertCount().subscribe({ next: r => this.alertCount.set(r.count), error: () => {} });
+    this.badgeRefreshSub = this.scanner.scanBadgeRefresh$.subscribe(() => this.loadResults());
+    this.loadBulkJob();
   }
 
   ngOnDestroy() {
@@ -165,6 +260,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.refreshSub?.unsubscribe();
     this.countSub?.unsubscribe();
     this.pollSub?.unsubscribe();
+    this.badgeRefreshSub?.unsubscribe();
+    this.bulkPollSub?.unsubscribe();
     this.stopIframeReload();
   }
 
@@ -179,11 +276,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // ── SCAN ──────────────────────────────────────
   scanAll() {
-    this.scanningAll.set(true);
-    this.scanner.scanAll().subscribe({
-      next:  () => { this.loadResults(); this.scanningAll.set(false); this.showSuccess('Barcha saytlar skanerlandi!'); },
-      error: () => this.scanningAll.set(false),
-    });
+    this.startBulkScan();
   }
 
   scanOne(result: ScanResult) {
@@ -193,6 +286,98 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next:  () => { this.scanning.set(null); this.loadResults(); this.showSuccess('Skaner tugadi!'); },
       error: () => this.scanning.set(null),
     });
+  }
+
+  // ── BULK SCAN ─────────────────────────────────
+  loadBulkJob() {
+    this.scanner.getCurrentBulkScan().subscribe({
+      next: job => {
+        this.bulkJob.set(job);
+        if (this.isBulkStatusRunning(job?.status)) {
+          this.bulkAccordionOpen.set(true);
+          this.startBulkPolling();
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  startBulkScan() {
+    if (this.bulkRunning()) return;
+    this.bulkLoading.set(true);
+    this.scanner.startBulkScan({
+      mode: this.bulkMode(),
+      concurrency: this.bulkConcurrency(),
+      timeoutMs: this.bulkTimeoutMs(),
+      includeRecentlyScanned: !this.bulkSkipRecent(),
+      skipRecentHours: 6,
+    }).subscribe({
+      next: job => {
+        this.bulkJob.set(job);
+        this.bulkLoading.set(false);
+        this.bulkAccordionOpen.set(true);
+        this.startBulkPolling();
+        this.showSuccess('Bulk skan boshlandi');
+      },
+      error: err => {
+        this.bulkLoading.set(false);
+        this.error.set(err?.error?.message || 'Bulk skan boshlanmadi');
+      },
+    });
+  }
+
+  cancelBulkScan() {
+    const job = this.bulkJob();
+    if (!job) return;
+    this.bulkCancelling.set(true);
+    this.scanner.cancelBulkScan(job.id).subscribe({
+      next: updated => {
+        this.bulkJob.set(updated);
+        this.bulkCancelling.set(false);
+      },
+      error: () => this.bulkCancelling.set(false),
+    });
+  }
+
+  setBulkMode(mode: BulkScanMode) {
+    this.bulkMode.set(mode);
+    this.bulkConcurrency.set(mode === 'FAST' ? 16 : 4);
+    this.bulkTimeoutMs.set(mode === 'FAST' ? 5000 : 20000);
+  }
+
+  updateBulkConcurrency(value: string) {
+    const max = this.bulkMode() === 'FAST' ? 50 : 10;
+    this.bulkConcurrency.set(Math.min(max, Math.max(1, Math.round(Number(value) || 1))));
+  }
+
+  updateBulkTimeout(value: string) {
+    const mode = this.bulkMode();
+    const min = mode === 'FAST' ? 2000 : 5000;
+    const max = mode === 'FAST' ? 15000 : 30000;
+    this.bulkTimeoutMs.set(Math.min(max, Math.max(min, Math.round(Number(value) || min))));
+  }
+
+  private startBulkPolling() {
+    if (this.bulkPollSub) return;
+    this.bulkPollSub = timer(0, 2500).subscribe(() => {
+      this.scanner.getCurrentBulkScan().subscribe({
+        next: job => {
+          const wasRunning = this.bulkRunning();
+          this.bulkJob.set(job);
+          const runningNow = this.isBulkStatusRunning(job?.status);
+          if (wasRunning && !runningNow) {
+            this.stopBulkPolling();
+            this.loadResults();
+          }
+        },
+        error: () => {},
+      });
+    });
+  }
+
+  private stopBulkPolling() {
+    this.bulkPollSub?.unsubscribe();
+    this.bulkPollSub = undefined;
   }
 
   // ── ADD ───────────────────────────────────────
@@ -295,7 +480,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   setRefreshInterval(minutes: number) {
     this.refreshInterval.set(minutes);
     this.scanner.setInterval(minutes).subscribe({
-      next: () => this.showSuccess(`Interval ${minutes} daqiqaga o'rnatildi`),
+      next: () => {
+        if (this.isDangerousInterval(minutes)) {
+          this.error.set("6 soatdan kam auto scan interval xavfli: saytlar bloklashi yoki server zo'riqishi mumkin");
+        } else {
+          this.showSuccess(`Interval ${minutes} daqiqaga o'rnatildi`);
+        }
+      },
       error: () => {},
     });
     this.scanner.nextPollAt = 0; // Eski interval qoldig'ini tozala
@@ -328,8 +519,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
+  isBulkStatusRunning(status: string | undefined): boolean {
+    return status === 'PENDING' || status === 'RUNNING';
+  }
+
+  bulkStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'PENDING': return 'Kutilmoqda';
+      case 'RUNNING': return 'Ishlayapti';
+      case 'COMPLETED': return 'Tugadi';
+      case 'CANCELLED': return 'Bekor qilingan';
+      case 'FAILED': return 'Xato';
+      default: return 'Boshlanmagan';
+    }
+  }
+
+  bulkModeLabel(mode: BulkScanMode | undefined): string {
+    return mode === 'FULL' ? 'FULL' : 'FAST';
+  }
+
+  formatRelativeTime(value: number | string | null | undefined): string {
+    if (!value) return 'hali yoq';
+    const time = typeof value === 'number' ? value : new Date(value).getTime();
+    if (!Number.isFinite(time)) return 'hali yoq';
+    const diff = Math.max(0, Date.now() - time);
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 1) return 'hozir';
+    if (minutes < 60) return `${minutes} daqiqa oldin`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} soat oldin`;
+    const days = Math.floor(hours / 24);
+    return `${days} kun oldin`;
+  }
+
+  getAttentionLabel(result: ScanResult): string {
+    if (result.errorMessage) return 'Offline';
+    if ((result.httpStatus ?? 0) >= 500) return 'Server xato';
+    if ((result.httpStatus ?? 0) >= 400) return 'HTTP xato';
+    if (!result.cms) return 'CMS topilmadi';
+    if (result.confidence < 50) return 'Past ishonch';
+    return 'Tekshiruv';
+  }
+
+  getAttentionClass(result: ScanResult): string {
+    if (result.errorMessage || (result.httpStatus ?? 0) >= 500) return 'critical';
+    if ((result.httpStatus ?? 0) >= 400 || !result.cms) return 'warning';
+    return 'notice';
+  }
+
   getIntervalLabel(): string {
     return this.INTERVAL_OPTIONS.find(o => o.value === this.refreshInterval())?.label || '';
+  }
+
+  isDangerousInterval(minutes: number): boolean {
+    return minutes < 360;
   }
 
   // ── PREVIEW SITES ─────────────────────────────
@@ -484,8 +727,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'transparent';
   }
 
+  hasCveFindings(result: ScanResult): boolean {
+    return (result.website?.cveFindingsCount ?? 0) > 0;
+  }
+
+  cveBadgeTitle(result: ScanResult): string {
+    const count = result.website?.cveFindingsCount ?? 0;
+    return count > 0
+      ? `${count} ta CVE topilgan`
+      : 'CVE scan qilingan, CVE topilmadi';
+  }
+
   private showSuccess(msg: string) {
     this.successMsg.set(msg);
     setTimeout(() => this.successMsg.set(null), 3000);
+  }
+
+  private attentionWeight(result: ScanResult): number {
+    if (result.errorMessage) return 100;
+    if ((result.httpStatus ?? 0) >= 500) return 90;
+    if ((result.httpStatus ?? 0) >= 400) return 75;
+    if (!result.cms) return 60;
+    if (result.confidence < 50) return 45;
+    return 0;
   }
 }

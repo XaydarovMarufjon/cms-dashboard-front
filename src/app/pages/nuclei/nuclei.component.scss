@@ -1435,6 +1435,39 @@ $muted:  var(--muted);
   animation: kev-pulse 2s ease-in-out infinite;
 }
 
+.source-badge {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  color: $accent;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+
+  &.source-nuclei {
+    background: color-mix(in srgb, var(--green) 10%, transparent);
+    color: var(--green);
+    border-color: color-mix(in srgb, var(--green) 28%, transparent);
+  }
+
+  &.source-nvd,
+  &.source-osv {
+    background: color-mix(in srgb, var(--yellow) 10%, transparent);
+    color: $yellow;
+    border-color: color-mix(in srgb, var(--yellow) 28%, transparent);
+  }
+
+  &.source-local-rule {
+    background: color-mix(in srgb, var(--red) 9%, transparent);
+    color: $red;
+    border-color: color-mix(in srgb, var(--red) 24%, transparent);
+  }
+}
+
 @keyframes kev-pulse {
   0%, 100% { border-color: color-mix(in srgb, #ff3d3d 35%, transparent); }
   50%       { border-color: color-mix(in srgb, #ff3d3d 65%, transparent); }

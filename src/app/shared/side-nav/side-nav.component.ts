@@ -4,11 +4,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ScannerService } from '../../core/services/scanner.service';
+import { NetworkMonitorComponent } from '../network-monitor/network-monitor.component';
 
 @Component({
   selector: 'app-side-nav',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, NetworkMonitorComponent],
   templateUrl: './side-nav.component.html',
   styleUrls: ['./side-nav.component.scss'],
 })

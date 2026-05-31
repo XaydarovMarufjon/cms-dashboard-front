@@ -1,0 +1,582 @@
+<!-- src/app/pages/overview/overview.component.html -->
+<div class="ov-layout">
+  <app-side-nav></app-side-nav>
+  <main class="ov-main">
+    <div class="ov-page">
+
+      <!-- ── HEADER + SEARCH ─────────────────────── -->
+      <header class="ov-header">
+        <div class="ov-title">
+          <div class="ov-title-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="2" width="8" height="8" rx="2" fill="currentColor"/>
+              <rect x="12" y="2" width="8" height="5" rx="2" fill="currentColor" opacity=".45"/>
+              <rect x="12" y="9" width="8" height="11" rx="2" fill="currentColor" opacity=".7"/>
+              <rect x="2" y="12" width="8" height="8" rx="2" fill="currentColor" opacity=".45"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Bosh panel</h1>
+            <p>Barcha modullardan umumiy ko'rinish</p>
+          </div>
+        </div>
+
+        <div class="ov-search" [class.open]="focused() && searchHits().length">
+          <svg class="ov-search-ic" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Sayt, domen yoki sahifa qidirish..."
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+            (focus)="focused.set(true)"
+            (blur)="blurSoon()"
+            (keyup.enter)="onSearchEnter()" />
+          @if (query()) {
+          <button class="ov-search-clear" (click)="query.set('')" title="Tozalash">✕</button>
+          }
+
+          @if (focused() && searchHits().length) {
+          <div class="ov-search-drop">
+            @for (h of searchHits(); track $index) {
+            <button class="ov-hit" (mousedown)="go(h.link)">
+              <span class="ov-hit-kind" [class.page]="h.kind === 'page'">{{ h.kind === 'site' ? 'SAYT' : 'SAHIFA' }}</span>
+              <span class="ov-hit-body">
+                <span class="ov-hit-title">{{ h.title }}</span>
+                <span class="ov-hit-sub">{{ h.sub }}</span>
+              </span>
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </header>
+
+      @if (loading()) {
+      <section class="ov-kpis">
+        @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="kpi">
+          <div class="ds-skeleton" style="height:14px;width:60%;"></div>
+          <div class="ds-skeleton" style="height:28px;width:45%;margin-top:6px;"></div>
+          <div class="ds-skeleton" style="height:10px;width:80%;margin-top:6px;"></div>
+        </div>
+        }
+      </section>
+      <section class="ov-grid">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="card span-1">
+          <div class="ds-skeleton" style="height:14px;width:50%;"></div>
+          <div class="ds-skeleton" style="height:120px;width:100%;margin-top:10px;"></div>
+        </div>
+        }
+      </section>
+      }
+
+      @if (!loading()) {
+      <!-- ── KPI CARDS ───────────────────────────── -->
+      <section class="ov-kpis">
+        <a class="kpi" routerLink="/sites">
+          <div class="kpi-top"><span class="kpi-ic ic-blue">◧</span><span class="kpi-label">Saytlar</span></div>
+          <div class="kpi-num">{{ totalSites() }}</div>
+          <div class="kpi-bar"><span [style.width.%]="coveragePct()"></span></div>
+          <div class="kpi-sub">{{ scannedSites() }} skanerlangan · {{ coveragePct() }}%</div>
+        </a>
+
+        <a class="kpi" routerLink="/alerts">
+          <div class="kpi-top"><span class="kpi-ic ic-red">◭</span><span class="kpi-label">Ogohlantirish</span></div>
+          <div class="kpi-num">{{ alertTotal() }}</div>
+          <div class="kpi-sub">
+            @if (alertUrgent()) { <b class="t-red">{{ alertUrgent() }} shoshilinch</b> }
+            @else { barchasi nazoratda }
+          </div>
+        </a>
+
+        <a class="kpi" routerLink="/tasks">
+          <div class="kpi-top"><span class="kpi-ic ic-yellow">✦</span><span class="kpi-label">Vazifalar</span></div>
+          <div class="kpi-num">{{ openTasks() }}</div>
+          <div class="kpi-sub">
+            @if (criticalTasks()) { <b class="t-red">{{ criticalTasks() }} kritik</b> }
+            @else { ochiq vazifalar }
+          </div>
+        </a>
+
+        <a class="kpi" routerLink="/nuclei">
+          <div class="kpi-top"><span class="kpi-ic ic-purple">⬡</span><span class="kpi-label">CVE topilma</span></div>
+          <div class="kpi-num">{{ cveTotal() }}</div>
+          <div class="kpi-sub">{{ cveSites() }} ta saytda</div>
+        </a>
+
+        <a class="kpi" routerLink="/proxies">
+          <div class="kpi-top"><span class="kpi-ic ic-green">⇄</span><span class="kpi-label">Proksilar</span></div>
+          <div class="kpi-num">{{ proxyAlive() }}<span class="kpi-of">/{{ proxyTotal() }}</span></div>
+          <div class="kpi-bar"><span [style.width.%]="proxyAlivePct()"></span></div>
+          <div class="kpi-sub">{{ proxyAlivePct() }}% tirik · {{ proxyRotations() }} rotatsiya</div>
+        </a>
+
+        <a class="kpi" routerLink="/calls">
+          <div class="kpi-top"><span class="kpi-ic ic-teal">☎</span><span class="kpi-label">Qo'ng'iroqlar</span></div>
+          <div class="kpi-num">{{ callsThisMonth() }}</div>
+          <div class="kpi-sub">bu oy · jami {{ callsTotal() }}</div>
+        </a>
+      </section>
+
+      @if (systemStatus(); as sys) {
+      <section class="system-panel" [class.warn]="sys.status === 'WARN'" [class.bad]="sys.status === 'ERROR'">
+        <div class="system-head">
+          <div>
+            <h3>Tizim holati</h3>
+            <p>Yangilandi: {{ formatRelativeTime(sys.generatedAt) }} · Backend uptime: {{ formatUptime(sys.runtime.uptimeSec) }}</p>
+          </div>
+          <button class="system-refresh" (click)="loadSystemStatus()" [disabled]="systemLoading()" title="Yangilash">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M13 5.5A5.5 5.5 0 1 0 14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M13 2.5v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="system-body">
+          <div class="system-score" [class.warn]="sys.status === 'WARN'" [class.bad]="sys.status === 'ERROR'">
+            <span class="system-ring" [style.--p]="sys.score + '%'">{{ sys.score }}</span>
+            <strong>{{ systemStatusLabel(sys.status) }}</strong>
+            <span>server kuchi</span>
+          </div>
+
+          <div class="system-stat-grid">
+            <div class="system-stat">
+              <span>CPU</span>
+              <strong>{{ sys.resources.cpu.cores }} core · {{ sys.resources.cpu.loadPct }}%</strong>
+              <small>{{ sys.resources.cpu.load1m }} / {{ sys.resources.cpu.load5m }} / {{ sys.resources.cpu.load15m }} load</small>
+            </div>
+            <div class="system-stat">
+              <span>RAM</span>
+              <strong>{{ sys.resources.memory.usedPct }}%</strong>
+              <small>{{ formatBytes(sys.resources.memory.usedBytes) }} / {{ formatBytes(sys.resources.memory.totalBytes) }}</small>
+            </div>
+            <div class="system-stat">
+              <span>Disk</span>
+              <strong>{{ sys.resources.disk.usedPct }}%</strong>
+              <small>{{ formatBytes(sys.resources.disk.freeBytes) }} bo'sh</small>
+            </div>
+            <div class="system-stat">
+              <span>IP</span>
+              <strong>{{ sys.host.publicIp || 'public IP yoq' }}</strong>
+              <small>{{ sys.host.isp || formatIpList(sys.host.localIps) }}</small>
+            </div>
+            <div class="system-stat">
+              <span>Token</span>
+              <strong>{{ sys.tokens.trackedAiTokens24h === null ? 'Kuzatilmayapti' : sys.tokens.trackedAiTokens24h }}</strong>
+              <small>{{ sys.tokens.activeSessions }} active session · {{ sys.tokens.issued24h }} bugun</small>
+            </div>
+            <div class="system-stat" [class.bad]="!sys.database.ok">
+              <span>Database</span>
+              <strong>{{ sys.database.ok ? 'Online' : 'Xato' }} · {{ sys.database.latencyMs }}ms</strong>
+              <small>{{ sys.database.websitesTotal }} sayt · {{ sys.database.scanResultsTotal }} scan</small>
+            </div>
+            <div class="system-stat">
+              <span>Scan hajmi</span>
+              <strong>{{ sys.scans.scanResults24h }} / 24 soat</strong>
+              <small>{{ sys.scans.runningBulkJobs }} bulk · {{ sys.scans.openPorts }} open port</small>
+            </div>
+            <div class="system-stat" [class.bad]="sys.errors.summary.apiErrors24h + sys.errors.summary.scanErrors24h + sys.errors.summary.failedBulkJobs24h > 0">
+              <span>Xatolik</span>
+              <strong>{{ sys.errors.summary.apiErrors24h + sys.errors.summary.scanErrors24h + sys.errors.summary.failedBulkJobs24h }}</strong>
+              <small>API {{ sys.errors.summary.apiErrors24h }} · scan {{ sys.errors.summary.scanErrors24h }} · bulk {{ sys.errors.summary.failedBulkJobs24h }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="system-detail-row">
+          <span>{{ sys.runtime.nodeVersion }} · pid {{ sys.runtime.pid }}</span>
+          <span>{{ sys.host.hostname }} · {{ sys.host.platform }}</span>
+          <span>{{ sys.tokens.trackingNote }}</span>
+        </div>
+      </section>
+      } @else {
+      <section class="system-panel loading">
+        <div class="system-head">
+          <div>
+            <h3>Tizim holati</h3>
+            <p>Server resurslari yuklanmoqda</p>
+          </div>
+        </div>
+        @if (systemError()) {
+        <div class="system-empty">{{ systemError() }}</div>
+        }
+      </section>
+      }
+
+      @if (overviewStats(); as ov) {
+      <section class="exec-grid">
+        <div class="exec-card exec-score" [ngClass]="postureClass(ov.executive.postureScore)">
+          <div>
+            <span class="risk-eyebrow">Rahbariyat ko'rsatkichi</span>
+            <h2>{{ ov.executive.postureScore }}</h2>
+            <p>{{ ov.executive.postureLabel }} · {{ ov.executive.criticalOpen }} muhim ochiq risk</p>
+          </div>
+          <div class="exec-metrics">
+            <span><b>{{ ov.executive.scanCoveragePct }}%</b>Scan qamrovi</span>
+            <span><b>{{ ov.executive.highPrioritySites }}</b>High risk sayt</span>
+            <span><b>{{ ov.executive.cveCriticalHigh }}</b>Critical/High CVE</span>
+            <span><b>{{ ov.executive.riskyOpenPorts }}</b>Xavfli port</span>
+          </div>
+        </div>
+
+        <div class="exec-card">
+          <div class="card-head"><h3>MITRE ATT&CK xaritasi</h3><span class="card-tag">{{ ov.mitre.total }} signal</span></div>
+          @if (ov.mitre.techniques.length) {
+          <div class="mitre-list">
+            @for (t of ov.mitre.techniques.slice(0, 6); track t.techniqueId) {
+            <div class="mitre-row">
+              <span class="mitre-id">{{ t.techniqueId }}</span>
+              <span class="mitre-body">
+                <b>{{ t.technique }}</b>
+                <small>{{ t.tactic }} · {{ t.sources.join(', ') }}</small>
+              </span>
+              <span class="mitre-count sev-{{ t.severity }}">{{ t.count }}</span>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="ds-empty"><span class="ds-empty-text">ATT&CK signal yo'q</span></div>
+          }
+        </div>
+
+        <div class="exec-card">
+          <div class="card-head"><h3>Defacement monitoring</h3><span class="card-tag">{{ ov.defacement.monitored }}/{{ ov.scan.totalSites }}</span></div>
+          <div class="deface-summary">
+            <span><b>{{ ov.defacement.suspected }}</b>Gumonli</span>
+            <span><b>{{ ov.defacement.changed }}</b>O'zgargan</span>
+            <span><b>{{ ov.defacement.baselineMissing }}</b>Baseline yo'q</span>
+          </div>
+          @if (ov.defacement.recent.length) {
+          <div class="deface-list">
+            @for (d of ov.defacement.recent.slice(0, 4); track d.websiteId) {
+            <button class="deface-row" (click)="go(['/site', d.websiteId])">
+              <span class="deface-score">{{ d.score }}</span>
+              <span class="deface-body">
+                <b>{{ d.label || d.domain }}</b>
+                <small>{{ defacementStatusLabel(d.status) }} · {{ d.reasons.join(' · ') || formatRelativeTime(d.lastCheckedAt) }}</small>
+              </span>
+            </button>
+            }
+          </div>
+          } @else {
+          <div class="ds-empty"><span class="ds-empty-text">Shubhali o'zgarish yo'q</span></div>
+          }
+        </div>
+
+        <div class="exec-card">
+          <div class="card-head"><h3>Rahbariyat tavsiyalari</h3><span class="card-tag">{{ ov.executive.recommendations.length }}</span></div>
+          <div class="rec-list">
+            @for (rec of ov.executive.recommendations; track rec.title) {
+            <div class="rec-row">
+              <span class="rec-sev sev-{{ rec.severity }}">{{ attackSeverityLabel(rec.severity) }}</span>
+              <span><b>{{ rec.title }}</b><small>{{ rec.detail }}</small></span>
+            </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="risk-command">
+        <div class="risk-hero" [class.high]="ov.risk.score >= 45" [class.critical]="ov.risk.score >= 75">
+          <div>
+            <span class="risk-eyebrow">Risk radar</span>
+            <h2>{{ ov.risk.label }}</h2>
+            <p>{{ ov.risk.topSites.length }} ta sayt e'tibor talab qiladi · oxirgi scan {{ formatRelativeTime(ov.scan.latestScanAt) }}</p>
+          </div>
+          <div class="risk-orbit" [style.--p]="ov.risk.score + '%'">
+            <span>{{ ov.risk.score }}</span>
+          </div>
+        </div>
+
+        <div class="risk-list">
+          <div class="card-head"><h3>Top risk saytlar</h3><a class="card-link" routerLink="/sites">Saytlar →</a></div>
+          @if (ov.risk.topSites.length) {
+          <div class="risk-rows">
+            @for (site of ov.risk.topSites; track site.websiteId) {
+            <button class="risk-row" (click)="go(['/site', site.websiteId])">
+              <span class="risk-score">{{ site.score }}</span>
+              <span class="risk-url">{{ site.label || site.url }}</span>
+              <span class="risk-reasons">{{ site.reasons.join(' · ') }}</span>
+            </button>
+            }
+          </div>
+          } @else {
+          <div class="ds-empty"><span class="ds-empty-text">Risk topilmadi</span></div>
+          }
+        </div>
+      </section>
+
+      <section class="ops-grid">
+        <div class="ops-panel">
+          <div class="card-head"><h3>Scan coverage</h3><span class="card-tag">{{ ov.scan.coveragePct }}%</span></div>
+          <div class="coverage-ring-row">
+            <div class="mini-ring" [style.--v.%]="ov.scan.coveragePct"><span>{{ ov.scan.coveragePct }}%</span></div>
+            <div class="coverage-facts">
+              <b>{{ ov.scan.scannedSites }}/{{ ov.scan.totalSites }}</b>
+              <span>{{ ov.scan.unscannedSites }} scan qilinmagan</span>
+              <span>{{ ov.scan.scans24h }} scan / 24 soat · {{ ov.scan.errors24h }} xato</span>
+              <span>{{ ov.scan.staleSites }} eskirgan scan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>CMS intelligence</h3><span class="card-tag">{{ ov.cms.detected }} aniqlangan</span></div>
+          <div class="mini-metrics">
+            <span><b>{{ ov.cms.unknown }}</b>Noma'lum</span>
+            <span><b>{{ ov.cms.lowConfidence }}</b>Past confidence</span>
+            <span><b>{{ ov.cms.changed24h }}</b>CMS o'zgarish</span>
+          </div>
+          <div class="compact-list">
+            @for (cms of ov.cms.top.slice(0, 4); track cms.label) {
+            <div><span>{{ cms.label }}</span><b>{{ cms.count }}</b><i [style.width.%]="cms.pct"></i></div>
+            }
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>CVE holati</h3><span class="card-tag">{{ ov.cve.total }}</span></div>
+          <div class="mini-metrics">
+            <span><b>{{ ov.cve.affectedSites }}</b>Sayt</span>
+            <span><b>{{ ov.cve.criticalHigh }}</b>Critical/High</span>
+          </div>
+          <div class="severity-stack">
+            @for (s of ov.cve.bySeverity; track s.label) {
+            @if (s.count) {
+            <span [class]="'sev-' + s.label.toLowerCase()" [style.flex]="s.count" [title]="severityLabel(s.label) + ': ' + s.count"></span>
+            }
+            }
+          </div>
+          <div class="pill-row">
+            @for (s of ov.cve.byStatus; track s.label) {
+            <span>{{ s.label }}: <b>{{ s.count }}</b></span>
+            }
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>Subdomain radar</h3><span class="card-tag">{{ ov.subdomains.aliveSaved }} tirik</span></div>
+          <div class="mini-metrics">
+            <span><b>{{ ov.subdomains.domainsTracked }}</b>Domen</span>
+            <span><b>{{ ov.subdomains.deadTracked }}</b>O'lik track</span>
+          </div>
+          <div class="compact-list">
+            @for (d of ov.subdomains.topDomains; track d.domain) {
+            <div><span>{{ d.domain }}</span><b>{{ d.count }}</b><i [style.width.%]="100"></i></div>
+            }
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>Port risk</h3><span class="card-tag">{{ ov.ports.open }} open</span></div>
+          <div class="mini-metrics">
+            <span><b>{{ ov.ports.riskyOpen }}</b>Xavfli port</span>
+            <span><b>{{ ov.ports.affectedSites }}</b>Sayt</span>
+          </div>
+          <div class="port-chips">
+            @for (p of ov.ports.topOpenPorts; track p.port) {
+            <span>{{ p.port }} <small>{{ p.count }}</small></span>
+            }
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>Jarayonlar</h3><span class="card-tag">auto scan</span></div>
+          <div class="process-list">
+            <div><span>Auto interval</span><b>{{ ov.process.autoScan?.intervalMinutes || 360 }} daqiqa</b></div>
+            <div><span>Oxirgi window</span><b>{{ ov.process.autoScan?.scannedInLastWindow || 0 }}/{{ ov.process.autoScan?.totalAtLastWindow || ov.scan.totalSites }}</b></div>
+            <div><span>Bulk scan</span><b>{{ ov.process.bulkJob ? ov.process.bulkJob.progressPct + '%' : 'yoq' }}</b></div>
+          </div>
+        </div>
+
+        <div class="ops-panel">
+          <div class="card-head"><h3>Vazifa javobgarlik</h3><span class="card-tag">{{ ov.tasks.open + ov.tasks.inProgress }}</span></div>
+          <div class="mini-metrics">
+            <span><b>{{ ov.tasks.critical }}</b>Kritik</span>
+            <span><b>{{ ov.tasks.overdue }}</b>Muddati o'tgan</span>
+            <span><b>{{ ov.tasks.unassigned }}</b>Biriktirilmagan</span>
+          </div>
+          <div class="compact-list">
+            @for (a of ov.tasks.byAssignee; track a.name) {
+            <div><span>{{ a.name }}</span><b>{{ a.count }}</b><i [style.width.%]="100"></i></div>
+            }
+          </div>
+        </div>
+
+        <div class="ops-panel trend-panel">
+          <div class="card-head"><h3>14 kunlik trend</h3><span class="card-tag">scan / CVE / sayt</span></div>
+          <div class="trend-board">
+            <div class="trend-bars scans">
+              @for (d of ov.trends.scans; track d.date) {
+              <span [style.height.px]="trendHeight(d.count, 'scans')" [title]="d.date + ': ' + d.count"></span>
+              }
+            </div>
+            <div class="trend-bars cve">
+              @for (d of ov.trends.cve; track d.date) {
+              <span [style.height.px]="trendHeight(d.count, 'cve')" [title]="d.date + ': ' + d.count"></span>
+              }
+            </div>
+            <div class="trend-bars sites">
+              @for (d of ov.trends.newSites; track d.date) {
+              <span [style.height.px]="trendHeight(d.count, 'newSites')" [title]="d.date + ': ' + d.count"></span>
+              }
+            </div>
+          </div>
+          <div class="trend-legend"><span>Scan</span><span>CVE</span><span>Yangi sayt</span></div>
+        </div>
+      </section>
+      }
+
+      <!-- ── CHARTS GRID ─────────────────────────── -->
+      <section class="ov-grid">
+
+        <!-- CMS donut -->
+        <div class="card span-1">
+          <div class="card-head"><h3>CMS taqsimoti</h3><span class="card-tag">{{ cmsTotal() }} skan</span></div>
+          @if (cmsDonut().length) {
+          <div class="donut-wrap">
+            <svg viewBox="0 0 140 140" class="donut">
+              <circle cx="70" cy="70" r="54" class="donut-track"/>
+              @for (s of cmsDonut(); track s.label) {
+              <circle cx="70" cy="70" r="54" class="donut-seg"
+                [attr.stroke]="s.color"
+                [attr.stroke-dasharray]="s.dash"
+                [attr.stroke-dashoffset]="s.offset"/>
+              }
+              <text x="70" y="64" class="donut-c-num">{{ cmsTotal() }}</text>
+              <text x="70" y="82" class="donut-c-lbl">SAYT</text>
+            </svg>
+            <ul class="donut-legend">
+              @for (s of cmsDonut(); track s.label) {
+              <li>
+                <span class="dot" [style.background]="s.color"></span>
+                <span class="lg-name">{{ s.label }}</span>
+                <span class="lg-val">{{ s.count }} · {{ s.pct }}%</span>
+              </li>
+              }
+            </ul>
+          </div>
+          } @else {
+          <div class="ds-empty">
+            <span class="ds-empty-ic">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M7 10h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="ds-empty-text">Ma'lumot yo'q</span>
+          </div>
+          }
+        </div>
+
+        <!-- Category bars -->
+        <div class="card span-1">
+          <div class="card-head"><h3>Kategoriyalar</h3></div>
+          @if (categoryBars().length) {
+          <ul class="hbars">
+            @for (b of categoryBars(); track b.label) {
+            <li>
+              <div class="hbar-top"><span>{{ b.label }}</span><b>{{ b.count }}</b></div>
+              <div class="hbar"><span [style.width.%]="b.pct" [style.background]="b.color"></span></div>
+            </li>
+            }
+          </ul>
+          } @else {
+          <div class="ds-empty">
+            <span class="ds-empty-ic">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M7 10h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="ds-empty-text">Ma'lumot yo'q</span>
+          </div>
+          }
+        </div>
+
+        <!-- Calls trend -->
+        <div class="card span-1">
+          <div class="card-head"><h3>Qo'ng'iroqlar (14 kun)</h3><span class="card-tag">{{ callsSpark().total }}</span></div>
+          <div class="spark">
+            <svg [attr.viewBox]="'0 0 ' + callsSpark().W + ' ' + callsSpark().H" preserveAspectRatio="none" class="spark-svg">
+              <polygon class="spark-area" [attr.points]="callsSpark().area"/>
+              <polyline class="spark-line" [attr.points]="callsSpark().line"/>
+            </svg>
+            <div class="spark-meta">
+              <span>maks {{ callsSpark().max }}/kun</span>
+              <span>bugun {{ callsSpark().last }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts severity -->
+        <div class="card span-1">
+          <div class="card-head"><h3>Ogohlantirish darajasi</h3><span class="card-tag">{{ alertTotal() }}</span></div>
+          <ul class="prog-list">
+            @for (a of alertsBySev(); track a.label) {
+            <li>
+              <div class="prog-top"><span><span class="pdot" [style.background]="a.color"></span>{{ a.label }}</span><b>{{ a.count }}</b></div>
+              <div class="prog"><span [style.width.%]="a.pct" [style.background]="a.color"></span></div>
+            </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Tasks status -->
+        <div class="card span-1">
+          <div class="card-head"><h3>Vazifalar holati</h3><span class="card-tag">{{ tasks().length }}</span></div>
+          <div class="seg-bar">
+            @for (t of tasksByStatus(); track t.label) {
+            @if (t.count) { <span class="seg" [style.flex]="t.count" [style.background]="t.color" [title]="t.label + ': ' + t.count"></span> }
+            }
+          </div>
+          <ul class="seg-legend">
+            @for (t of tasksByStatus(); track t.label) {
+            <li><span class="dot" [style.background]="t.color"></span>{{ t.label }} <b>{{ t.count }}</b></li>
+            }
+          </ul>
+        </div>
+
+        <!-- System health -->
+        <div class="card span-1">
+          <div class="card-head"><h3>Tizim salomatligi</h3></div>
+          <div class="gauges">
+            <div class="gauge">
+              <div class="ring" [style.--v.%]="coveragePct()" [style.--c]="'var(--accent)'">
+                <span>{{ coveragePct() }}%</span>
+              </div>
+              <small>Skan qamrovi</small>
+            </div>
+            <div class="gauge">
+              <div class="ring" [style.--v.%]="proxyAlivePct()" [style.--c]="'#22c55e'">
+                <span>{{ proxyAlivePct() }}%</span>
+              </div>
+              <small>Proksi tirik</small>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      }
+
+      <!-- ── QUICK LINKS ─────────────────────────── -->
+      <section class="ov-quick">
+        <div class="card-head"><h3>Tezkor o'tish</h3></div>
+        <div class="quick-grid">
+          @for (p of PAGES; track p.title) {
+          <a class="quick" [routerLink]="p.link">
+            <span class="quick-title">{{ p.title }}</span>
+            <span class="quick-sub">{{ p.sub }}</span>
+          </a>
+          }
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>

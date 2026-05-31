@@ -1,0 +1,305 @@
+$bg: var(--bg);
+$s1: var(--s1);
+$s2: var(--s2);
+$s3: var(--s3);
+$border: var(--border);
+$text: var(--text);
+$muted: var(--muted);
+$accent: var(--accent);
+$red: var(--red);
+$yellow: var(--yellow);
+
+:host { display: block; min-height: 100vh; background: $bg; color: $text; }
+
+.tasks-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.tasks-page {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $border;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 750;
+  }
+}
+
+.task-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+
+  span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: $muted;
+    background: $s1;
+    border: 1px solid $border;
+    border-radius: 20px;
+    padding: 3px 9px;
+  }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: $accent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}
+
+.alert {
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 650;
+
+  &.error {
+    color: $red;
+    border: 1px solid color-mix(in srgb, var(--red) 24%, transparent);
+    background: color-mix(in srgb, var(--red) 8%, transparent);
+  }
+
+  &.ok {
+    color: $accent;
+    border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+}
+
+.task-form {
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input,
+.mini-select {
+  border: 1px solid $border;
+  background: $s2;
+  color: $text;
+  border-radius: 8px;
+  outline: none;
+  font: inherit;
+}
+
+.input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+.title-input {
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.task-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  button {
+    border: 1px solid $border;
+    background: $s1;
+    color: $muted;
+    border-radius: 20px;
+    padding: 7px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+
+    &.active {
+      color: $accent;
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+  }
+}
+
+.task-table-wrap {
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead tr {
+    background: $s2;
+    border-bottom: 1px solid $border;
+  }
+
+  th, td {
+    padding: 10px 12px;
+    border-bottom: 1px solid $border;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    color: $muted;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: $s2; }
+}
+
+.task-main {
+  min-width: 280px;
+
+  strong, span, small {
+    display: block;
+  }
+
+  strong {
+    font-size: 13px;
+    color: $text;
+  }
+
+  span {
+    color: $muted;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  small {
+    color: $accent;
+    margin-top: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+.source-chip,
+.priority-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.source-chip {
+  color: $accent;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.priority-chip {
+  color: $muted;
+  background: $s2;
+  border: 1px solid $border;
+
+  &.p-high {
+    color: $yellow;
+    background: color-mix(in srgb, var(--yellow) 8%, transparent);
+    border-color: color-mix(in srgb, var(--yellow) 22%, transparent);
+  }
+
+  &.p-critical {
+    color: $red;
+    background: color-mix(in srgb, var(--red) 8%, transparent);
+    border-color: color-mix(in srgb, var(--red) 22%, transparent);
+  }
+}
+
+.mini-select {
+  min-height: 32px;
+  padding: 4px 8px;
+  min-width: 130px;
+}
+
+.actions {
+  text-align: right;
+}
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 7px;
+  border: 1px solid $border;
+  background: $s2;
+  color: $muted;
+  cursor: pointer;
+
+  &.danger:hover {
+    color: $red;
+    border-color: color-mix(in srgb, var(--red) 30%, transparent);
+  }
+}
+
+.empty {
+  text-align: center;
+  color: $muted;
+  padding: 28px;
+}
+
+@media (max-width: 1100px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .tasks-page {
+    padding: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

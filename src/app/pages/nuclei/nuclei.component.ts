@@ -313,6 +313,27 @@ export class NucleiComponent implements OnInit, OnDestroy {
     return 'cvss-low';
   }
 
+  sourceLabel(hit: NucleiResult): string {
+    const source = hit.source || 'NUCLEI';
+    const map: Record<string, string> = {
+      NUCLEI: 'Nuclei',
+      OSV: 'OSV',
+      NVD: 'NVD',
+      LOCAL_RULE: 'Rule',
+    };
+    return map[source] ?? source;
+  }
+
+  sourceClass(hit: NucleiResult): string {
+    const source = (hit.source || 'NUCLEI').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return `source-${source}`;
+  }
+
+  sourceTitle(hit: NucleiResult): string {
+    const confidence = hit.confidence ?? 90;
+    return `${this.sourceLabel(hit)} manbasi, ishonchlilik ${confidence}%`;
+  }
+
   private async loadInterval() {
     try {
       const { interval } = await firstValueFrom(this.scanner.getNucleiInterval());
@@ -331,6 +352,7 @@ export class NucleiComponent implements OnInit, OnDestroy {
 
     try {
       await firstValueFrom(this.scanner.runNucleiAll());
+      this.scanner.notifyScanBadgesChanged();
     } catch (e: any) {
       this.error.set(e?.error?.message ?? 'Skan muvaffaqiyatsiz tugadi');
     } finally {

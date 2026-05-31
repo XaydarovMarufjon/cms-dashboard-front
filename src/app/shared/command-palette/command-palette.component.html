@@ -1,0 +1,40 @@
+<!-- command palette -->
+@if (isOpen()) {
+<div class="cp-overlay" (mousedown)="close()">
+  <div class="cp-panel" (mousedown)="$event.stopPropagation()">
+
+    <div class="cp-search">
+      <svg class="cp-ic" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <input #input type="text" placeholder="Sahifa yoki sayt qidirish..."
+        [ngModel]="query()" (ngModelChange)="onQuery($event)" />
+      <span class="cp-esc">ESC</span>
+    </div>
+
+    <div class="cp-list">
+      @for (h of hits(); track $index) {
+      <button class="cp-row" [class.active]="$index === active()"
+        (mouseenter)="active.set($index)" (click)="choose(h)">
+        <span class="cp-kind" [class.page]="h.kind === 'page'">{{ h.kind === 'site' ? 'SAYT' : 'SAHIFA' }}</span>
+        <span class="cp-body">
+          <span class="cp-title">{{ h.title }}</span>
+          <span class="cp-sub">{{ h.sub }}</span>
+        </span>
+        <span class="cp-enter">↵</span>
+      </button>
+      } @empty {
+      <div class="cp-empty">Hech narsa topilmadi</div>
+      }
+    </div>
+
+    <div class="cp-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> tanlash</span>
+      <span><kbd>↵</kbd> ochish</span>
+      <span><kbd>⌘K</kbd> almashtirish</span>
+    </div>
+
+  </div>
+</div>
+}
