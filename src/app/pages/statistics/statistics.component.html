@@ -1,32 +1,8 @@
-<div class="stats-page" [attr.data-theme]="themeService.theme()">
+<div class="stats-page" [class.embedded]="embedded" [attr.data-theme]="themeService.theme()">
 
-  <!-- ─── SIDEBAR ─── -->
-  <aside class="sidebar">
-    <div class="brand">
-      <span class="brand-icon">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1.5" y="9" width="2.5" height="5.5" rx=".6" fill="currentColor"/>
-          <rect x="6.5" y="5" width="2.5" height="9.5" rx=".6" fill="currentColor" opacity=".7"/>
-          <rect x="11.5" y="2" width="2.5" height="12.5" rx=".6" fill="currentColor" opacity=".4"/>
-        </svg>
-      </span>
-      <span class="brand-name">Statistika</span>
-    </div>
-    <nav class="nav">
-      <a routerLink="/" class="nav-item">Dashboard</a>
-      <a routerLink="/checker" class="nav-item">Checker</a>
-      <a routerLink="/alerts" class="nav-item">Alertlar</a>
-      <a routerLink="/statistics" class="nav-item active">Statistika</a>
-      <a routerLink="/proxies" class="nav-item">Proxy</a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="current-user">
-        <span class="cu-role">{{ auth.role() }}</span>
-        <span class="cu-name">{{ auth.currentUser()?.username }}</span>
-      </div>
-      <button class="btn-logout" (click)="logout()">Chiqish</button>
-    </div>
-  </aside>
+  @if (!embedded) {
+    <app-side-nav></app-side-nav>
+  }
 
   <!-- ─── MAIN ─── -->
   <main class="main">

@@ -22,56 +22,22 @@ $muted:  var(--muted);
   font-family: 'IBM Plex Sans', 'Inter', sans-serif;
 }
 
-// Sidebar
-.sidebar {
-  width: 200px; min-height: 100vh;
-  background: $s1;
-  border-right: 1px solid $border;
-  display: flex; flex-direction: column;
-  padding: 20px 0 16px;
-  flex-shrink: 0;
-}
-.brand {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 16px 20px;
-  border-bottom: 1px solid $border;
-  margin-bottom: 16px;
-}
-.brand-icon {
-  width: 30px; height: 30px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: $accent;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-}
-.brand-name { font-size: 13px; font-weight: 600; }
-.nav { display: flex; flex-direction: column; padding: 0 8px; gap: 2px; flex: 1; }
-.nav-item {
-  padding: 9px 12px;
-  font-size: 13px; color: $muted;
-  text-decoration: none; border-radius: 6px;
-  transition: all .15s ease;
-  cursor: pointer;
-  &:hover { background: $s2; color: $text; }
-  &.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: $accent; }
-}
-.sidebar-footer {
-  padding: 12px 16px 0;
-  border-top: 1px solid $border;
-  margin-top: auto;
-}
-.current-user { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-.cu-role { font-size: 10px; text-transform: uppercase; color: $accent; font-weight: 600; letter-spacing: .5px; }
-.cu-name { font-size: 12px; color: $text; }
-.btn-logout {
-  width: 100%; padding: 7px 10px;
-  background: transparent; color: $muted;
-  border: 1px solid $border; border-radius: 6px;
-  font-size: 12px; cursor: pointer;
-  &:hover { background: $s2; color: $red; border-color: $red; }
-}
-
 .main { flex: 1; padding: 24px 28px 40px; overflow-x: hidden; }
+
+.stats-page.embedded {
+  display: block;
+  min-height: auto;
+  background: transparent;
+
+  .main {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .page-header {
+    margin-bottom: 14px;
+  }
+}
 
 .page-header {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -635,7 +601,6 @@ $muted:  var(--muted);
 .section { display: flex; flex-direction: column; }
 
 @media (max-width: 900px) {
-  .sidebar { display: none; }
   .main { padding: 16px; }
   .bar-item { grid-template-columns: 100px 1fr 36px; }
 }

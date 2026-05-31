@@ -1,10 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ThemeService } from '../../core/services/theme.service';
-import { AuthService } from '../../core/services/auth.service';
+import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 
 // ─── OWASP families ─────────────────────────────────────────────
 export const OWASP_FAMILIES = [
@@ -299,13 +298,14 @@ interface SectionData<T> {
 @Component({
   selector: 'app-statistics',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule, SideNavComponent],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
 })
 export class StatisticsComponent {
+  @Input() embedded = false;
+
   themeService = inject(ThemeService);
-  auth = inject(AuthService);
 
   readonly OWASP_FAMILIES = OWASP_FAMILIES;
   activeSection = signal<'vuln' | 'cyber' | 'tech'>('vuln');
@@ -1205,6 +1205,4 @@ export class StatisticsComponent {
       'texnik_hodisa.csv',
     );
   }
-
-  logout() { this.auth.logout(); }
 }

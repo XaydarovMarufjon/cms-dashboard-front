@@ -1,0 +1,543 @@
+$bg: var(--bg);
+$s1: var(--s1);
+$s2: var(--s2);
+$s3: var(--s3);
+$border: var(--border);
+$text: var(--text);
+$muted: var(--muted);
+$accent: var(--accent);
+$red: var(--red);
+$yellow: var(--yellow);
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+}
+
+.vuln-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.vuln-page {
+  flex: 1;
+  min-width: 0;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vuln-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 15px;
+  border-bottom: 1px solid $border;
+
+  h1 {
+    margin: 2px 0 0;
+    font-size: 22px;
+    font-weight: 780;
+    letter-spacing: 0;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  color: $accent;
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.sheet-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+
+  span {
+    min-height: 23px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid $border;
+    border-radius: 20px;
+    background: $s1;
+    color: $muted;
+    padding: 0 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
+
+.stats-embed {
+  min-width: 0;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $s1;
+  padding: 16px;
+}
+
+.header-actions,
+.tool-actions,
+.sheet-toolbar,
+.search-box,
+.sheet-state,
+.sheet-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.header-actions {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn,
+.tool-btn {
+  border: 1px solid $border;
+  background: $s1;
+  color: $text;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 760;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn {
+  min-height: 36px;
+  border-radius: 8px;
+  padding: 0 13px;
+
+  &.secondary {
+    border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    color: $accent;
+  }
+}
+
+.sheet-toolbar {
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  border: 1px solid $border;
+  background: $s1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.search-box {
+  min-width: min(100%, 280px);
+  min-height: 34px;
+  gap: 8px;
+  border: 1px solid $border;
+  background: $s2;
+  border-radius: 8px;
+  padding: 0 10px;
+  color: $muted;
+
+  input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $text;
+    font: inherit;
+    font-size: 13px;
+  }
+}
+
+.tool-actions {
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dimension-control {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $s2;
+  color: $muted;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 760;
+  white-space: nowrap;
+
+  input {
+    width: 58px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $text;
+    font: inherit;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+.tool-btn {
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: $muted;
+
+  &:hover {
+    color: $text;
+    background: $s2;
+  }
+
+  &.danger:hover {
+    color: $red;
+    border-color: color-mix(in srgb, var(--red) 28%, transparent);
+    background: color-mix(in srgb, var(--red) 8%, transparent);
+  }
+}
+
+.sheet-state {
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+
+  span {
+    border: 1px solid $border;
+    border-radius: 20px;
+    background: $s2;
+    padding: 4px 9px;
+  }
+
+  .cell-address {
+    color: $accent;
+    border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+}
+
+.sheet-wrap {
+  min-height: 540px;
+  max-height: calc(100vh - 255px);
+  overflow: auto;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $s1;
+}
+
+.sheet-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1380px;
+  width: max-content;
+  font-size: 13px;
+
+  th,
+  td {
+    height: auto;
+    min-height: 35px;
+    border-right: 1px solid $border;
+    border-bottom: 1px solid $border;
+    padding: 0;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: $s2;
+  }
+
+  thead th.column-head {
+    position: sticky;
+  }
+
+  thead th input {
+    width: 100%;
+    height: 35px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $muted;
+    padding: 0 9px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  tbody tr:hover td {
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+}
+
+.column-head {
+  position: relative;
+}
+
+.col-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  z-index: 8;
+  width: 7px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+}
+
+.corner-cell,
+.row-head {
+  position: sticky;
+  left: 0;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  z-index: 6;
+  background: $s2;
+  color: $muted;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.row-head {
+  z-index: 4;
+  overflow: visible;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+}
+
+.row-resize {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  z-index: 8;
+  width: 100%;
+  height: 7px;
+  border: 0;
+  background: transparent;
+  cursor: row-resize;
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+}
+
+.selected-row .row-head,
+.selected-col {
+  color: $accent;
+  background: color-mix(in srgb, var(--accent) 12%, var(--s2));
+}
+
+td {
+  background: $s1;
+  min-width: 90px;
+
+  &.active {
+    position: relative;
+    z-index: 2;
+    box-shadow: inset 0 0 0 2px $accent;
+  }
+}
+
+.cell-input,
+.cell-view {
+  width: 100%;
+  height: 100%;
+  min-height: 34px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: $text;
+  padding: 6px 9px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.cell-input {
+  resize: none;
+  overflow: hidden;
+  display: block;
+
+  &:focus {
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+}
+
+.cell-view {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--line-clamp, 1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  cursor: cell;
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+}
+
+.tone-severity .cell-input,
+.tone-status .cell-input,
+.tone-severity .cell-view,
+.tone-status .cell-view {
+  font-weight: 760;
+}
+
+.tone-critical .cell-input,
+.tone-critical .cell-view {
+  color: $red;
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+}
+
+.tone-high .cell-input,
+.tone-high .cell-view {
+  color: #fb923c;
+  background: color-mix(in srgb, #fb923c 8%, transparent);
+}
+
+.tone-medium .cell-input,
+.tone-medium .cell-view {
+  color: $yellow;
+  background: color-mix(in srgb, var(--yellow) 8%, transparent);
+}
+
+.tone-low .cell-input,
+.tone-info .cell-input,
+.tone-mitigated .cell-input,
+.tone-accepted .cell-input,
+.tone-low .cell-view,
+.tone-info .cell-view,
+.tone-mitigated .cell-view,
+.tone-accepted .cell-view {
+  color: #22c55e;
+  background: color-mix(in srgb, #22c55e 7%, transparent);
+}
+
+.tone-open .cell-input,
+.tone-in-progress .cell-input,
+.tone-open .cell-view,
+.tone-in-progress .cell-view {
+  color: $accent;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.tone-false-positive .cell-input,
+.tone-false-positive .cell-view {
+  color: $muted;
+  background: $s2;
+}
+
+.empty-cell {
+  height: 120px;
+  color: $muted;
+  text-align: center;
+  font-size: 13px;
+  background: $s1;
+}
+
+.sheet-tabs {
+  gap: 6px;
+  flex-wrap: wrap;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $s1;
+  padding: 8px;
+}
+
+.sheet-tab {
+  min-height: 32px;
+  max-width: 210px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $s2;
+  color: $muted;
+  padding: 0 11px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 760;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.active {
+    color: $accent;
+    border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    cursor: default;
+  }
+
+  &.add {
+    color: $text;
+  }
+
+  &.danger {
+    color: $red;
+  }
+
+  &:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+}
+
+.sheet-name-input {
+  width: 130px;
+  min-width: 80px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .vuln-page {
+    padding: 20px 16px;
+  }
+
+  .sheet-wrap {
+    max-height: calc(100vh - 310px);
+  }
+
+  .search-box {
+    width: 100%;
+  }
+}

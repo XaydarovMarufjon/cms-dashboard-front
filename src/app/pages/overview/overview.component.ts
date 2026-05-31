@@ -8,7 +8,7 @@ import { firstValueFrom, Subscription, timer } from 'rxjs';
 import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 import { WebsiteService } from '../../core/services/website.service';
 import {
-  ScannerService, Alert, AlertType, ProxyStats, SystemStatus, OverviewStats,
+  ScannerService, Alert, AlertType, ProxyStats, SystemStatus, OverviewStats, LiveScanActivity, LiveScanActivityItem,
 } from '../../core/services/scanner.service';
 import { TasksService, SecurityTask } from '../../core/services/tasks.service';
 import { CallsService, CallRow } from '../../core/services/calls.service';
@@ -54,11 +54,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
   proxy    = signal<ProxyStats | null>(null);
   systemStatus  = signal<SystemStatus | null>(null);
   overviewStats = signal<OverviewStats | null>(null);
+  liveScanActivity = signal<LiveScanActivity | null>(null);
   systemLoading = signal(false);
   systemError   = signal<string | null>(null);
 
   loading  = signal(true);
   private systemPollSub?: Subscription;
+  private livePollSub?: Subscription;
 
   // ── search ────────────────────────────────────
   query    = signal('');
@@ -71,9 +73,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
     { title: 'Dork', sub: 'Google dorking',        link: ['/dork'],           icon: 'search' },
     { title: 'Alertlar', sub: 'Muddat / SSL',      link: ['/alerts'],         icon: 'bell' },
     { title: 'Nuclei', sub: 'Zaiflik skaneri',     link: ['/nuclei'],         icon: 'spark' },
+    { title: 'Zaifliklar', sub: 'Excel jadval',     link: ['/vulnerabilities'], icon: 'sheet' },
+    { title: 'Statistika', sub: 'Hisobotlar',      link: ['/statistics'],     icon: 'chart' },
     { title: 'Portlar', sub: 'Port skaner',        link: ['/ports'],          icon: 'ports' },
     { title: 'Vazifalar', sub: 'Security tasks',   link: ['/tasks'],          icon: 'tasks' },
-    { title: 'Statistika', sub: 'Hisobotlar',      link: ['/statistics'],     icon: 'chart' },
     { title: 'Proksilar', sub: 'Proxy pool',       link: ['/proxies'],        icon: 'proxy' },
     { title: "Qo'ng'iroqlar", sub: 'Call jurnali', link: ['/calls'],          icon: 'phone' },
     { title: 'Translit', sub: 'Transliterator',    link: ['/transliterator'], icon: 'text' },
@@ -94,18 +97,26 @@ export class OverviewComponent implements OnInit, OnDestroy {
       settle(firstValueFrom(this.scanner.getProxies()),        v => this.proxy.set(v)),
       settle(firstValueFrom(this.scanner.getSystemStatus()),   v => this.systemStatus.set(v)),
       settle(firstValueFrom(this.scanner.getOverviewStats()),  v => this.overviewStats.set(v)),
+      settle(firstValueFrom(this.scanner.getLiveScanActivity()), v => this.liveScanActivity.set(v)),
     ]);
     this.loading.set(false);
     this.startSystemPolling();
+    this.startLiveScanPolling();
   }
 
   ngOnDestroy() {
     this.systemPollSub?.unsubscribe();
+    this.livePollSub?.unsubscribe();
   }
 
   private startSystemPolling() {
     this.systemPollSub?.unsubscribe();
     this.systemPollSub = timer(30000, 30000).subscribe(() => this.loadLiveOverview());
+  }
+
+  private startLiveScanPolling() {
+    this.livePollSub?.unsubscribe();
+    this.livePollSub = timer(0, 1000).subscribe(() => this.loadLiveScanActivity());
   }
 
   loadLiveOverview() {
@@ -128,6 +139,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
         this.systemError.set(err?.error?.message || "Tizim holatini olib bo'lmadi");
         this.systemLoading.set(false);
       },
+    });
+  }
+
+  loadLiveScanActivity() {
+    this.scanner.getLiveScanActivity().subscribe({
+      next: data => this.liveScanActivity.set(data),
+      error: () => {},
     });
   }
 
@@ -301,6 +319,30 @@ export class OverviewComponent implements OnInit, OnDestroy {
     }
   }
 
+  attackPlainTitle(techniqueId: string, fallback: string): string {
+    switch (techniqueId) {
+      case 'T1592': return 'Sayt texnologiyasi aniqlandi';
+      case 'T1590': return 'Subdomain yoki tarmoq izlari topildi';
+      case 'T1046': return 'Ochiq portlar bor';
+      case 'T1133': return 'Tashqaridan kirish mumkin bo\'lgan servis bor';
+      case 'T1190': return 'CVE orqali hujum ehtimoli bor';
+      case 'T1491.002': return 'Defacement yoki kontent o\'zgarishi gumoni';
+      default: return fallback;
+    }
+  }
+
+  attackPlainDetail(techniqueId: string, tactic: string): string {
+    switch (techniqueId) {
+      case 'T1592': return 'Hujumchi sayt CMS, framework yoki server turini bilishi mumkin.';
+      case 'T1590': return 'Qo\'shimcha subdomainlar hujum yuzasini kengaytiradi.';
+      case 'T1046': return 'Port scanner ochiq servislarni ko\'rsatgan.';
+      case 'T1133': return 'SSH, DB, RDP yoki shunga o\'xshash xavfli servis tashqarida ko\'rinadi.';
+      case 'T1190': return 'CVE topilmalari public-facing app ekspluatatsiyasiga olib kelishi mumkin.';
+      case 'T1491.002': return 'Sahifa kontenti kutilmagan o\'zgargan bo\'lishi mumkin.';
+      default: return tactic;
+    }
+  }
+
   defacementStatusLabel(status: string | null | undefined): string {
     switch (status) {
       case 'SUSPECTED': return 'Gumonli';
@@ -399,6 +441,107 @@ export class OverviewComponent implements OnInit, OnDestroy {
       case 'ERROR': return 'Xato';
       default: return 'Noma\'lum';
     }
+  }
+
+  liveSourceLabel(source: string): string {
+    switch (source) {
+      case 'MANUAL': return 'Manual scan';
+      case 'SCAN_ALL': return 'Scan all';
+      case 'AUTO': return 'Auto scan';
+      case 'BULK': return 'Bulk scan';
+      case 'RETRY': return 'Qayta urinish';
+      case 'HISTORY': return 'Oxirgi scan';
+      default: return source || 'Scan';
+    }
+  }
+
+  liveStatusLabel(status: string): string {
+    switch (status) {
+      case 'RUNNING': return 'Tekshirilmoqda';
+      case 'DONE': return 'Tugadi';
+      case 'FAILED': return 'Xato';
+      default: return status || 'Noma\'lum';
+    }
+  }
+
+  liveRunningCount(live: LiveScanActivity): number {
+    return live.active.filter(item => item.status === 'RUNNING').length;
+  }
+
+  liveDuration(item: LiveScanActivityItem): string {
+    let ms = item.durationMs ?? null;
+    if (ms == null && item.status === 'RUNNING' && item.startedAt) {
+      const started = new Date(item.startedAt).getTime();
+      if (Number.isFinite(started)) ms = Math.max(0, Date.now() - started);
+    }
+    return this.formatDurationMs(ms);
+  }
+
+  formatDurationMs(ms: number | null | undefined): string {
+    if (ms == null) return 'vaqt yoq';
+    const totalSeconds = Math.max(0, Math.round(ms / 1000));
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes < 60) return seconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const restMinutes = minutes % 60;
+    return restMinutes ? `${hours}s ${restMinutes}m` : `${hours}s`;
+  }
+
+  nextAutoScanText(live: LiveScanActivity): string {
+    if (live.active.length) return 'hozir jarayonda';
+    const auto = live.autoScan;
+    if (!auto) return 'reja yoq';
+
+    const intervalMs = Math.max(1, auto.intervalMinutes || 360) * 60_000;
+    const baseValue = auto.lastStartedAt || auto.lastFinishedAt;
+    if (!baseValue) return `${auto.intervalMinutes || 360} daqiqagacha`;
+
+    const base = new Date(baseValue).getTime();
+    if (!Number.isFinite(base)) return `${auto.intervalMinutes || 360} daqiqagacha`;
+
+    const now = Date.now();
+    const cycles = Math.max(1, Math.ceil((now - base + 1) / intervalMs));
+    const nextAt = base + cycles * intervalMs;
+    return this.countdownText(nextAt - now);
+  }
+
+  lastScanDuration(live: LiveScanActivity): string {
+    if (live.lastScanDurationMs != null) return this.formatDurationMs(live.lastScanDurationMs);
+
+    const lastWithDuration = live.recent.find(item => item.durationMs != null);
+    if (lastWithDuration) return this.formatDurationMs(lastWithDuration.durationMs);
+
+    const lastWithTimes = live.recent.find(item => item.source !== 'HISTORY' && item.startedAt && item.finishedAt);
+    if (!lastWithTimes?.startedAt || !lastWithTimes.finishedAt) return 'hali yoq';
+
+    const startedMs = new Date(lastWithTimes.startedAt).getTime();
+    const finishedMs = new Date(lastWithTimes.finishedAt).getTime();
+    if (!Number.isFinite(startedMs) || !Number.isFinite(finishedMs)) return 'hali yoq';
+
+    return this.formatDurationMs(Math.max(0, finishedMs - startedMs));
+  }
+
+  private countdownText(ms: number): string {
+    const totalMinutes = Math.max(0, Math.ceil(ms / 60_000));
+    if (totalMinutes < 1) return '1 daqiqadan kam';
+    if (totalMinutes < 60) return `${totalMinutes} daqiqadan so'ng`;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours < 24) return minutes ? `${hours} soat ${minutes} daqiqadan so'ng` : `${hours} soatdan so'ng`;
+    const days = Math.floor(hours / 24);
+    const restHours = hours % 24;
+    return restHours ? `${days} kun ${restHours} soatdan so'ng` : `${days} kundan so'ng`;
+  }
+
+  liveScanResult(item: LiveScanActivityItem): string {
+    if (item.error) return item.error;
+    const parts = [
+      item.cms || 'CMS noma\'lum',
+      item.httpStatus ? `HTTP ${item.httpStatus}` : null,
+    ].filter(Boolean);
+    return parts.join(' · ');
   }
 
   // ── helpers ───────────────────────────────────

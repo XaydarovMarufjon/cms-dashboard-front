@@ -18,11 +18,12 @@ interface Cmd {
 }
 
 const PAGES: Cmd[] = [
-  { kind: 'page', title: 'Bosh panel',   sub: 'Umumiy ko\'rinish', link: ['/'] },
+  { kind: 'page', title: 'Dashboard',    sub: 'Umumiy ko\'rinish', link: ['/'] },
   { kind: 'page', title: 'Saytlar',      sub: 'Skaner dashboard',  link: ['/sites'] },
   { kind: 'page', title: 'Alertlar',     sub: 'Muddat / SSL',      link: ['/alerts'] },
-  { kind: 'page', title: 'Statistika',   sub: 'Hisobotlar',        link: ['/statistics'] },
   { kind: 'page', title: 'CVE Scanner',  sub: 'Nuclei zaiflik',    link: ['/nuclei'] },
+  { kind: 'page', title: 'Zaifliklar',   sub: 'Excel jadval',      link: ['/vulnerabilities'] },
+  { kind: 'page', title: 'Statistika',   sub: 'Hisobotlar',        link: ['/statistics'] },
   { kind: 'page', title: 'Port Scanner', sub: 'Portlar',           link: ['/ports'] },
   { kind: 'page', title: 'OSINT Dork',   sub: 'Google dorking',    link: ['/dork'] },
   { kind: 'page', title: 'URL Checker',  sub: 'Havola tekshir',    link: ['/checker'] },

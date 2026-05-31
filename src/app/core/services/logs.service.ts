@@ -39,6 +39,42 @@ export interface SessionEntry {
   user:         { id: string; username: string; role: string };
 }
 
+export interface DatabaseDump {
+  id:             string;
+  filename:       string;
+  format:         string;
+  status:         'RUNNING' | 'SUCCESS' | 'FAILED' | string;
+  trigger:        'MANUAL' | 'AUTO' | string;
+  sizeBytes:      number;
+  checksumSha256: string | null;
+  errorMessage:   string | null;
+  createdById:    string | null;
+  createdByName:  string | null;
+  startedAt:      string;
+  finishedAt:     string | null;
+  createdAt:      string;
+}
+
+export interface DatabaseDumpList {
+  config: {
+    autoEnabled: boolean;
+    cron:        string;
+    scheduleLabel?: string;
+    retention:   number;
+    dumpDir:     string;
+    format:      string;
+    storageMode?: string;
+  };
+  summary: {
+    total:          number;
+    successful:     number;
+    failed:         number;
+    running:        number;
+    totalSizeBytes: number;
+  };
+  items: DatabaseDump[];
+}
+
 export interface AuditFilter {
   from?:    string;
   to?:      string;
@@ -70,5 +106,21 @@ export class LogsService {
 
   revokeSession(id: string): Observable<{ ok: boolean }> {
     return this.http.post<{ ok: boolean }>(`${this.api}/logs/sessions/${id}/revoke`, {});
+  }
+
+  getDumps(): Observable<DatabaseDumpList> {
+    return this.http.get<DatabaseDumpList>(`${this.api}/logs/dumps`);
+  }
+
+  createDump(): Observable<DatabaseDump> {
+    return this.http.post<DatabaseDump>(`${this.api}/logs/dumps`, {});
+  }
+
+  downloadDump(id: string): Observable<Blob> {
+    return this.http.get(`${this.api}/logs/dumps/${id}/download`, { responseType: 'blob' });
+  }
+
+  deleteDump(id: string): Observable<{ ok: boolean }> {
+    return this.http.delete<{ ok: boolean }>(`${this.api}/logs/dumps/${id}`);
   }
 }

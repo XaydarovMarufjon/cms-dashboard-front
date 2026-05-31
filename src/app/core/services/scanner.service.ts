@@ -106,6 +106,39 @@ export interface BulkScanJob {
     items:                    BulkScanJobItem[];
 }
 
+export interface LiveScanActivityItem {
+    id:         string;
+    websiteId:  string;
+    url:        string;
+    label?:     string | null;
+    source:     string;
+    mode?:      string;
+    status:     'RUNNING' | 'DONE' | 'FAILED' | string;
+    startedAt?: string | null;
+    updatedAt?: string | null;
+    finishedAt?: string | null;
+    durationMs?: number | null;
+    error?:      string | null;
+    cms?:        string | null;
+    httpStatus?: number | null;
+}
+
+export interface LiveScanActivity {
+    generatedAt: string;
+    active:      LiveScanActivityItem[];
+    recent:      LiveScanActivityItem[];
+    lastScanDurationMs?: number | null;
+    bulkJob:     BulkScanJob | null;
+    autoScan:    {
+        intervalMinutes:     number;
+        lastStatus:          string | null;
+        scannedInLastWindow: number;
+        totalAtLastWindow:   number;
+        lastStartedAt:       string | null;
+        lastFinishedAt:      string | null;
+    } | null;
+}
+
 export interface PortScanResult {
     id:        string;
     websiteId: string;
@@ -636,6 +669,10 @@ export class ScannerService {
 
     getCurrentBulkScan(): Observable<BulkScanJob | null> {
         return this.http.get<BulkScanJob | null>(`${this.api}/scanner/bulk-scan/current`);
+    }
+
+    getLiveScanActivity(): Observable<LiveScanActivity> {
+        return this.http.get<LiveScanActivity>(`${this.api}/scanner/live-scan-activity`);
     }
 
     getBulkScan(id: string): Observable<BulkScanJob | null> {

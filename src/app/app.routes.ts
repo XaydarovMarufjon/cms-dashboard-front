@@ -9,7 +9,7 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./pages/login/login.component').then(m => m.LoginComponent),
     },
-    // Bosh panel — asosiy sahifa
+    // Dashboard - asosiy sahifa
     {
         path: '',
         canActivate: [authGuard],
@@ -60,6 +60,12 @@ export const routes: Routes = [
             import('./pages/nuclei/nuclei.component').then(m => m.NucleiComponent),
     },
     {
+        path: 'vulnerabilities',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/vulnerabilities/vulnerabilities.component').then(m => m.VulnerabilitiesComponent),
+    },
+    {
         path: 'ports',
         canActivate: [authGuard],
         loadComponent: () =>
@@ -75,7 +81,7 @@ export const routes: Routes = [
         path: 'statistics',
         canActivate: [authGuard],
         loadComponent: () =>
-            import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
+            import('./pages/vulnerabilities/vulnerabilities.component').then(m => m.VulnerabilitiesComponent),
     },
     {
         path: 'proxies',
