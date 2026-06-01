@@ -47,7 +47,7 @@ $yellow: var(--yellow);
   gap: 12px;
 
   h1 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 750;
     line-height: 1.1;
     margin: 0;
@@ -72,7 +72,7 @@ $yellow: var(--yellow);
   margin-top: 4px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .mode-switch {
@@ -90,7 +90,7 @@ $yellow: var(--yellow);
     background: transparent;
     color: $muted;
     font: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
     transition: color .15s, background .15s;
@@ -132,7 +132,7 @@ $yellow: var(--yellow);
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -150,7 +150,7 @@ textarea {
   background: transparent;
   color: $text;
   font-family: 'IBM Plex Mono', 'DM Mono', monospace;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.65;
 
   &::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
@@ -213,7 +213,7 @@ textarea {
   min-height: 32px;
   padding: 0 11px;
   border-radius: 7px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -294,7 +294,7 @@ textarea {
 
   strong {
     color: $text;
-    font-size: 13px;
+    font-size: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -304,7 +304,7 @@ textarea {
   small {
     color: $muted;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 
@@ -313,7 +313,7 @@ textarea {
 }
 
 .file-message {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   padding: 8px 10px;
   border-radius: 8px;

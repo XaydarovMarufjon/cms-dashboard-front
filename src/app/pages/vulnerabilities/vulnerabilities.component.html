@@ -71,6 +71,26 @@
             (ngModelChange)="setSelectedRowHeight($event)"
           />
         </label>
+        <div class="cell-color-picker" title="Tanlangan katak rangi">
+          <span>Rang</span>
+          @for (option of cellColorOptions; track option.id) {
+            <button
+              type="button"
+              class="color-swatch"
+              [class.none]="option.id === 'none'"
+              [class.active]="selectedCellColor() === option.id"
+              [style.background]="option.id === 'none' ? null : option.swatch"
+              [title]="option.label"
+              (click)="setSelectedCellColor(option.id)"
+            >
+              @if (option.id === 'none') {
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                  <path d="M3 10 10 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+              }
+            </button>
+          }
+        </div>
         <button class="tool-btn danger" (click)="deleteSelectedRow()" title="Tanlangan qatorni o‘chirish">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2.5 4h9M5 4V3h4v1M4.5 6v4.5M7 6v4.5M9.5 6v4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
@@ -83,14 +103,16 @@
           </svg>
           Ustun
         </button>
+        <button class="tool-btn danger" (click)="deleteActiveSheet()" title="Joriy sheetni o‘chirish">
+          Sheet
+        </button>
         <button class="tool-btn" (click)="clearData()">Tozalash</button>
-        <button class="tool-btn" (click)="resetTemplate()">Shablon</button>
       </div>
 
       <div class="sheet-state">
         <span class="cell-address">{{ selectedCellAddress() }}</span>
-        @if (fileName()) {
-          <span>{{ fileName() }}</span>
+        @if (activeWorkbookName()) {
+          <span>{{ activeWorkbookName() }}</span>
         }
         <span>{{ statusText() }}</span>
       </div>
@@ -152,7 +174,7 @@
                   [style.maxWidth.px]="col.width"
                   [style.height.px]="entry.row.height"
                   [class.active]="selected().row === entry.index && selected().col === colIndex"
-                  [ngClass]="cellTone(col.id, cellValue(entry.row, col))"
+                  [ngClass]="cellClasses(entry.row, col)"
                 >
                   @if (isEditing(entry.index, colIndex)) {
                     <textarea
@@ -170,7 +192,6 @@
                       type="button"
                       class="cell-view"
                       [attr.data-cell]="entry.index + '-' + colIndex"
-                      [style.--line-clamp]="cellLineClamp(entry.index, colIndex, entry.row.height)"
                       [title]="cellValue(entry.row, col)"
                       (click)="focusCell(entry.index, colIndex)"
                       (dblclick)="editCell(entry.index, colIndex)"
@@ -192,33 +213,57 @@
       </table>
     </section>
 
-    <section class="sheet-tabs">
-      @for (sheet of sheets(); track sheet.id) {
-        @if (activeSheetId() === sheet.id) {
-          <div class="sheet-tab active">
-            <input
-              class="sheet-name-input"
-              [ngModel]="sheet.name"
-              (ngModelChange)="renameSheet(sheet.id, $event)"
-              title="Sheet nomi"
-            />
-          </div>
-        } @else {
-          <button class="sheet-tab" (click)="activateSheet(sheet.id)" title="Sheetni ochish">
-            {{ sheet.name || 'Sheet' }}
-          </button>
-        }
-      }
+    @if (workbooks().length > 1) {
+      <section class="workbook-tabs">
+        <span class="workbook-tabs-label">Excel fayllar</span>
+        <div class="workbook-tab-list">
+          @for (workbook of workbooks(); track workbook.id) {
+            <button
+              type="button"
+              class="workbook-tab"
+              [class.active]="activeWorkbookId() === workbook.id"
+              (click)="activateWorkbook(workbook.id)"
+              [title]="workbook.name"
+            >
+              <span>{{ workbook.name }}</span>
+              <b>{{ workbook.count }}</b>
+            </button>
+          }
+        </div>
+      </section>
+    }
 
-      <button class="sheet-tab add" (click)="addSheet()" title="Yangi sheet yaratish">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-        Yangi sheet
-      </button>
-      <button class="sheet-tab danger" [disabled]="sheets().length <= 1" (click)="deleteActiveSheet()">
-        O‘chirish
-      </button>
+    <section class="sheet-tabs">
+      <div class="sheet-tab-list">
+        @for (sheet of visibleSheets(); track sheet.id) {
+          @if (activeSheetId() === sheet.id) {
+            <div class="sheet-tab active">
+              <input
+                class="sheet-name-input"
+                [ngModel]="sheet.name"
+                (ngModelChange)="renameSheet(sheet.id, $event)"
+                title="Sheet nomi"
+              />
+            </div>
+          } @else {
+            <button class="sheet-tab" (click)="activateSheet(sheet.id)" title="Sheetni ochish">
+              {{ sheet.name || 'Sheet' }}
+            </button>
+          }
+        }
+      </div>
+
+      <div class="sheet-tab-actions">
+        <button class="sheet-tab add" (click)="addSheet()" title="Yangi sheet yaratish">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Yangi sheet
+        </button>
+        <button class="sheet-tab danger" (click)="deleteActiveSheet()" title="Joriy sheetni o‘chirish">
+          O‘chirish
+        </button>
+      </div>
     </section>
 
     <section class="stats-embed">

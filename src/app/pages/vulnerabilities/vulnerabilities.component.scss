@@ -41,7 +41,7 @@ $yellow: var(--yellow);
 
   h1 {
     margin: 2px 0 0;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 780;
     letter-spacing: 0;
   }
@@ -50,7 +50,7 @@ $yellow: var(--yellow);
 .eyebrow {
   margin: 0;
   color: $accent;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
   text-transform: uppercase;
 }
@@ -71,7 +71,7 @@ $yellow: var(--yellow);
     color: $muted;
     padding: 0 9px;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     white-space: nowrap;
   }
 }
@@ -105,7 +105,7 @@ $yellow: var(--yellow);
   background: $s1;
   color: $text;
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 760;
   cursor: pointer;
   white-space: nowrap;
@@ -151,7 +151,7 @@ $yellow: var(--yellow);
     background: transparent;
     color: $text;
     font: inherit;
-    font-size: 13px;
+    font-size: 15px;
   }
 }
 
@@ -170,7 +170,7 @@ $yellow: var(--yellow);
   background: $s2;
   color: $muted;
   padding: 0 8px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 760;
   white-space: nowrap;
 
@@ -182,6 +182,48 @@ $yellow: var(--yellow);
     color: $text;
     font: inherit;
     font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+.cell-color-picker {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $s2;
+  color: $muted;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+  border-radius: 6px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $muted;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+
+  &.none {
+    background:
+      linear-gradient(135deg, transparent 45%, color-mix(in srgb, var(--red) 72%, transparent) 46% 54%, transparent 55%),
+      $s1;
+  }
+
+  &.active {
+    border-color: $accent;
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent),
+      inset 0 0 0 1px rgba(255,255,255,.16);
   }
 }
 
@@ -213,7 +255,7 @@ $yellow: var(--yellow);
   justify-content: flex-end;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
 
   span {
     border: 1px solid $border;
@@ -243,7 +285,7 @@ $yellow: var(--yellow);
   border-spacing: 0;
   min-width: 1380px;
   width: max-content;
-  font-size: 13px;
+  font-size: 15px;
 
   th,
   td {
@@ -274,7 +316,7 @@ $yellow: var(--yellow);
     color: $muted;
     padding: 0 9px;
     font: inherit;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 850;
     text-transform: uppercase;
   }
@@ -316,7 +358,7 @@ $yellow: var(--yellow);
   color: $muted;
   text-align: center;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -369,7 +411,6 @@ td {
 .cell-input,
 .cell-view {
   width: 100%;
-  height: 100%;
   min-height: 34px;
   border: 0;
   outline: 0;
@@ -377,10 +418,12 @@ td {
   color: $text;
   padding: 6px 9px;
   font: inherit;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 20px;
   box-sizing: border-box;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   text-align: left;
 }
 
@@ -395,12 +438,8 @@ td {
 }
 
 .cell-view {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--line-clamp, 1);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: anywhere;
+  display: block;
+  overflow: visible;
   cursor: cell;
 
   &:hover {
@@ -459,24 +498,165 @@ td {
   background: $s2;
 }
 
+.cell-color {
+  --custom-cell-accent: var(--accent);
+  --custom-cell-bg: color-mix(in srgb, var(--custom-cell-accent) 14%, transparent);
+
+  .cell-input,
+  .cell-view {
+    color: $text;
+    background: var(--custom-cell-bg);
+  }
+
+  .cell-view:hover,
+  .cell-input:focus {
+    background: color-mix(in srgb, var(--custom-cell-accent) 20%, transparent);
+  }
+}
+
+.cell-color-red    { --custom-cell-accent: #ef4444; }
+.cell-color-orange { --custom-cell-accent: #fb923c; }
+.cell-color-yellow { --custom-cell-accent: #facc15; }
+.cell-color-green  { --custom-cell-accent: #22c55e; }
+.cell-color-blue   { --custom-cell-accent: #38bdf8; }
+.cell-color-purple { --custom-cell-accent: #a78bfa; }
+.cell-color-gray   { --custom-cell-accent: #64748b; }
+
 .empty-cell {
   height: 120px;
   color: $muted;
   text-align: center;
-  font-size: 13px;
+  font-size: 15px;
   background: $s1;
 }
 
-.sheet-tabs {
-  gap: 6px;
-  flex-wrap: wrap;
+.workbook-tabs {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border: 1px solid $border;
   border-radius: 10px;
   background: $s1;
   padding: 8px;
 }
 
+.workbook-tabs-label {
+  flex: 0 0 auto;
+  color: $muted;
+  font-size: 13px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.workbook-tab-list {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 38%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+}
+
+.workbook-tab {
+  flex: 0 0 auto;
+  min-height: 30px;
+  max-width: 260px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $s2;
+  color: $muted;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 760;
+  cursor: pointer;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  b {
+    min-width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: $s3;
+    color: $text;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  &.active {
+    color: $accent;
+    border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+}
+
+.sheet-tabs {
+  gap: 6px;
+  flex-wrap: nowrap;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $s1;
+  padding: 8px;
+  min-width: 0;
+}
+
+.sheet-tab-list {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 38%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+}
+
+.sheet-tab-actions {
+  flex: 0 0 auto;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
 .sheet-tab {
+  flex: 0 0 auto;
   min-height: 32px;
   max-width: 210px;
   display: inline-flex;
@@ -489,7 +669,7 @@ td {
   color: $muted;
   padding: 0 11px;
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 760;
   cursor: pointer;
   overflow: hidden;

@@ -92,7 +92,7 @@ $muted:  var(--muted);
 
 .logo-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: $text;
   letter-spacing: -.3px;
@@ -100,7 +100,7 @@ $muted:  var(--muted);
 }
 
 .logo-sub {
-  font-size: 11px;
+  font-size: 13px;
   color: $muted;
   margin-top: 2px;
   font-family: 'IBM Plex Mono', monospace;
@@ -111,14 +111,14 @@ $muted:  var(--muted);
   margin-bottom: 24px;
 
   h1 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
     color: $text;
     margin-bottom: 4px;
   }
 
   p {
-    font-size: 13px;
+    font-size: 15px;
     color: $muted;
     line-height: 1.5;
   }
@@ -133,7 +133,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--red) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   color: $red;
   margin-bottom: 16px;
   animation: fadeUp .2s ease;
@@ -152,7 +152,7 @@ $muted:  var(--muted);
   gap: 6px;
 
   label {
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     text-transform: uppercase;
     letter-spacing: .08em;
@@ -187,7 +187,7 @@ input {
   outline: none;
   padding: 11px 12px;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: $text;
 
   &::placeholder { color: $muted; }
@@ -206,7 +206,7 @@ input {
 }
 
 .field-err {
-  font-size: 11px;
+  font-size: 13px;
   color: $red;
 }
 
@@ -223,7 +223,7 @@ input {
   background: $accent;
   color: #000;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all .15s;
@@ -255,7 +255,7 @@ input {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }
 
@@ -263,7 +263,7 @@ input {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   font-family: 'IBM Plex Mono', monospace;
   min-width: 80px;

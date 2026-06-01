@@ -43,13 +43,13 @@ $muted:   var(--muted);
   gap: 12px;
 
   h1 {
-    font-size: 19px;
+    font-size: 21px;
     font-weight: 600;
     margin: 0 0 2px;
     color: $text;
   }
   p {
-    font-size: 14px;
+    font-size: 16px;
     color: $muted;
     margin: 0;
   }
@@ -59,7 +59,7 @@ $muted:   var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 14px;
+  font-size: 16px;
   color: $muted;
   text-decoration: none;
   padding: 5px 10px;
@@ -112,7 +112,7 @@ $muted:   var(--muted);
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -127,7 +127,7 @@ $muted:   var(--muted);
   border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 10px;
   padding: 1px 8px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -135,7 +135,7 @@ $muted:   var(--muted);
 .hint-text {
   margin-left: 4px;
   color: color-mix(in srgb, var(--muted) 45%, transparent);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   font-style: italic;
   text-transform: none;
@@ -149,7 +149,7 @@ $muted:   var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 15px;
+  font-size: 17px;
   padding: 9px 12px;
   outline: none;
   box-sizing: border-box;
@@ -179,13 +179,13 @@ $muted:   var(--muted);
   transition: border-color .15s, background .15s;
 
   .chip-label {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: $muted;
     transition: color .15s;
   }
   .chip-desc {
-    font-size: 12px;
+    font-size: 14px;
     color: color-mix(in srgb, var(--muted) 45%, transparent);
     transition: color .15s;
   }
@@ -236,14 +236,14 @@ $muted:   var(--muted);
   }
 
   .preset-name {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: $text;
     margin-bottom: 2px;
   }
 
   .preset-desc {
-    font-size: 12px;
+    font-size: 14px;
     color: color-mix(in srgb, var(--muted) 45%, transparent);
     line-height: 1.4;
   }
@@ -271,7 +271,7 @@ $muted:   var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   padding: 9px 12px;
   outline: none;
@@ -302,7 +302,7 @@ $muted:   var(--muted);
 }
 
 .query-text {
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: var(--accent);
   line-height: 1.6;
@@ -321,7 +321,7 @@ $muted:   var(--muted);
   border: 1px solid $border;
   border-radius: 5px;
   color: $muted;
-  font-size: 13px;
+  font-size: 15px;
   padding: 4px 9px;
   cursor: pointer;
   transition: color .15s, border-color .15s;
@@ -342,7 +342,7 @@ $muted:   var(--muted);
   border: 1px solid color-mix(in srgb, #f59e0b 35%, transparent);
   border-radius: 8px;
   color: #f59e0b;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   padding: 10px;
   cursor: pointer;
@@ -379,7 +379,7 @@ $muted:   var(--muted);
 }
 
 .preset-row-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -392,7 +392,7 @@ $muted:   var(--muted);
 }
 
 .preset-row-query {
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: var(--accent);
   word-break: break-all;
@@ -430,7 +430,7 @@ $muted:   var(--muted);
   background: none;
   border: none;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
@@ -465,7 +465,7 @@ $muted:   var(--muted);
 }
 
 .history-preset {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #f59e0b;
   text-transform: uppercase;
@@ -473,18 +473,18 @@ $muted:   var(--muted);
 }
 
 .history-domains {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }
 
 .history-time {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 14px;
   color: color-mix(in srgb, var(--muted) 45%, transparent);
 }
 
 .history-query {
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: #64748b;
   word-break: break-all;
@@ -509,7 +509,7 @@ $muted:   var(--muted);
   color: #334155;
 
   p {
-    font-size: 15px;
+    font-size: 17px;
     margin: 0;
   }
 }

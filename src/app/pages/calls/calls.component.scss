@@ -50,7 +50,7 @@ $green:  #22c55e;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -.02em;
 }
@@ -60,7 +60,7 @@ $green:  #22c55e;
   color: $accent;
   border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   padding: 2px 10px;
 }
@@ -77,7 +77,7 @@ $green:  #22c55e;
 }
 
 .cat-bar-label {
-  font-size: 11px;
+  font-size: 13px;
   color: $muted;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -95,7 +95,7 @@ $green:  #22c55e;
   align-items: center;
   gap: 6px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $text;
   background: $s2;
@@ -125,7 +125,7 @@ $green:  #22c55e;
   }
 
   .cat-count {
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     background: $bg;
     border-radius: 10px;
@@ -175,7 +175,7 @@ $green:  #22c55e;
     align-items: center;
     gap: 6px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: $muted;
     background: transparent;
@@ -198,7 +198,7 @@ $green:  #22c55e;
 
   .add-cat-err {
     color: $red;
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 
@@ -224,7 +224,7 @@ $green:  #22c55e;
 
   button {
     font-family: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: $muted;
     background: transparent;
@@ -248,7 +248,7 @@ $green:  #22c55e;
 // ── INPUTS / BUTTONS ───────────────────────
 .input {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   color: $text;
   background: $bg;
   border: 1px solid $border;
@@ -257,14 +257,14 @@ $green:  #22c55e;
   outline: none;
   transition: border-color .15s, box-shadow .15s;
   &:focus { border-color: $accent; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
-  &.input-sm { padding: 6px 8px; font-size: 12px; }
+  &.input-sm { padding: 6px 8px; font-size: 14px; }
 }
 
 select.input { padding-right: 24px; }
 
 .btn-primary, .btn-ghost {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 8px;
   padding: 8px 14px;
@@ -274,7 +274,7 @@ select.input { padding-right: 24px; }
   gap: 6px;
   border: 1px solid transparent;
   transition: background .15s, border-color .15s, color .15s;
-  &.btn-sm { padding: 6px 10px; font-size: 12px; }
+  &.btn-sm { padding: 6px 10px; font-size: 14px; }
   &:disabled { opacity: .55; cursor: wait; }
 }
 
@@ -327,11 +327,11 @@ select.input { padding-right: 24px; }
 
   &:last-child { border-bottom: 0; }
 
-  .cell { font-size: 13px; min-width: 0; }
+  .cell { font-size: 15px; min-width: 0; }
 
   &.row-head {
     background: $s2;
-    .cell { font-size: 11px; color: $muted; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .cell { font-size: 13px; color: $muted; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
   }
 
   &.row-data:hover { background: $s2; }
@@ -351,7 +351,7 @@ select.input { padding-right: 24px; }
 
 .cat-tag {
   display: inline-block;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 12px;
@@ -404,10 +404,10 @@ select.input { padding-right: 24px; }
   padding: 60px 0;
   color: $muted;
 }
-.state-text { font-size: 13px; }
+.state-text { font-size: 15px; }
 .empty-state {
-  .empty-title { font-size: 15px; font-weight: 600; color: $text; }
-  .empty-desc  { font-size: 12px; color: $muted; }
+  .empty-title { font-size: 17px; font-weight: 600; color: $text; }
+  .empty-desc  { font-size: 14px; color: $muted; }
 }
 
 .spinner, .btn-spinner {
@@ -467,7 +467,7 @@ select.input { padding-right: 24px; }
 }
 
 .modal-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: $text;
 }
@@ -510,7 +510,7 @@ select.input { padding-right: 24px; }
 }
 
 .manage-text {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $text;
   overflow: hidden;
@@ -519,7 +519,7 @@ select.input { padding-right: 24px; }
 }
 
 .manage-count {
-  font-size: 11px;
+  font-size: 13px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   margin-left: auto;
@@ -541,7 +541,7 @@ select.input { padding-right: 24px; }
 }
 
 .manage-name-err {
-  font-size: 11px;
+  font-size: 13px;
   color: $red;
   margin-left: 4px;
 }
@@ -558,7 +558,7 @@ select.input { padding-right: 24px; }
 .manage-empty {
   text-align: center;
   color: $muted;
-  font-size: 13px;
+  font-size: 15px;
   padding: 30px 0;
 }
 

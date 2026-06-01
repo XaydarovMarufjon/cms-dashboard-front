@@ -98,12 +98,12 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --fs-xs:  11px;
-  --fs-sm:  12.5px;
-  --fs-md:  14px;
-  --fs-lg:  16px;
-  --fs-xl:  20px;
-  --fs-2xl: 28px;
+  --fs-xs:  13px;
+  --fs-sm:  14.5px;
+  --fs-md:  16px;
+  --fs-lg:  18px;
+  --fs-xl:  22px;
+  --fs-2xl: 30px;
 }
 
 /* ── ACCENT PICKER (data-accent root atributi) ──── */
@@ -128,6 +128,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: 'DM Mono', monospace;
+  font-size: 18px;
   -webkit-font-smoothing: antialiased;
   transition: background 0.25s ease, color 0.25s ease;
 }
@@ -214,7 +215,7 @@ body {
 .ds-badge {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 18px; height: 18px; padding: 0 6px;
-  font-size: 10.5px; font-weight: 800; border-radius: var(--radius-pill);
+  font-size: 12.5px; font-weight: 800; border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);
 }
 

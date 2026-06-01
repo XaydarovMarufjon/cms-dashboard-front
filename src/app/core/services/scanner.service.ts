@@ -253,6 +253,15 @@ export interface SystemStatus {
             usedPct:    number;
             error?:     string;
         };
+        network?: {
+            rxBytes:       number;
+            txBytes:       number;
+            rxBytesPerSec: number;
+            txBytesPerSec: number;
+            interfaceCount:number;
+            sampledAt:     string;
+            error:         string | null;
+        };
     };
     database: {
         ok:               boolean;
@@ -354,6 +363,24 @@ export interface OverviewStats {
             lastChangedAt: string | null;
             lastCheckedAt: string;
         }>;
+    };
+    imageModeration: {
+        monitoredSites: number;
+        unscannedSites: number;
+        coveragePct:    number;
+        scansTotal:     number;
+        scans24h:       number;
+        running:        number;
+        failed24h:      number;
+        totalImages:    number;
+        scannedImages:  number;
+        flaggedImages:  number;
+        cleanImages:    number;
+        sexual:         number;
+        violent:        number;
+        religious:      number;
+        flaggedPct:     number;
+        latestScanAt:   string | null;
     };
     subdomains: {
         aliveSaved:     number;

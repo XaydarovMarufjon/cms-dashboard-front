@@ -56,7 +56,7 @@ $muted:  var(--muted);
 }
 
 .brand-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: $text;
 }
@@ -75,7 +75,7 @@ $muted:  var(--muted);
   gap: 8px;
   padding: 8px 10px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: $muted;
   text-decoration: none;
@@ -124,7 +124,7 @@ $muted:  var(--muted);
 }
 
 .cu-role {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -132,7 +132,7 @@ $muted:  var(--muted);
 }
 
 .cu-name {
-  font-size: 12px;
+  font-size: 14px;
   color: $text;
   font-weight: 500;
 }
@@ -142,7 +142,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   padding: 6px;
   cursor: pointer;
   transition: color .15s, border-color .15s;
@@ -189,7 +189,7 @@ $muted:  var(--muted);
 }
 
 .page-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: $text;
   margin: 0 0 3px;
@@ -199,7 +199,7 @@ $muted:  var(--muted);
 }
 
 .via-tag {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $muted;
   background: $s2;
@@ -209,7 +209,7 @@ $muted:  var(--muted);
 }
 
 .page-sub {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   margin: 0;
 }
@@ -225,7 +225,7 @@ $muted:  var(--muted);
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   background: $s1;
   border: 1px solid $border;
@@ -248,7 +248,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 13px;
+  font-size: 15px;
   padding: 6px 10px;
   outline: none;
   cursor: pointer;
@@ -259,7 +259,7 @@ $muted:  var(--muted);
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 6px;
   color: $accent;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   padding: 6px 12px;
   cursor: pointer;
@@ -270,7 +270,7 @@ $muted:  var(--muted);
   background: none;
   border: none;
   color: $muted;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 4px;
@@ -285,7 +285,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   padding: 6px 12px;
   cursor: pointer;
@@ -321,7 +321,7 @@ $muted:  var(--muted);
   gap: 10px;
   padding: 14px 18px;
   border-bottom: 1px solid $border;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: $text;
 
@@ -335,7 +335,7 @@ $muted:  var(--muted);
   border: none;
   color: $muted;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   padding: 2px 6px;
   border-radius: 4px;
   &:hover { color: $text; }
@@ -362,7 +362,7 @@ $muted:  var(--muted);
   padding-top: 20px;
 
   span {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     color: $muted;
     background: $s2;
@@ -393,13 +393,13 @@ $muted:  var(--muted);
   &-content {
     flex: 1;
     h3 {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       color: $text;
       margin: 0 0 6px;
     }
     p {
-      font-size: 12px;
+      font-size: 14px;
       color: $muted;
       margin: 0 0 8px;
       line-height: 1.5;
@@ -424,7 +424,7 @@ $muted:  var(--muted);
 }
 
 .docs-subtitle {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: $muted;
   display: block;
@@ -439,7 +439,7 @@ $muted:  var(--muted);
 }
 
 .scale-item {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 4px;
@@ -451,7 +451,7 @@ $muted:  var(--muted);
 }
 
 .docs-note {
-  font-size: 11px !important;
+  font-size: 13px !important;
   font-style: italic;
   opacity: .8;
 }
@@ -464,7 +464,7 @@ $muted:  var(--muted);
   padding: 14px;
 
   h4 {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     color: $text;
     margin: 0 0 12px;
@@ -481,7 +481,7 @@ $muted:  var(--muted);
   background: $s1;
   border: 1px solid $border;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 
   strong { color: $text; }
@@ -497,7 +497,7 @@ $muted:  var(--muted);
 
 .guide-arrow {
   color: $muted;
-  font-size: 14px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 
@@ -510,7 +510,7 @@ $muted:  var(--muted);
 }
 
 .guide-badge {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 4px;
@@ -532,7 +532,7 @@ $muted:  var(--muted);
   border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
   border-radius: 8px;
   padding: 10px 14px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   line-height: 1.5;
 
@@ -546,7 +546,7 @@ $muted:  var(--muted);
   gap: 7px;
   padding: 9px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
@@ -578,7 +578,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--red) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
   color: $red;
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 18px;
 }
 
@@ -607,13 +607,13 @@ $muted:  var(--muted);
   &:hover { border-color: $muted; }
 
   .stat-num {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     color: $text;
     font-family: 'IBM Plex Mono', monospace;
   }
   .stat-lbl {
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     font-weight: 600;
     text-transform: uppercase;
@@ -634,7 +634,7 @@ $muted:  var(--muted);
   align-items: center;
   gap: 8px;
   margin-bottom: 14px;
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
 }
 
@@ -642,7 +642,7 @@ $muted:  var(--muted);
   background: none;
   border: none;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   padding: 2px 8px;
   border-radius: 4px;
@@ -657,7 +657,7 @@ $muted:  var(--muted);
   gap: 12px;
   padding: 40px 0;
   color: $muted;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .loading-spinner {
@@ -690,7 +690,7 @@ $muted:  var(--muted);
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: $text;
 }
@@ -709,7 +709,7 @@ $muted:  var(--muted);
 }
 
 .prog-fraction {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
 }
@@ -737,7 +737,7 @@ $muted:  var(--muted);
 }
 
 .prog-pct {
-  font-size: 11px;
+  font-size: 13px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   min-width: 36px;
@@ -762,13 +762,13 @@ $muted:  var(--muted);
 }
 
 .current-label {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   white-space: nowrap;
 }
 
 .current-url {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $accent;
   font-family: 'IBM Plex Mono', monospace;
@@ -789,7 +789,7 @@ $muted:  var(--muted);
   gap: 8px;
   padding: 5px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   transition: background .1s;
 
   &:hover { background: $s2; }
@@ -813,7 +813,7 @@ $muted:  var(--muted);
   }
 
   .completed-label {
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     background: $s3;
     border-radius: 4px;
@@ -832,19 +832,19 @@ $muted:  var(--muted);
   border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
   border-radius: 8px;
   padding: 1px 8px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .badge-clean {
   color: $accent;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .badge-err {
   color: $yellow;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -860,8 +860,8 @@ $muted:  var(--muted);
   color: $muted;
   text-align: center;
 
-  p { font-size: 16px; font-weight: 600; margin: 0; color: $text; }
-  span { font-size: 13px; }
+  p { font-size: 18px; font-weight: 600; margin: 0; color: $text; }
+  span { font-size: 15px; }
 }
 
 // ── RESULTS ───────────────────────────────────────────────────────────────
@@ -910,14 +910,14 @@ $muted:  var(--muted);
 }
 
 .domain-url {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: $text;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .domain-label {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   background: $s3;
   border-radius: 5px;
@@ -925,7 +925,7 @@ $muted:  var(--muted);
 }
 
 .domain-count {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: $red;
   background: color-mix(in srgb, var(--red) 8%, transparent);
@@ -943,14 +943,14 @@ $muted:  var(--muted);
 .cve-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead tr {
     border-bottom: 1px solid $border;
     th {
       padding: 8px 14px;
       text-align: left;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 600;
       color: $muted;
       text-transform: uppercase;
@@ -976,7 +976,7 @@ $muted:  var(--muted);
 
 .cve-id, .cve-sub, .cve-url, .cve-date {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .cve-link {
@@ -1002,7 +1002,7 @@ $muted:  var(--muted);
   align-items: center;
   gap: 7px;
   padding: 9px 16px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $muted;
   background: none;
@@ -1024,7 +1024,7 @@ $muted:  var(--muted);
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   padding: 0 5px;
 }
@@ -1062,7 +1062,7 @@ $muted:  var(--muted);
   gap: 4px;
   padding: 3px 9px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--muted) 8%, transparent);
@@ -1083,7 +1083,7 @@ $muted:  var(--muted);
   gap: 4px;
   padding: 3px 9px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
@@ -1103,7 +1103,7 @@ $muted:  var(--muted);
   gap: 4px;
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   background: $s2;
@@ -1130,7 +1130,7 @@ $muted:  var(--muted);
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   margin-bottom: 14px;
   padding: 8px 12px;
@@ -1148,7 +1148,7 @@ $muted:  var(--muted);
 }
 
 .fp-badge-group {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $muted;
   background: $s2;
@@ -1185,7 +1185,7 @@ $muted:  var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $accent;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
@@ -1224,7 +1224,7 @@ $muted:  var(--muted);
 .mon-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead {
     position: sticky;
@@ -1235,7 +1235,7 @@ $muted:  var(--muted);
 
   th {
     padding: 10px 14px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: $muted;
     text-align: left;
@@ -1307,7 +1307,7 @@ $muted:  var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
   color: $accent;
@@ -1318,20 +1318,20 @@ $muted:  var(--muted);
 }
 
 .mc-date {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   margin-left: auto;
 }
 
 .mc-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $text;
   margin-bottom: 5px;
 }
 
 .mc-desc {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   line-height: 1.5;
   margin-bottom: 10px;
@@ -1356,7 +1356,7 @@ $muted:  var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   color: $muted;
 }
@@ -1380,7 +1380,7 @@ $muted:  var(--muted);
   display: inline-block;
   padding: 2px 9px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .04em;
@@ -1425,7 +1425,7 @@ $muted:  var(--muted);
   display: inline-block;
   padding: 1px 6px;
   border-radius: 4px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -1440,7 +1440,7 @@ $muted:  var(--muted);
   margin-top: 5px;
   padding: 2px 6px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -1477,7 +1477,7 @@ $muted:  var(--muted);
   display: inline-block;
   padding: 2px 7px;
   border-radius: 5px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
 
@@ -1504,7 +1504,7 @@ $muted:  var(--muted);
 }
 
 .epss-val {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   font-family: 'IBM Plex Mono', monospace;
   color: $yellow;
@@ -1512,7 +1512,7 @@ $muted:  var(--muted);
 
 .cve-cvss, .cve-epss {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
 }
 
@@ -1534,14 +1534,14 @@ $muted:  var(--muted);
 }
 
 .feeds-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: $text;
   margin-bottom: 3px;
 }
 
 .feeds-sub {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }
 
@@ -1593,7 +1593,7 @@ $muted:  var(--muted);
 .feeds-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead {
     position: sticky;
@@ -1604,7 +1604,7 @@ $muted:  var(--muted);
 
   th {
     padding: 10px 14px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: $muted;
     text-align: left;
@@ -1645,11 +1645,11 @@ $muted:  var(--muted);
 
 .ftd-muted {
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .ftd-url-text {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   color: $muted;
   max-width: 220px;
@@ -1665,7 +1665,7 @@ $muted:  var(--muted);
 }
 
 .ftd-error-text {
-  font-size: 11px;
+  font-size: 13px;
   color: $red;
   max-width: 200px;
   display: block;
@@ -1694,7 +1694,7 @@ $muted:  var(--muted);
 
 .btn-connect-sm {
   padding: 4px 10px !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 
 .feed-config-inline {
@@ -1709,7 +1709,7 @@ $muted:  var(--muted);
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
@@ -1725,7 +1725,7 @@ $muted:  var(--muted);
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   background: $s1;
@@ -1742,7 +1742,7 @@ $muted:  var(--muted);
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--yellow) 8%, transparent);
@@ -1759,7 +1759,7 @@ $muted:  var(--muted);
   border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
   border-radius: 8px;
   color: $red;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 
@@ -1775,7 +1775,7 @@ $muted:  var(--muted);
 }
 
 .aff-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: $text;
   margin-bottom: 14px;
@@ -1789,7 +1789,7 @@ $muted:  var(--muted);
 }
 
 .aff-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: $muted;
   min-width: 80px;
@@ -1798,7 +1798,7 @@ $muted:  var(--muted);
 
 .aff-optional {
   font-weight: 400;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .aff-input {
@@ -1807,7 +1807,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 13px;
+  font-size: 15px;
   padding: 7px 10px;
   outline: none;
   font-family: inherit;
@@ -1820,7 +1820,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 7px;
   color: $text;
-  font-size: 13px;
+  font-size: 15px;
   padding: 7px 10px;
   outline: none;
   cursor: pointer;
@@ -1835,7 +1835,7 @@ $muted:  var(--muted);
 .btn-aff-save {
   padding: 7px 18px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -1848,7 +1848,7 @@ $muted:  var(--muted);
 .btn-aff-cancel {
   padding: 7px 14px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   background: none;
   border: 1px solid $border;
@@ -1888,7 +1888,7 @@ $muted:  var(--muted);
   align-items: center;
   padding: 3px 10px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .05em;
@@ -1921,7 +1921,7 @@ $muted:  var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 8px;
@@ -1963,7 +1963,7 @@ $muted:  var(--muted);
   gap: 5px;
   padding: 6px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
@@ -1995,14 +1995,14 @@ $muted:  var(--muted);
 }
 
 .feed-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: $text;
   margin-bottom: 3px;
 }
 
 .feed-url {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2015,7 +2015,7 @@ $muted:  var(--muted);
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .feed-status {
@@ -2047,7 +2047,7 @@ $muted:  var(--muted);
   gap: 5px;
   padding: 5px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   background: $s2;
@@ -2064,7 +2064,7 @@ $muted:  var(--muted);
   justify-content: center;
   padding: 5px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   background: none;
   border: 1px solid $border;
@@ -2122,7 +2122,7 @@ $muted:  var(--muted);
 }
 
 .il-title {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: $muted;
   text-transform: uppercase;
@@ -2140,6 +2140,6 @@ $muted:  var(--muted);
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }

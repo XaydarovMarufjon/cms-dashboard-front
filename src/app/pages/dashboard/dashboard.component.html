@@ -906,7 +906,7 @@
                 <div class="scan-badge-row">
                   @if (result.website?.cveScannedAt) {
                   <span class="scan-complete-badge cve" [class.has-findings]="hasCveFindings(result)"
-                    [title]="cveBadgeTitle(result)">+CVE</span>
+                    [title]="cveBadgeTitle(result)">{{ cveBadgeText(result) }}</span>
                   }
                   @if (result.website?.subdomainsScannedAt) {
                   <span class="scan-complete-badge subdomains">+Sb</span>
@@ -1066,7 +1066,7 @@
               <div class="scan-badge-row">
                 @if (result.website?.cveScannedAt) {
                 <span class="scan-complete-badge cve" [class.has-findings]="hasCveFindings(result)"
-                  [title]="cveBadgeTitle(result)">+CVE</span>
+                  [title]="cveBadgeTitle(result)">{{ cveBadgeText(result) }}</span>
                 }
                 @if (result.website?.subdomainsScannedAt) {
                 <span class="scan-complete-badge subdomains">+Sb</span>

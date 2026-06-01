@@ -16,11 +16,14 @@ interface SheetRow {
   id: string;
   height: number;
   cells: Record<string, string>;
+  styles?: Record<string, CellStyle>;
 }
 
 interface WorkbookSheet {
   id: string;
   name: string;
+  workbookId: string;
+  workbookName: string;
   columns: SheetColumn[];
   rows: SheetRow[];
   selection?: SheetSelection;
@@ -42,6 +45,24 @@ interface ResizeState {
   startX: number;
   startY: number;
   startSize: number;
+}
+
+type CellColor = 'none' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'gray';
+
+interface CellStyle {
+  color?: CellColor;
+}
+
+interface CellColorOption {
+  id: CellColor;
+  label: string;
+  swatch: string;
+}
+
+interface WorkbookGroup {
+  id: string;
+  name: string;
+  count: number;
 }
 
 const STORAGE_KEY = 'csec-vulnerabilities-sheet-v1';
@@ -80,6 +101,7 @@ export class VulnerabilitiesComponent implements OnInit {
 
   sheets = signal<WorkbookSheet[]>([]);
   activeSheetId = signal('');
+  activeWorkbookId = signal('');
   columns = signal<SheetColumn[]>(this.cloneColumns(DEFAULT_COLUMNS));
   rows = signal<SheetRow[]>(this.createRows(14, DEFAULT_COLUMNS));
   selected = signal({ row: 0, col: 0 });
@@ -90,11 +112,48 @@ export class VulnerabilitiesComponent implements OnInit {
 
   readonly severityOptions = ['Info', 'Low', 'Medium', 'High', 'Critical'];
   readonly statusOptions = ['Open', 'In progress', 'Mitigated', 'Accepted', 'False positive'];
+  readonly cellColorOptions: CellColorOption[] = [
+    { id: 'none',   label: 'Rangsiz', swatch: 'transparent' },
+    { id: 'red',    label: 'Qizil',   swatch: '#ef4444' },
+    { id: 'orange', label: 'Orange',  swatch: '#fb923c' },
+    { id: 'yellow', label: 'Sariq',   swatch: '#facc15' },
+    { id: 'green',  label: 'Yashil',  swatch: '#22c55e' },
+    { id: 'blue',   label: 'Ko‘k',    swatch: '#38bdf8' },
+    { id: 'purple', label: 'Purple',  swatch: '#a78bfa' },
+    { id: 'gray',   label: 'Kulrang', swatch: '#64748b' },
+  ];
 
   activeSheetName = computed(() => this.sheets().find(sheet => sheet.id === this.activeSheetId())?.name || 'Sheet 1');
+  workbooks = computed<WorkbookGroup[]>(() => {
+    const groups = new Map<string, WorkbookGroup>();
+    this.sheets().forEach(sheet => {
+      const id = sheet.workbookId;
+      const existing = groups.get(id);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        groups.set(id, { id, name: sheet.workbookName || 'Excel fayl', count: 1 });
+      }
+    });
+    return Array.from(groups.values());
+  });
+  activeWorkbookName = computed(() => (
+    this.workbooks().find(workbook => workbook.id === this.activeWorkbookId())?.name || 'Asosiy jadval'
+  ));
+  visibleSheets = computed(() => {
+    const workbookId = this.activeWorkbookId();
+    const sheets = this.sheets();
+    return workbookId ? sheets.filter(sheet => sheet.workbookId === workbookId) : sheets;
+  });
   selectedColumnWidth = computed(() => this.columns()[this.selected().col]?.width ?? 160);
   selectedRowHeight = computed(() => this.rows()[this.selected().row]?.height ?? DEFAULT_ROW_HEIGHT);
   selectedCellAddress = computed(() => this.cellAddress(this.selected().row, this.selected().col));
+  selectedCellColor = computed(() => {
+    const selected = this.selected();
+    const row = this.rows()[selected.row];
+    const column = this.columns()[selected.col];
+    return row && column ? this.cellColor(row, column) : 'none';
+  });
 
   visibleRows = computed<VisibleRow[]>(() => {
     const q = this.search().trim().toLowerCase();
@@ -129,12 +188,6 @@ export class VulnerabilitiesComponent implements OnInit {
     return row.cells[column.id] ?? '';
   }
 
-  cellLineClamp(rowIndex: number, colIndex: number, height: number): number {
-    const selected = this.selected();
-    if (selected.row !== rowIndex || selected.col !== colIndex) return 1;
-    return Math.max(1, Math.floor((height - CELL_VERTICAL_PADDING) / CELL_LINE_HEIGHT));
-  }
-
   cellAddress(row: number, col: number): string {
     return `${this.columnLabel(col)}${row + 1}`;
   }
@@ -152,6 +205,30 @@ export class VulnerabilitiesComponent implements OnInit {
         : row
     )));
     this.persist('Saqlanmoqda...');
+  }
+
+  setSelectedCellColor(color: CellColor) {
+    const selected = this.selected();
+    const targetRow = this.rows()[selected.row];
+    const targetColumn = this.columns()[selected.col];
+    if (!targetRow || !targetColumn) return;
+
+    this.rows.update(rows => rows.map(row => {
+      if (row.id !== targetRow.id) return row;
+
+      const styles = { ...(row.styles ?? {}) };
+      if (color === 'none') {
+        delete styles[targetColumn.id];
+      } else {
+        styles[targetColumn.id] = { ...(styles[targetColumn.id] ?? {}), color };
+      }
+
+      return {
+        ...row,
+        styles: Object.keys(styles).length ? styles : undefined,
+      };
+    }));
+    this.persist(color === 'none' ? 'Katak rangi tozalandi' : 'Katak rangi saqlandi');
   }
 
   renameColumn(columnId: string, label: string) {
@@ -211,8 +288,14 @@ export class VulnerabilitiesComponent implements OnInit {
     this.columns.update(cols => cols.filter((_, colIndex) => colIndex !== index));
     this.rows.update(rows => rows.map(row => {
       const cells = { ...row.cells };
+      const styles = { ...(row.styles ?? {}) };
       delete cells[column.id];
-      return { ...row, cells };
+      delete styles[column.id];
+      return {
+        ...row,
+        cells,
+        styles: Object.keys(styles).length ? styles : undefined,
+      };
     }));
 
     const col = Math.min(index, this.columns().length - 1);
@@ -262,8 +345,22 @@ export class VulnerabilitiesComponent implements OnInit {
 
   addSheet() {
     this.saveActiveSheetToWorkbook();
-    const sheet = this.createSheet(`Sheet ${this.sheets().length + 1}`);
+    const sheet = this.createSheet(
+      `Sheet ${this.visibleSheets().length + 1}`,
+      undefined,
+      undefined,
+      this.activeWorkbookId() || undefined,
+      this.activeWorkbookName(),
+    );
     this.sheets.update(sheets => [...sheets, sheet]);
+    this.activateSheet(sheet.id);
+  }
+
+  activateWorkbook(workbookId: string) {
+    if (workbookId === this.activeWorkbookId()) return;
+    this.saveActiveSheetToWorkbook();
+    const sheet = this.sheets().find(item => item.workbookId === workbookId);
+    if (!sheet) return;
     this.activateSheet(sheet.id);
   }
 
@@ -278,6 +375,7 @@ export class VulnerabilitiesComponent implements OnInit {
     const nextRows = rows.length ? rows : this.createRows(14, columns);
     const selection = this.normalizeSelection(sheet.selection, nextRows, columns);
     this.activeSheetId.set(sheet.id);
+    this.activeWorkbookId.set(sheet.workbookId);
     this.columns.set(columns);
     this.rows.set(nextRows);
     this.selected.set(selection);
@@ -295,8 +393,23 @@ export class VulnerabilitiesComponent implements OnInit {
 
   deleteActiveSheet() {
     const sheets = this.sheets();
-    if (sheets.length <= 1) return;
     if (!this.confirmAction(`"${this.activeSheetName()}" sheeti o‘chirilsinmi?`)) return;
+
+    if (sheets.length <= 1) {
+      const sheet = this.createSheet('Sheet 1');
+      this.sheets.set([sheet]);
+      this.activeSheetId.set(sheet.id);
+      this.activeWorkbookId.set(sheet.workbookId);
+      this.columns.set(this.cloneColumns(sheet.columns));
+      this.rows.set(this.cloneRows(sheet.rows, sheet.columns));
+      this.selected.set({ row: 0, col: 0 });
+      this.editing.set(null);
+      this.search.set('');
+      this.fileName.set('');
+      this.persist('Sheet o‘chirildi');
+      this.focusCell(0, 0);
+      return;
+    }
 
     const activeId = this.activeSheetId();
     const activeIndex = Math.max(0, sheets.findIndex(sheet => sheet.id === activeId));
@@ -305,6 +418,7 @@ export class VulnerabilitiesComponent implements OnInit {
 
     this.sheets.set(nextSheets);
     this.activeSheetId.set(nextSheet.id);
+    this.activeWorkbookId.set(nextSheet.workbookId);
     const columns = this.normalizeColumns(nextSheet.columns);
     const rows = this.normalizeRows(nextSheet.rows, columns);
     const nextRows = rows.length ? rows : this.createRows(14, columns);
@@ -318,15 +432,6 @@ export class VulnerabilitiesComponent implements OnInit {
     this.focusCell(selection.row, selection.col);
   }
 
-  resetTemplate() {
-    this.columns.set(this.cloneColumns(DEFAULT_COLUMNS));
-    this.rows.set(this.createRows(14, DEFAULT_COLUMNS));
-    this.search.set('');
-    this.fileName.set('');
-    this.persist('Shablon tiklandi');
-    this.focusCell(0, 0);
-  }
-
   clearData() {
     if (!this.confirmAction('Jadvaldagi barcha kataklar tozalansinmi?')) return;
 
@@ -334,7 +439,7 @@ export class VulnerabilitiesComponent implements OnInit {
     this.rows.update(rows => rows.map(row => {
       const cells: Record<string, string> = {};
       columns.forEach(col => cells[col.id] = '');
-      return { ...row, cells };
+      return { ...row, cells, styles: undefined };
     }));
     this.persist('Jadval tozalandi');
     this.focusCell(0, 0);
@@ -466,6 +571,9 @@ export class VulnerabilitiesComponent implements OnInit {
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
+      const workbookId = this.uid('workbook');
+      const workbookName = this.uniqueWorkbookName(file.name, new Set(this.workbooks().map(item => item.name)));
+      const usedSheetNames = new Set<string>();
       const importedSheets = workbook.SheetNames.map((sheetName, index) => {
         const matrix: unknown[][] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
           header: 1,
@@ -473,19 +581,26 @@ export class VulnerabilitiesComponent implements OnInit {
           raw: false,
           blankrows: false,
         });
-        return this.sheetFromMatrix(matrix, sheetName || `Sheet ${index + 1}`);
+        const nextSheetName = this.uniqueSheetName(sheetName || `Sheet ${index + 1}`, usedSheetNames);
+        return this.sheetFromMatrix(matrix, nextSheetName, workbookId, workbookName);
       });
 
       if (!importedSheets.length) throw new Error('Sheet topilmadi');
+      this.saveActiveSheetToWorkbook();
+      const currentSheets = this.sheets();
+      const shouldReplaceBlank = currentSheets.length === 1 && this.isBlankSheet(currentSheets[0]);
+      const nextSheets = shouldReplaceBlank ? importedSheets : [...currentSheets, ...importedSheets];
       const first = importedSheets[0];
-      this.sheets.set(importedSheets);
+
+      this.sheets.set(nextSheets);
       this.activeSheetId.set(first.id);
+      this.activeWorkbookId.set(first.workbookId);
       this.columns.set(this.cloneColumns(first.columns));
       this.rows.set(this.cloneRows(first.rows, first.columns));
       this.search.set('');
       this.selected.set({ row: 0, col: 0 });
       this.fileName.set(file.name);
-      this.persist(`${importedSheets.length} sheet import qilindi`);
+      this.persist(`${workbookName} alohida import qilindi`);
       this.focusCell(0, 0);
     } catch {
       this.statusText.set('Faylni o‘qib bo‘lmadi');
@@ -498,11 +613,12 @@ export class VulnerabilitiesComponent implements OnInit {
     this.saveActiveSheetToWorkbook();
     const workbook = XLSX.utils.book_new();
     const usedNames = new Set<string>();
-    this.sheets().forEach((sheet, index) => {
+    const sheets = this.sheetsForWorkbook(this.activeWorkbookId());
+    sheets.forEach((sheet, index) => {
       const worksheet = XLSX.utils.aoa_to_sheet(this.exportMatrixFor(sheet.columns, sheet.rows));
       XLSX.utils.book_append_sheet(workbook, worksheet, this.safeSheetName(sheet.name, index, usedNames));
     });
-    XLSX.writeFile(workbook, `zaifliklar-${this.filenameDate()}.xlsx`);
+    XLSX.writeFile(workbook, `${this.exportBaseName(this.activeWorkbookName())}-${this.filenameDate()}.xlsx`);
     this.statusText.set('XLSX yuklandi');
   }
 
@@ -530,6 +646,19 @@ export class VulnerabilitiesComponent implements OnInit {
     if (columnId === 'severity' && normalized) return `tone-severity tone-${normalized}`;
     if (columnId === 'status' && normalized) return `tone-status tone-${normalized}`;
     return '';
+  }
+
+  cellClasses(row: SheetRow, column: SheetColumn): string[] {
+    const tone = this.cellTone(column.id, this.cellValue(row, column));
+    const color = this.cellColor(row, column);
+    return [
+      tone,
+      color === 'none' ? '' : `cell-color cell-color-${color}`,
+    ].filter(Boolean);
+  }
+
+  cellColor(row: SheetRow, column: SheetColumn): CellColor {
+    return this.normalizeCellColor(row.styles?.[column.id]?.color);
   }
 
   private beginResize(state: ResizeState) {
@@ -573,11 +702,15 @@ export class VulnerabilitiesComponent implements OnInit {
       const saved = JSON.parse(raw) as {
         sheets?: WorkbookSheet[];
         activeSheetId?: string;
+        activeWorkbookId?: string;
         columns?: SheetColumn[];
         rows?: SheetRow[];
         selected?: SheetSelection;
         fileName?: string;
       };
+
+      const legacyWorkbookId = saved.activeWorkbookId || this.uid('workbook');
+      const legacyWorkbookName = saved.fileName || 'Asosiy jadval';
 
       if (Array.isArray(saved.sheets) && saved.sheets.length) {
         const sheets = saved.sheets.map((sheet, index) => {
@@ -590,6 +723,8 @@ export class VulnerabilitiesComponent implements OnInit {
           return {
             id: sheet.id || this.uid('sheet'),
             name: sheet.name || `Sheet ${index + 1}`,
+            workbookId: sheet.workbookId || legacyWorkbookId,
+            workbookName: sheet.workbookName || legacyWorkbookName,
             columns,
             rows: nextRows,
             selection,
@@ -598,14 +733,16 @@ export class VulnerabilitiesComponent implements OnInit {
         const active = sheets.find(sheet => sheet.id === saved.activeSheetId) ?? sheets[0];
         this.sheets.set(sheets);
         this.activeSheetId.set(active.id);
+        this.activeWorkbookId.set(active.workbookId);
         this.columns.set(this.cloneColumns(active.columns));
         this.rows.set(this.cloneRows(active.rows, active.columns));
       } else {
         const columns = this.normalizeColumns(saved.columns);
         const rows = this.normalizeRows(saved.rows, columns);
-        const sheet = this.createSheet('Sheet 1', columns, rows.length ? rows : this.createRows(14, columns));
+        const sheet = this.createSheet('Sheet 1', columns, rows.length ? rows : this.createRows(14, columns), legacyWorkbookId, legacyWorkbookName);
         this.sheets.set([sheet]);
         this.activeSheetId.set(sheet.id);
+        this.activeWorkbookId.set(sheet.workbookId);
         this.columns.set(this.cloneColumns(sheet.columns));
         this.rows.set(this.cloneRows(sheet.rows, sheet.columns));
       }
@@ -621,10 +758,15 @@ export class VulnerabilitiesComponent implements OnInit {
   }
 
   private ensureWorkbookInitialized() {
-    if (this.sheets().length && this.activeSheetId()) return;
-    const sheet = this.createSheet('Sheet 1', this.columns(), this.rows());
+    if (this.sheets().length && this.activeSheetId()) {
+      const active = this.sheets().find(sheet => sheet.id === this.activeSheetId()) ?? this.sheets()[0];
+      if (active && !this.activeWorkbookId()) this.activeWorkbookId.set(active.workbookId);
+      return;
+    }
+    const sheet = this.createSheet('Sheet 1', this.columns(), this.rows(), this.uid('workbook'), 'Asosiy jadval');
     this.sheets.set([sheet]);
     this.activeSheetId.set(sheet.id);
+    this.activeWorkbookId.set(sheet.workbookId);
   }
 
   private persist(message: string) {
@@ -641,8 +783,9 @@ export class VulnerabilitiesComponent implements OnInit {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       sheets: this.sheets(),
       activeSheetId: this.activeSheetId(),
+      activeWorkbookId: this.activeWorkbookId(),
       selected: this.normalizeSelection(this.selected()),
-      fileName: this.fileName(),
+      fileName: this.activeWorkbookName(),
     }));
   }
 
@@ -656,7 +799,8 @@ export class VulnerabilitiesComponent implements OnInit {
     this.sheets.update(sheets => {
       const hasActive = sheets.some(sheet => sheet.id === activeId);
       if (!hasActive) {
-        return [...sheets, { id: activeId, name: 'Sheet 1', columns, rows, selection }];
+        const workbookId = this.activeWorkbookId() || this.uid('workbook');
+        return [...sheets, { id: activeId, name: 'Sheet 1', workbookId, workbookName: this.activeWorkbookName(), columns, rows, selection }];
       }
       return sheets.map(sheet => sheet.id === activeId ? { ...sheet, columns, rows, selection } : sheet);
     });
@@ -792,9 +936,9 @@ export class VulnerabilitiesComponent implements OnInit {
     this.rows.set(rows);
   }
 
-  private sheetFromMatrix(matrix: unknown[][], name: string): WorkbookSheet {
+  private sheetFromMatrix(matrix: unknown[][], name: string, workbookId: string, workbookName: string): WorkbookSheet {
     const nonEmpty = matrix.filter(row => row.some(cell => this.stringify(cell).trim()));
-    if (!nonEmpty.length) return this.createSheet(name);
+    if (!nonEmpty.length) return this.createSheet(name, undefined, undefined, workbookId, workbookName);
 
     const header = nonEmpty[0].map(cell => this.stringify(cell).trim());
     const columns = this.columnsFromHeader(header);
@@ -808,6 +952,8 @@ export class VulnerabilitiesComponent implements OnInit {
     return {
       id: this.uid('sheet'),
       name: name.slice(0, 31) || 'Sheet',
+      workbookId,
+      workbookName,
       columns,
       rows: rows.length ? rows : this.createRows(14, columns),
       selection: { row: 0, col: 0 },
@@ -844,20 +990,30 @@ export class VulnerabilitiesComponent implements OnInit {
     return rows.map(row => {
       const cells: Record<string, string> = {};
       columns.forEach(col => cells[col.id] = this.stringify(row.cells?.[col.id] ?? ''));
+      const styles = this.normalizeCellStyles(row.styles, columns);
       return {
         id: row.id || this.uid('row'),
         height: this.clamp(Number(row.height) || DEFAULT_ROW_HEIGHT, MIN_ROW_HEIGHT, MAX_ROW_HEIGHT),
         cells,
+        styles: Object.keys(styles).length ? styles : undefined,
       };
     });
   }
 
-  private createSheet(name: string, columns = this.cloneColumns(DEFAULT_COLUMNS), rows = this.createRows(14, columns)): WorkbookSheet {
+  private createSheet(
+    name: string,
+    columns = this.cloneColumns(DEFAULT_COLUMNS),
+    rows = this.createRows(14, columns),
+    workbookId = this.activeWorkbookId() || this.uid('workbook'),
+    workbookName = this.activeWorkbookName(),
+  ): WorkbookSheet {
     const normalizedColumns = this.normalizeColumns(columns);
     const normalizedRows = this.normalizeRows(rows, normalizedColumns);
     return {
       id: this.uid('sheet'),
       name: name.slice(0, 31) || 'Sheet',
+      workbookId,
+      workbookName: workbookName || 'Asosiy jadval',
       columns: normalizedColumns,
       rows: normalizedRows.length ? normalizedRows : this.createRows(14, normalizedColumns),
       selection: { row: 0, col: 0 },
@@ -932,12 +1088,38 @@ export class VulnerabilitiesComponent implements OnInit {
     return rows.map(row => {
       const cells: Record<string, string> = {};
       columns.forEach(col => cells[col.id] = this.stringify(row.cells?.[col.id] ?? ''));
+      const styles = this.normalizeCellStyles(row.styles, columns);
       return {
         id: row.id || this.uid('row'),
         height: this.clamp(Number(row.height) || DEFAULT_ROW_HEIGHT, MIN_ROW_HEIGHT, MAX_ROW_HEIGHT),
         cells,
+        styles: Object.keys(styles).length ? styles : undefined,
       };
     });
+  }
+
+  private normalizeCellStyles(styles: Record<string, CellStyle> | undefined, columns: SheetColumn[]): Record<string, CellStyle> {
+    if (!styles || typeof styles !== 'object') return {};
+
+    const columnIds = new Set(columns.map(col => col.id));
+    const next: Record<string, CellStyle> = {};
+    Object.entries(styles).forEach(([columnId, style]) => {
+      if (!columnIds.has(columnId)) return;
+      const color = this.normalizeCellColor(style?.color);
+      if (color !== 'none') next[columnId] = { color };
+    });
+    return next;
+  }
+
+  private normalizeCellColor(color: unknown): CellColor {
+    return this.cellColorOptions.some(option => option.id === color) ? color as CellColor : 'none';
+  }
+
+  private isBlankSheet(sheet: WorkbookSheet | undefined): boolean {
+    if (!sheet) return true;
+    const columns = this.normalizeColumns(sheet.columns);
+    const rows = this.normalizeRows(sheet.rows, columns);
+    return rows.every(row => !this.rowHasDataFor(row, columns) && !Object.keys(row.styles ?? {}).length);
   }
 
   private rowHasData(row: SheetRow): boolean {
@@ -1013,6 +1195,40 @@ export class VulnerabilitiesComponent implements OnInit {
     }
     used.add(candidate);
     return candidate;
+  }
+
+  private uniqueSheetName(name: string, used: Set<string>): string {
+    const base = (name || 'Sheet').slice(0, 31) || 'Sheet';
+    let candidate = base;
+    let suffix = 2;
+    while (used.has(candidate)) {
+      const label = ` ${suffix++}`;
+      candidate = `${base.slice(0, 31 - label.length)}${label}`;
+    }
+    used.add(candidate);
+    return candidate;
+  }
+
+  private uniqueWorkbookName(name: string, used: Set<string>): string {
+    const base = (name || 'Excel fayl').trim() || 'Excel fayl';
+    let candidate = base;
+    let suffix = 2;
+    while (used.has(candidate)) candidate = `${base} (${suffix++})`;
+    used.add(candidate);
+    return candidate;
+  }
+
+  private sheetsForWorkbook(workbookId: string): WorkbookSheet[] {
+    const sheets = this.sheets();
+    if (!workbookId) return sheets;
+    return sheets.filter(sheet => sheet.workbookId === workbookId);
+  }
+
+  private exportBaseName(name: string): string {
+    return (name || 'zaifliklar')
+      .replace(/\.(xlsx|xls|csv)$/i, '')
+      .replace(/[\\/:*?"<>|]+/g, ' ')
+      .trim() || 'zaifliklar';
   }
 
   private clamp(value: number, min: number, max: number): number {

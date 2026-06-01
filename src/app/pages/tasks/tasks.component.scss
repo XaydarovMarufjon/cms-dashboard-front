@@ -36,7 +36,7 @@ $yellow: var(--yellow);
 
   h1 {
     margin: 0;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 750;
   }
 }
@@ -49,7 +49,7 @@ $yellow: var(--yellow);
 
   span {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     background: $s1;
     border: 1px solid $border;
@@ -69,7 +69,7 @@ $yellow: var(--yellow);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: $accent;
   font: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 750;
   cursor: pointer;
 
@@ -79,7 +79,7 @@ $yellow: var(--yellow);
 .alert {
   border-radius: 9px;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 
   &.error {
@@ -147,7 +147,7 @@ textarea.input {
     border-radius: 20px;
     padding: 7px 12px;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 750;
     cursor: pointer;
 
@@ -169,7 +169,7 @@ textarea.input {
 .task-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead tr {
     background: $s2;
@@ -185,7 +185,7 @@ textarea.input {
 
   th {
     color: $muted;
-    font-size: 11px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: .05em;
   }
@@ -202,7 +202,7 @@ textarea.input {
   }
 
   strong {
-    font-size: 13px;
+    font-size: 15px;
     color: $text;
   }
 
@@ -226,7 +226,7 @@ textarea.input {
   min-height: 23px;
   padding: 2px 8px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
 }

@@ -44,7 +44,7 @@ $amber:  #f59e0b;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -.02em;
 }
@@ -63,7 +63,7 @@ $amber:  #f59e0b;
     align-items: center;
     gap: 6px;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: $muted;
     background: transparent;
@@ -80,7 +80,7 @@ $amber:  #f59e0b;
 .tab-badge {
   background: color-mix(in srgb, var(--accent) 16%, transparent);
   color: $accent;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   padding: 1px 7px;
   border-radius: 10px;
@@ -104,7 +104,7 @@ $amber:  #f59e0b;
   flex-direction: column;
   gap: 4px;
   label {
-    font-size: 10px;
+    font-size: 12px;
     color: $muted;
     text-transform: uppercase;
     letter-spacing: .08em;
@@ -114,7 +114,7 @@ $amber:  #f59e0b;
 // ── INPUTS / BUTTONS ───────────────────────
 .input {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   color: $text;
   background: $bg;
   border: 1px solid $border;
@@ -123,12 +123,12 @@ $amber:  #f59e0b;
   outline: none;
   transition: border-color .15s, box-shadow .15s;
   &:focus { border-color: $accent; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
-  &.input-sm { padding: 6px 8px; font-size: 12px; }
+  &.input-sm { padding: 6px 8px; font-size: 14px; }
 }
 
 .btn-primary, .btn-ghost, .btn-danger {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 8px;
   padding: 8px 14px;
@@ -138,7 +138,7 @@ $amber:  #f59e0b;
   gap: 6px;
   border: 1px solid transparent;
   transition: background .15s, border-color .15s, color .15s;
-  &.btn-sm { padding: 6px 10px; font-size: 12px; }
+  &.btn-sm { padding: 6px 10px; font-size: 14px; }
   &:disabled { opacity: .55; cursor: wait; }
 }
 
@@ -183,12 +183,12 @@ $amber:  #f59e0b;
 
   &:last-child { border-bottom: 0; }
 
-  .cell { font-size: 12.5px; min-width: 0; }
+  .cell { font-size: 14.5px; min-width: 0; }
 
   &.row-head {
     background: $s2;
     align-items: center;
-    .cell { font-size: 10.5px; color: $muted; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .cell { font-size: 12.5px; color: $muted; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
   }
 
   &.row-data:hover { background: $s2; }
@@ -207,8 +207,8 @@ $amber:  #f59e0b;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  .time-date { color: $text; font-weight: 600; font-size: 12px; }
-  .time-clock { color: $muted; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; }
+  .time-date { color: $text; font-weight: 600; font-size: 14px; }
+  .time-clock { color: $muted; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; }
 }
 
 .cell-user .user-name { font-weight: 600; }
@@ -217,7 +217,7 @@ $amber:  #f59e0b;
 .action-tag {
   display: inline-block;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 6px;
@@ -232,7 +232,7 @@ $amber:  #f59e0b;
 
 .method-chip {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   padding: 1px 5px;
   border-radius: 4px;
@@ -244,7 +244,7 @@ $amber:  #f59e0b;
 
 .target-path {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: $text;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -253,13 +253,13 @@ $amber:  #f59e0b;
 }
 .target-id {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px;
+  font-size: 12.5px;
   color: $muted;
 }
 
 .meta-preview {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   color: $muted;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -273,11 +273,11 @@ $amber:  #f59e0b;
   gap: 1px;
   .net-ip {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: $text;
   }
   .net-device {
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
   }
 }
@@ -289,7 +289,7 @@ $amber:  #f59e0b;
   align-items: center;
   justify-content: flex-end;
   padding: 4px 0;
-  .pager-info { font-size: 12px; color: $muted; margin-right: auto; }
+  .pager-info { font-size: 14px; color: $muted; margin-right: auto; }
 }
 
 // ── STATE ──────────────────────────────────
@@ -302,10 +302,10 @@ $amber:  #f59e0b;
   padding: 60px 0;
   color: $muted;
 }
-.state-text { font-size: 13px; }
+.state-text { font-size: 15px; }
 .empty-state {
-  .empty-title { font-size: 15px; font-weight: 600; color: $text; }
-  .empty-desc  { font-size: 12px; color: $muted; }
+  .empty-title { font-size: 17px; font-weight: 600; color: $text; }
+  .empty-desc  { font-size: 14px; color: $muted; }
 }
 
 .spinner, .btn-spinner {
@@ -353,10 +353,10 @@ $amber:  #f59e0b;
   color: $text;
 }
 
-.sess-username { font-size: 14px; font-weight: 700; }
+.sess-username { font-size: 16px; font-weight: 700; }
 
 .sess-role {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 4px;
@@ -365,7 +365,7 @@ $amber:  #f59e0b;
 }
 
 .sess-current {
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 10px;
@@ -383,7 +383,7 @@ $amber:  #f59e0b;
 .meta-row {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 14px;
   .meta-key { color: $muted; }
   .meta-val { color: $text; font-family: 'IBM Plex Mono', monospace; }
 }
@@ -424,7 +424,7 @@ $amber:  #f59e0b;
     border-radius: 8px;
     background: $s2;
     color: $muted;
-    font-size: 11.5px;
+    font-size: 13.5px;
   }
 
   b {
@@ -445,7 +445,7 @@ $amber:  #f59e0b;
   border-radius: 10px;
   background: color-mix(in srgb, var(--red) 9%, transparent);
   color: $red;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .dump-summary {
@@ -463,7 +463,7 @@ $amber:  #f59e0b;
   span {
     display: block;
     color: $muted;
-    font-size: 10.5px;
+    font-size: 12.5px;
     text-transform: uppercase;
     letter-spacing: .08em;
   }
@@ -472,7 +472,7 @@ $amber:  #f59e0b;
     display: block;
     margin-top: 4px;
     color: $text;
-    font-size: 20px;
+    font-size: 22px;
     font-family: 'IBM Plex Mono', monospace;
   }
 }
@@ -500,7 +500,7 @@ $amber:  #f59e0b;
 .dump-head {
   background: $s2;
   color: $muted;
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -508,7 +508,7 @@ $amber:  #f59e0b;
 
 .dump-data {
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
 
   &:hover {
     background: $s2;
@@ -542,7 +542,7 @@ $amber:  #f59e0b;
 
   small {
     color: $muted;
-    font-size: 11px;
+    font-size: 13px;
   }
 }
 

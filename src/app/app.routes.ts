@@ -78,6 +78,12 @@ export const routes: Routes = [
             import('./pages/tasks/tasks.component').then(m => m.TasksComponent),
     },
     {
+        path: 'image-moderation',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/image-moderation/image-moderation.component').then(m => m.ImageModerationComponent),
+    },
+    {
         path: 'statistics',
         canActivate: [authGuard],
         loadComponent: () =>

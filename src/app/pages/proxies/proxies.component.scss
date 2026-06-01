@@ -44,12 +44,12 @@ $muted:  var(--muted);
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
 }
-.brand-name { font-size: 13px; font-weight: 600; }
+.brand-name { font-size: 15px; font-weight: 600; }
 .nav { display: flex; flex-direction: column; padding: 0 8px; gap: 2px; flex: 1; }
 .nav-item {
   display: flex; align-items: center; gap: 9px;
   padding: 9px 12px;
-  font-size: 13px; color: $muted;
+  font-size: 15px; color: $muted;
   text-decoration: none; border-radius: 6px;
   transition: all .15s ease;
   cursor: pointer;
@@ -62,13 +62,13 @@ $muted:  var(--muted);
   margin-top: auto;
 }
 .current-user { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-.cu-role { font-size: 10px; text-transform: uppercase; color: $accent; font-weight: 600; letter-spacing: .5px; }
-.cu-name { font-size: 12px; color: $text; }
+.cu-role { font-size: 12px; text-transform: uppercase; color: $accent; font-weight: 600; letter-spacing: .5px; }
+.cu-name { font-size: 14px; color: $text; }
 .btn-logout {
   width: 100%; padding: 7px 10px;
   background: transparent; color: $muted;
   border: 1px solid $border; border-radius: 6px;
-  font-size: 12px; cursor: pointer;
+  font-size: 14px; cursor: pointer;
   &:hover { background: $s2; color: $red; border-color: $red; }
 }
 
@@ -78,15 +78,15 @@ $muted:  var(--muted);
 .page-header {
   display: flex; justify-content: space-between; align-items: flex-end;
   gap: 16px; margin-bottom: 20px;
-  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
-  .subtitle { font-size: 13px; color: $muted; margin: 0; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  .subtitle { font-size: 15px; color: $muted; margin: 0; }
 }
 .header-actions { display: flex; gap: 8px; align-items: center; }
 .btn-refresh, .btn-primary {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 14px;
   border-radius: 7px;
-  font-size: 13px; cursor: pointer;
+  font-size: 15px; cursor: pointer;
   transition: all .15s ease;
   &:disabled { opacity: .6; cursor: wait; }
 }
@@ -106,7 +106,7 @@ $muted:  var(--muted);
   padding: 8px 12px;
   background: $s1; color: $muted;
   border: 1px solid $border; border-radius: 7px;
-  font-size: 12.5px; cursor: pointer;
+  font-size: 14.5px; cursor: pointer;
   transition: all .15s ease;
   &:hover, &.active {
     border-color: color-mix(in srgb, $accent 45%, transparent);
@@ -130,7 +130,7 @@ $muted:  var(--muted);
   border-bottom: 1px solid $border;
   color: $accent;
 }
-.docs-title { font-size: 14px; font-weight: 600; color: $text; flex: 1; }
+.docs-title { font-size: 16px; font-weight: 600; color: $text; flex: 1; }
 .docs-close {
   background: transparent;
   border: 1px solid $border;
@@ -138,7 +138,7 @@ $muted:  var(--muted);
   border-radius: 6px;
   width: 26px; height: 26px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   &:hover { color: $red; border-color: $red; }
 }
 
@@ -166,7 +166,7 @@ $muted:  var(--muted);
   color: var(--bg, #0e0e10);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
+  font-size: 14px; font-weight: 700;
 }
 .step-body { display: flex; flex-direction: column; gap: 6px; }
 .step-icon {
@@ -177,18 +177,18 @@ $muted:  var(--muted);
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 4px;
 }
-.step-card h4 { font-size: 13px; font-weight: 600; margin: 0; color: $text; }
-.step-card p  { font-size: 12px; line-height: 1.5; color: $muted; margin: 0; }
+.step-card h4 { font-size: 15px; font-weight: 600; margin: 0; color: $text; }
+.step-card p  { font-size: 14px; line-height: 1.5; color: $muted; margin: 0; }
 .step-card code {
   background: $s2;
   padding: 1px 5px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 13px;
   color: $accent;
 }
 .step-arrow {
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 700;
+  font-size: 20px; font-weight: 700;
   color: $accent;
   opacity: .5;
 }
@@ -196,13 +196,13 @@ $muted:  var(--muted);
 /* Flow diagram */
 .docs-section { display: flex; flex-direction: column; gap: 10px; }
 .docs-section-title {
-  font-size: 12px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: .6px;
   color: $muted;
   margin: 0;
   font-weight: 600;
-  code { background: $s2; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: $accent; text-transform: none; }
+  code { background: $s2; padding: 1px 5px; border-radius: 3px; font-size: 13px; color: $accent; text-transform: none; }
 }
 .flow-diagram {
   display: flex; align-items: center; gap: 4px;
@@ -217,8 +217,8 @@ $muted:  var(--muted);
   background: $bg;
   text-align: center;
 }
-.node-title { font-size: 12px; font-weight: 600; color: $text; margin-bottom: 3px; }
-.node-sub   { font-size: 10.5px; color: $muted; line-height: 1.5; font-family: 'IBM Plex Mono', monospace; }
+.node-title { font-size: 14px; font-weight: 600; color: $text; margin-bottom: 3px; }
+.node-sub   { font-size: 12.5px; color: $muted; line-height: 1.5; font-family: 'IBM Plex Mono', monospace; }
 .node-env      { border-color: color-mix(in srgb, $yellow 40%, $border); }
 .node-env      .node-title { color: $yellow; }
 .node-backend  { border-color: color-mix(in srgb, $accent 50%, $border); }
@@ -231,7 +231,7 @@ $muted:  var(--muted);
   display: flex; flex-direction: column; align-items: center;
   color: $muted;
   padding: 0 4px;
-  .arrow-label { font-size: 10.5px; color: $muted; margin-bottom: 2px; white-space: nowrap; }
+  .arrow-label { font-size: 12.5px; color: $muted; margin-bottom: 2px; white-space: nowrap; }
 }
 
 /* Config grid */
@@ -246,28 +246,28 @@ $muted:  var(--muted);
   grid-template-columns: 220px 130px 1fr;
   gap: 12px;
   padding: 10px 14px;
-  font-size: 12.5px;
+  font-size: 14.5px;
   border-bottom: 1px solid $border;
   align-items: center;
   &:last-child { border-bottom: none; }
 }
 .cfg-head {
   background: $s2;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: .5px;
   color: $muted;
   font-weight: 600;
 }
-.cfg-key { font-family: 'IBM Plex Mono', monospace; color: $accent; font-size: 12px; }
+.cfg-key { font-family: 'IBM Plex Mono', monospace; color: $accent; font-size: 14px; }
 .cfg-val { color: $text; font-variant-numeric: tabular-nums; font-weight: 500; }
 .cfg-eff { color: $muted; line-height: 1.5;
-  code { background: $s2; padding: 1px 4px; border-radius: 3px; font-size: 11px; color: $accent; }
+  code { background: $s2; padding: 1px 4px; border-radius: 3px; font-size: 13px; color: $accent; }
 }
 
 .docs-warn {
   display: flex; align-items: flex-start; gap: 8px;
-  font-size: 12px;
+  font-size: 14px;
   color: $yellow;
   background: color-mix(in srgb, $yellow 8%, transparent);
   border: 1px solid color-mix(in srgb, $yellow 30%, transparent);
@@ -275,7 +275,7 @@ $muted:  var(--muted);
   padding: 8px 12px;
   margin: 4px 0 0;
   svg { flex-shrink: 0; margin-top: 1px; }
-  code { background: color-mix(in srgb, $yellow 15%, transparent); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
+  code { background: color-mix(in srgb, $yellow 15%, transparent); padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
 }
 
 .failure-list {
@@ -288,12 +288,12 @@ $muted:  var(--muted);
     border-left: 3px solid color-mix(in srgb, $red 50%, $border);
     border-radius: 6px;
     padding: 8px 12px;
-    font-size: 12.5px;
+    font-size: 14.5px;
     color: $muted;
     line-height: 1.5;
     strong { color: $text; font-weight: 600; }
     em { font-style: normal; color: $red; }
-    code { background: $s2; padding: 1px 4px; border-radius: 3px; font-size: 11.5px; color: $accent; }
+    code { background: $s2; padding: 1px 4px; border-radius: 3px; font-size: 13.5px; color: $accent; }
   }
 }
 
@@ -359,7 +359,7 @@ $muted:  var(--muted);
 }
 .live-label {
   grid-area: label;
-  font-size: 10.5px;
+  font-size: 12.5px;
   text-transform: uppercase;
   letter-spacing: .8px;
   color: $muted;
@@ -372,7 +372,7 @@ $muted:  var(--muted);
 .live-proto-badge {
   padding: 4px 10px;
   border-radius: 5px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .4px;
@@ -385,14 +385,14 @@ $muted:  var(--muted);
 }
 .live-addr {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: $text;
   letter-spacing: .3px;
 }
 .live-colon { color: $muted; font-weight: 400; padding: 0 1px; }
 .live-auth {
-  font-size: 10.5px;
+  font-size: 12.5px;
   padding: 2px 7px;
   border-radius: 4px;
   background: color-mix(in srgb, $yellow 14%, transparent);
@@ -405,7 +405,7 @@ $muted:  var(--muted);
 .live-meta {
   grid-area: meta;
   display: flex; gap: 16px; flex-wrap: wrap;
-  font-size: 12px;
+  font-size: 14px;
   padding-top: 4px;
 }
 .live-meta-item {
@@ -448,18 +448,18 @@ $muted:  var(--muted);
 }
 .rp-title {
   display: inline-flex; align-items: center; gap: 8px;
-  font-size: 13px; font-weight: 600; color: $text;
+  font-size: 15px; font-weight: 600; color: $text;
 }
 .rp-dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: $muted;
   &.rp-dot-active { background: $green; box-shadow: 0 0 0 3px color-mix(in srgb, $green 25%, transparent); }
 }
-.rp-meta { font-size: 12px; color: $muted; }
+.rp-meta { font-size: 14px; color: $muted; }
 .rp-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .rp-off-tag {
   display: inline-block;
-  font-size: 10.5px;
+  font-size: 12.5px;
   background: color-mix(in srgb, $red 15%, transparent);
   color: $red;
   border: 1px solid color-mix(in srgb, $red 35%, transparent);
@@ -475,7 +475,7 @@ $muted:  var(--muted);
   opacity: .92;
 }
 .rp-off-note {
-  font-size: 12.5px;
+  font-size: 14.5px;
   color: $muted;
   line-height: 1.6;
   padding-top: 6px;
@@ -488,7 +488,7 @@ $muted:  var(--muted);
   display: inline-flex; align-items: center; gap: 8px;
   cursor: pointer;
   user-select: none;
-  font-size: 12px;
+  font-size: 14px;
   &.toggle-disabled { opacity: .55; cursor: wait; }
   input { display: none; }
 }
@@ -525,7 +525,7 @@ $muted:  var(--muted);
 .toggle input:checked ~ .toggle-label { color: $accent; font-weight: 500; }
 .rp-row {
   display: flex; align-items: center; gap: 8px;
-  font-size: 12.5px;
+  font-size: 14.5px;
 }
 .rp-label { color: $muted; }
 .rp-value { color: $text; font-variant-numeric: tabular-nums; }
@@ -540,14 +540,14 @@ $muted:  var(--muted);
   grid-template-columns: 22px 70px 1fr auto;
   gap: 10px;
   align-items: center;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }
 .src-status {
   display: inline-flex; align-items: center; justify-content: center;
   width: 20px; height: 20px;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: 13px;
   background: $s2;
   color: $muted;
   &.src-ok  { background: color-mix(in srgb, $green 18%, transparent); color: $green; }
@@ -556,19 +556,19 @@ $muted:  var(--muted);
 .src-proto {
   display: inline-block;
   padding: 2px 8px; border-radius: 4px;
-  font-size: 10.5px; font-weight: 600;
+  font-size: 12.5px; font-weight: 600;
   text-transform: uppercase; letter-spacing: .3px;
   border: 1px solid transparent;
   text-align: center;
 }
 .src-url {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: $text;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .src-count {
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: $muted;
   font-variant-numeric: tabular-nums;
 }
@@ -581,12 +581,12 @@ $muted:  var(--muted);
   background: $s1;
   border: 1px solid $border;
   border-radius: 12px;
-  font-size: 14px; color: $muted;
+  font-size: 16px; color: $muted;
 }
 .error-state { color: $red; }
-.empty-state .empty-title { font-size: 15px; color: $text; font-weight: 600; }
-.empty-state .empty-desc  { font-size: 13px; max-width: 480px; text-align: center; line-height: 1.5;
-  code { background: $s2; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.empty-state .empty-title { font-size: 17px; color: $text; font-weight: 600; }
+.empty-state .empty-desc  { font-size: 15px; max-width: 480px; text-align: center; line-height: 1.5;
+  code { background: $s2; padding: 1px 5px; border-radius: 4px; font-size: 14px; }
 }
 .spinner, .spinner-sm {
   display: inline-block;
@@ -612,9 +612,9 @@ $muted:  var(--muted);
   border-radius: 10px;
   padding: 14px 16px;
 }
-.stat-label { font-size: 11px; text-transform: uppercase; color: $muted; letter-spacing: .5px; margin-bottom: 6px; }
-.stat-value { font-size: 22px; font-weight: 600; color: $text; }
-.stat-sub   { font-size: 9.5px; text-transform: none; opacity: .7; }
+.stat-label { font-size: 13px; text-transform: uppercase; color: $muted; letter-spacing: .5px; margin-bottom: 6px; }
+.stat-value { font-size: 24px; font-weight: 600; color: $text; }
+.stat-sub   { font-size: 11.5px; text-transform: none; opacity: .7; }
 .stat-alive { border-color: color-mix(in srgb, $green 30%, $border); .stat-value { color: $green; } }
 .stat-dead  { border-color: color-mix(in srgb, $red 30%, $border);   .stat-value { color: $red; } }
 .stat-warn  { border-color: color-mix(in srgb, $yellow 40%, $border); .stat-value { color: $yellow; } }
@@ -626,7 +626,7 @@ $muted:  var(--muted);
   border: 1px solid color-mix(in srgb, $yellow 30%, $border);
   border-radius: 8px;
   margin-bottom: 14px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .cd-label { color: $yellow; font-weight: 500; }
 .cd-chip {
@@ -636,7 +636,7 @@ $muted:  var(--muted);
   border: 1px solid $border;
   border-radius: 12px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: $text;
 }
 .cd-time { color: $yellow; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -668,7 +668,7 @@ $muted:  var(--muted);
   padding: 6px 12px;
   background: $s1;
   border: 1px solid $border; border-radius: 999px;
-  color: $muted; font-size: 12px; font-weight: 500;
+  color: $muted; font-size: 14px; font-weight: 500;
   cursor: pointer;
   transition: all .15s ease;
   &:hover { color: $text; border-color: color-mix(in srgb, $accent 50%, $border); }
@@ -679,7 +679,7 @@ $muted:  var(--muted);
   }
 }
 .chip-count {
-  font-size: 11px;
+  font-size: 13px;
   padding: 1px 7px;
   border-radius: 999px;
   background: $s2;
@@ -700,14 +700,14 @@ $muted:  var(--muted);
   grid-template-columns: 48px 110px 1fr 90px 80px 130px;
   gap: 12px;
   padding: 11px 16px;
-  font-size: 13px;
+  font-size: 15px;
   align-items: center;
   border-bottom: 1px solid $border;
   &:last-child { border-bottom: none; }
 }
 .row-head {
   background: $s2;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: .5px;
   color: $muted;
@@ -720,18 +720,18 @@ $muted:  var(--muted);
   text-align: center;
   color: $muted;
   padding: 28px 16px;
-  font-size: 13px;
+  font-size: 15px;
   display: block;
 }
 .col-idx   { color: $muted; font-variant-numeric: tabular-nums; }
-.col-host  { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; word-break: break-all; }
+.col-host  { font-family: 'IBM Plex Mono', monospace; font-size: 14.5px; word-break: break-all; }
 .col-port  { font-variant-numeric: tabular-nums; color: $muted; }
 
 .protocol-badge {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .3px;
@@ -763,10 +763,10 @@ $muted:  var(--muted);
 }
 
 .footer-note {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   margin: 0;
-  code { background: $s2; padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+  code { background: $s2; padding: 1px 5px; border-radius: 4px; font-size: 13.5px; }
 }
 
 @media (max-width: 860px) {

@@ -73,6 +73,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     { title: 'Dork', sub: 'Google dorking',        link: ['/dork'],           icon: 'search' },
     { title: 'Alertlar', sub: 'Muddat / SSL',      link: ['/alerts'],         icon: 'bell' },
     { title: 'Nuclei', sub: 'Zaiflik skaneri',     link: ['/nuclei'],         icon: 'spark' },
+    { title: 'Rasm Moderatsiyasi', sub: 'Image safety', link: ['/image-moderation'], icon: 'image' },
     { title: 'Zaifliklar', sub: 'Excel jadval',     link: ['/vulnerabilities'], icon: 'sheet' },
     { title: 'Statistika', sub: 'Hisobotlar',      link: ['/statistics'],     icon: 'chart' },
     { title: 'Portlar', sub: 'Port skaner',        link: ['/ports'],          icon: 'ports' },
@@ -289,15 +290,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
     return { line, area, max, W, H, total: buckets.reduce((s, b) => s + b.count, 0), last };
   });
 
-  trendMax(kind: keyof OverviewStats['trends']): number {
-    const data = this.overviewStats()?.trends[kind] ?? [];
-    return Math.max(1, ...data.map(row => row.count));
-  }
-
-  trendHeight(count: number, kind: keyof OverviewStats['trends']): number {
-    return Math.max(4, Math.round((count / this.trendMax(kind)) * 44));
-  }
-
   severityLabel(label: string): string {
     switch (label.toLowerCase()) {
       case 'critical': return 'Kritik';
@@ -402,6 +394,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
     }
     const digits = value >= 10 || unit === 0 ? 0 : 1;
     return `${value.toFixed(digits)} ${units[unit]}`;
+  }
+
+  formatSpeed(bytesPerSec: number | null | undefined): string {
+    return `${this.formatBytes(bytesPerSec)}/s`;
   }
 
   formatUptime(seconds: number | null | undefined): string {

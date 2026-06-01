@@ -40,7 +40,7 @@ $yellow: var(--yellow);
 
   h1 {
     margin: 0;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 780;
   }
 }
@@ -53,7 +53,7 @@ $yellow: var(--yellow);
 
   span {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: $muted;
     background: $s1;
     border: 1px solid $border;
@@ -69,7 +69,7 @@ $yellow: var(--yellow);
   border-radius: 8px;
   border: 1px solid $border;
   font: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 750;
   cursor: pointer;
 
@@ -96,7 +96,7 @@ $yellow: var(--yellow);
 .alert {
   border-radius: 9px;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 
   &.error {
@@ -133,7 +133,7 @@ $yellow: var(--yellow);
 
   span {
     color: $muted;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 760;
     text-transform: uppercase;
   }
@@ -178,14 +178,14 @@ $yellow: var(--yellow);
   span {
     color: $muted;
     margin-top: 3px;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   a {
     color: $accent;
     text-decoration: none;
     font-weight: 750;
-    font-size: 13px;
+    font-size: 15px;
   }
 }
 
@@ -196,7 +196,7 @@ $yellow: var(--yellow);
 .port-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead tr {
     background: $s2;
@@ -214,7 +214,7 @@ $yellow: var(--yellow);
 
   th {
     color: $muted;
-    font-size: 11px;
+    font-size: 13px;
     text-transform: uppercase;
   }
 
@@ -242,7 +242,7 @@ $yellow: var(--yellow);
   min-height: 23px;
   padding: 2px 8px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   color: $muted;
   background: $s2;

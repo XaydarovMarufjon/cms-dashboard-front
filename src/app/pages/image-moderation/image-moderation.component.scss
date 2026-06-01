@@ -1,0 +1,371 @@
+$bg:     var(--bg);
+$s1:     var(--s1);
+$s2:     var(--s2);
+$s3:     var(--s3);
+$border: var(--border);
+$text:   var(--text);
+$muted:  var(--muted);
+$accent: var(--accent);
+$red:    var(--red);
+$yellow: var(--yellow);
+$pink:   #ec4899;
+$purple: #a78bfa;
+$green:  #22c55e;
+
+:host { display: block; font-family: 'IBM Plex Sans', sans-serif; background: $bg; }
+
+.imgmod-layout { display: flex; min-height: 100vh; }
+.imgmod-main   { flex: 1; min-width: 0; }
+
+.imgmod-page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+// ── HEADER ───────────────────────────────────────────
+.imgmod-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid $border;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $muted;
+  text-decoration: none;
+  font-size: 14px;
+  width: fit-content;
+  &:hover { color: $text; }
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.btn-run {
+  background: color-mix(in srgb, $purple 15%, transparent);
+  color: $purple;
+  border: 1px solid color-mix(in srgb, $purple 35%, transparent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .2s;
+  &:hover:not(:disabled) { background: color-mix(in srgb, $purple 25%, transparent); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+.warn-banner {
+  background: color-mix(in srgb, $yellow 12%, transparent);
+  border: 1px solid color-mix(in srgb, $yellow 30%, transparent);
+  color: $yellow;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  code {
+    background: color-mix(in srgb, $yellow 20%, transparent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 14px;
+  }
+}
+
+.summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.chip-neutral  { background: color-mix(in srgb, $muted 15%,  transparent); color: $muted;  border-color: color-mix(in srgb, $muted 25%,  transparent); }
+.chip-warning  { background: color-mix(in srgb, $yellow 15%, transparent); color: $yellow; border-color: color-mix(in srgb, $yellow 25%, transparent); }
+.chip-pink     { background: color-mix(in srgb, $pink 15%,   transparent); color: $pink;   border-color: color-mix(in srgb, $pink 30%,   transparent); }
+.chip-red      { background: color-mix(in srgb, $red 15%,    transparent); color: $red;    border-color: color-mix(in srgb, $red 30%,    transparent); }
+.chip-purple   { background: color-mix(in srgb, $purple 15%, transparent); color: $purple; border-color: color-mix(in srgb, $purple 30%, transparent); }
+
+// ── STATES ───────────────────────────────────────────
+.state-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 60px 20px;
+  color: $muted;
+  font-size: 15px;
+}
+.empty-title { color: $text; font-size: 18px; font-weight: 600; }
+.empty-desc  { color: $muted; font-size: 15px; }
+
+.spinner, .spinner-sm {
+  width: 18px; height: 18px;
+  border: 2px solid color-mix(in srgb, $muted 30%, transparent);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+.spinner-sm { width: 12px; height: 12px; border-width: 1.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── SITE GRID ────────────────────────────────────────
+.sites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.site-card {
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  &:hover { border-color: color-mix(in srgb, $purple 40%, $border); transform: translateY(-1px); }
+  &.has-flagged { border-color: color-mix(in srgb, $red 35%, $border); }
+  &.is-failed   { border-color: color-mix(in srgb, $red 45%, $border); background: color-mix(in srgb, $red 5%, $s1); }
+}
+
+.site-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.site-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.site-host  { font-size: 15px; font-weight: 600; color: $text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-label { font-size: 13px; color: $muted; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.btn-rescan {
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $muted;
+  cursor: pointer;
+  &:hover:not(:disabled) { color: $accent; border-color: $accent; }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+.site-stats {
+  display: flex;
+  gap: 14px;
+  padding: 8px 0;
+  border-top: 1px solid $border;
+  border-bottom: 1px solid $border;
+}
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat-num { font-size: 20px; font-weight: 700; color: $text; }
+.stat-lbl { font-size: 12px; color: $muted; text-transform: uppercase; letter-spacing: .5px; }
+.stat-flagged .stat-num { color: $yellow; }
+.stat-flagged.zero .stat-num { color: $muted; }
+
+.site-cats { display: flex; gap: 6px; flex-wrap: wrap; }
+.cat {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+}
+.cat-sexual    { color: $pink;   background: color-mix(in srgb, $pink 12%, transparent); }
+.cat-violent   { color: $red;    background: color-mix(in srgb, $red 12%, transparent); }
+.cat-religious { color: $purple; background: color-mix(in srgb, $purple 12%, transparent); }
+.cat.zero      { color: $muted; background: transparent; border-color: $border; }
+
+.site-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.status-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.status-COMPLETED { background: color-mix(in srgb, $green 15%, transparent); color: $green; }
+.status-RUNNING   { background: color-mix(in srgb, $accent 15%, transparent); color: $accent; }
+.status-FAILED    { background: color-mix(in srgb, $red 15%, transparent); color: $red; }
+.status-PENDING   { background: color-mix(in srgb, $muted 15%, transparent); color: $muted; }
+.date { font-size: 13px; color: $muted; }
+
+.site-empty {
+  font-size: 14px;
+  color: $muted;
+  padding: 12px 0;
+  text-align: center;
+}
+
+// ── DETAIL MODAL ─────────────────────────────────────
+.detail-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.detail-modal {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  width: min(1100px, 100%);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border;
+}
+.detail-title { font-size: 18px; font-weight: 700; color: $text; }
+.detail-label { font-size: 14px; color: $muted; margin-top: 2px; }
+.btn-close {
+  background: transparent;
+  border: 1px solid $border;
+  color: $muted;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  &:hover { color: $text; border-color: $text; }
+}
+
+.detail-summary {
+  display: flex;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid $border;
+  flex-wrap: wrap;
+}
+.sm-item { display: flex; flex-direction: column; }
+.sm-num  { font-size: 20px; font-weight: 700; color: $text; }
+.sm-lbl  { font-size: 12px; color: $muted; text-transform: uppercase; letter-spacing: .5px; }
+.sm-item.warn   .sm-num { color: $yellow; }
+.sm-item.pink   .sm-num { color: $pink; }
+.sm-item.red    .sm-num { color: $red; }
+.sm-item.purple .sm-num { color: $purple; }
+
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px;
+  border-bottom: 1px solid $border;
+  overflow-x: auto;
+}
+.tab {
+  background: transparent;
+  border: 1px solid $border;
+  color: $muted;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  &:hover { color: $text; }
+  &.active { background: color-mix(in srgb, $accent 15%, transparent); color: $accent; border-color: color-mix(in srgb, $accent 35%, transparent); }
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+.image-card {
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  &.flagged { border-color: color-mix(in srgb, $red 40%, $border); }
+}
+.image-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  background: $s2;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+.image-meta {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.score-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.score-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  opacity: .55;
+  &.high { opacity: 1; }
+}
+.score-pill.pink   { color: $pink; }
+.score-pill.red    { color: $red; }
+.score-pill.purple { color: $purple; }
+
+.image-error {
+  font-size: 12px;
+  color: $red;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.image-link {
+  font-size: 12px;
+  color: $muted;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  &:hover { color: $accent; }
+}

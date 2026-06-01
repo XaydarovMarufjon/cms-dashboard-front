@@ -67,12 +67,12 @@ $muted:  var(--muted);
 .brand-text { flex: 1; min-width: 0; overflow: hidden; }
 .brand-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 14px; font-weight: 600;
+  font-size: 16px; font-weight: 600;
   letter-spacing: -.3px; color: $text; white-space: nowrap;
   span { color: $accent; }
 }
 .brand-sub {
-  font-size: 10px; color: $muted;
+  font-size: 12px; color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   margin-top: 1px; white-space: nowrap;
 }
@@ -102,7 +102,7 @@ $muted:  var(--muted);
   gap: 2px;
 }
 .sidenav-label {
-  font-size: 10px;
+  font-size: 12px;
   color: $muted;
   text-transform: uppercase;
   letter-spacing: .1em;
@@ -140,7 +140,7 @@ $muted:  var(--muted);
   gap: 10px;
   padding: 9px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: $muted;
   cursor: pointer;
@@ -161,7 +161,7 @@ $muted:  var(--muted);
   color: #ff6b7a;
   border: 1px solid rgba(#ff6b7a, .25);
   border-radius: 20px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   padding: 1px 7px;
   min-width: 18px;
@@ -200,7 +200,7 @@ $muted:  var(--muted);
   background: $s2;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
   transition: all .15s;
   &:hover { color: $text; border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
@@ -210,7 +210,7 @@ $muted:  var(--muted);
     color: $accent;
   }
 }
-.theme-label { font-size: 10px; letter-spacing: .03em; }
+.theme-label { font-size: 12px; letter-spacing: .03em; }
 
 .sidebar-user {
   display: flex;
@@ -224,11 +224,11 @@ $muted:  var(--muted);
 
   .sidebar-user-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   .sidebar-user-name {
-    font-size: 12px; font-weight: 600; color: $text;
+    font-size: 14px; font-weight: 600; color: $text;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
   }
   .sidebar-user-role {
-    font-size: 10px; color: $muted;
+    font-size: 12px; color: $muted;
     font-family: 'IBM Plex Mono', monospace;
     text-transform: uppercase; letter-spacing: .05em;
   }
@@ -238,7 +238,7 @@ $muted:  var(--muted);
   width: 30px; height: 30px;
   border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
   flex-shrink: 0;
   &.role-admin      { background: rgba(#7c6cff,.2);  color: #a090ff; }

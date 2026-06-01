@@ -42,7 +42,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--s3) 60%, transparent);
   border: 1px solid $border;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   transition: color .15s, border-color .15s, background .15s;
@@ -57,8 +57,8 @@ $muted:  var(--muted);
 
 .checker-title {
   display: flex; align-items: center; gap: 14px;
-  h1 { font-size: 20px; font-weight: 600; margin-bottom: 2px; }
-  p  { font-size: 12px; color: $muted; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+  p  { font-size: 14px; color: $muted; }
 }
 
 .title-icon {
@@ -74,14 +74,14 @@ $muted:  var(--muted);
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
 
-.int-label { font-size: 12px; color: $muted; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.int-hint  { font-size: 11px; color: #ffc84a; opacity: .8; }
+.int-label { font-size: 14px; color: $muted; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.int-hint  { font-size: 13px; color: #ffc84a; opacity: .8; }
 
 .int-btn {
   padding: 6px 12px; border-radius: 7px;
   border: 1px solid $border; background: $s2;
   color: $muted; font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px; cursor: pointer; transition: all .15s;
+  font-size: 13px; cursor: pointer; transition: all .15s;
   &:hover:not(:disabled) { color: $text; border-color: color-mix(in srgb, var(--muted) 60%, transparent); }
   &.active { background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); color: $accent; font-weight: 600; }
   &:disabled { opacity: .4; cursor: not-allowed; }
@@ -116,7 +116,7 @@ $muted:  var(--muted);
 
 .iframe-url-text {
   flex: 1;
-  font-size: 25px;
+  font-size: 27px;
   font-family: 'IBM Plex Mono', monospace;
   color: #ffffff;
   overflow: hidden;
@@ -125,7 +125,7 @@ $muted:  var(--muted);
 }
 
 .iframe-countdown {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   color: $accent;
   font-weight: 600;
@@ -147,17 +147,17 @@ $muted:  var(--muted);
   justify-content: center;
   gap: 10px;
   color: $muted;
-  p { font-size: 13px; }
+  p { font-size: 15px; }
 }
 
 .win-msg {
-  font-size: 13px;
+  font-size: 15px;
   color: $accent;
   font-weight: 500;
 }
 
 .win-countdown {
-  font-size: 11px;
+  font-size: 13px;
   font-family: 'IBM Plex Mono', monospace;
   color: color-mix(in srgb, var(--accent) 60%, transparent);
 }
@@ -186,7 +186,7 @@ $muted:  var(--muted);
 
 .add-title {
   display: flex; align-items: center; gap: 8px;
-  font-size: 12px; font-weight: 600; color: $accent;
+  font-size: 14px; font-weight: 600; color: $accent;
   text-transform: uppercase; letter-spacing: .08em;
   margin-bottom: 12px;
 }
@@ -197,27 +197,27 @@ $muted:  var(--muted);
   width: 100%;
   background: $s3; border: 1px solid $border; border-radius: 8px;
   padding: 9px 12px; font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px; color: $text; outline: none; transition: border-color .15s;
+  font-size: 14px; color: $text; outline: none; transition: border-color .15s;
   &:focus  { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
   &.err    { border-color: color-mix(in srgb, var(--red) 50%, transparent); }
   &::placeholder { color: $muted; }
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
-.label-input { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; }
+.label-input { font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; }
 
 .btn-add-site {
   width: 100%; padding: 9px;
   border-radius: 8px; border: none;
   background: $accent; color: #000;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px; font-weight: 600;
+  font-size: 15px; font-weight: 600;
   cursor: pointer; transition: all .15s;
   &:hover:not(:disabled) { background: color-mix(in srgb, $accent 88%, white); }
   &:disabled { opacity: .5; cursor: not-allowed; }
 }
 
-.url-error { font-size: 11px; color: $red; margin-top: 4px; }
+.url-error { font-size: 13px; color: $red; margin-top: 4px; }
 .list-error { padding: 10px 16px; margin: 0; border-bottom: 1px solid $border; background: color-mix(in srgb, var(--red) 5%, transparent); }
 
 // ── SITE LIST ─────────────────────────────────────
@@ -229,16 +229,16 @@ $muted:  var(--muted);
 .list-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 12px 16px; border-bottom: 1px solid $border;
-  font-size: 12px; font-weight: 600; color: $muted;
+  font-size: 14px; font-weight: 600; color: $muted;
   text-transform: uppercase; letter-spacing: .08em;
 }
 
 .site-count {
   background: $s3; border-radius: 20px;
-  padding: 2px 8px; font-size: 11px;
+  padding: 2px 8px; font-size: 13px;
 }
 
-.empty-list { padding: 24px; text-align: center; font-size: 13px; color: $muted; }
+.empty-list { padding: 24px; text-align: center; font-size: 15px; color: $muted; }
 
 .site-item {
   display: flex; align-items: center; gap: 12px;
@@ -251,14 +251,14 @@ $muted:  var(--muted);
 }
 
 .site-num {
-  font-size: 11px; color: $muted;
+  font-size: 13px; color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   min-width: 18px; text-align: center;
 }
 
 .site-info { flex: 1; min-width: 0; }
-.site-label { font-size: 12px; font-weight: 500; color: $text; margin-bottom: 1px; }
-.site-url   { font-size: 11px; color: $muted; font-family: 'IBM Plex Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-label { font-size: 14px; font-weight: 500; color: $text; margin-bottom: 1px; }
+.site-url   { font-size: 13px; color: $muted; font-family: 'IBM Plex Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .site-edit-form {
   flex: 1;
@@ -270,7 +270,7 @@ $muted:  var(--muted);
 
 .edit-input {
   padding: 7px 10px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .site-actions {
@@ -290,7 +290,7 @@ $muted:  var(--muted);
   align-items: center;
   justify-content: center;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1;
   &:disabled { opacity: .3; cursor: not-allowed; }
 }
@@ -309,7 +309,7 @@ $muted:  var(--muted);
   padding: 7px 9px;
   border: 1px solid $border;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -347,13 +347,13 @@ $muted:  var(--muted);
 
 .pause-msg {
   display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: $yellow;
+  font-size: 13px; color: $yellow;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .progress-info {
   display: flex; justify-content: space-between;
-  font-size: 12px; color: $muted;
+  font-size: 14px; color: $muted;
 }
 
 .prog-count { font-family: 'IBM Plex Mono', monospace; color: $accent; font-weight: 600; }
@@ -370,7 +370,7 @@ $muted:  var(--muted);
 
 .current-site {
   display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: $text;
+  font-size: 14px; color: $text;
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -393,7 +393,7 @@ $muted:  var(--muted);
   padding: 12px; border-radius: 10px; border: none;
   background: $accent; color: #000;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 14px; font-weight: 600;
+  font-size: 16px; font-weight: 600;
   cursor: pointer; transition: all .15s;
   &:hover:not(:disabled) { background: color-mix(in srgb, $accent 88%, white); transform: translateY(-1px); }
   &:disabled { opacity: .4; cursor: not-allowed; transform: none; }
@@ -405,7 +405,7 @@ $muted:  var(--muted);
   padding: 12px 18px; border-radius: 10px;
   border: 1px solid rgba(#ffc84a, .35); background: rgba(#ffc84a, .1);
   color: #ffc84a; font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px; font-weight: 600;
+  font-size: 15px; font-weight: 600;
   cursor: pointer; transition: all .15s; white-space: nowrap;
   &:hover { background: rgba(#ffc84a, .18); transform: translateY(-1px); }
 }
@@ -416,7 +416,7 @@ $muted:  var(--muted);
   padding: 12px 18px; border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--red) 35%, transparent); background: color-mix(in srgb, var(--red) 10%, transparent);
   color: $red; font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px; font-weight: 600;
+  font-size: 15px; font-weight: 600;
   cursor: pointer; transition: all .15s; white-space: nowrap;
   &:hover { background: color-mix(in srgb, var(--red) 18%, transparent); transform: translateY(-1px); }
 }
@@ -428,7 +428,7 @@ $muted:  var(--muted);
 
 .results-title {
   padding: 12px 16px; border-bottom: 1px solid $border;
-  font-size: 11px; font-weight: 600; color: $muted;
+  font-size: 13px; font-weight: 600; color: $muted;
   text-transform: uppercase; letter-spacing: .08em;
 }
 
@@ -448,13 +448,13 @@ $muted:  var(--muted);
 .idle-dot { width: 6px; height: 6px; border-radius: 50%; background: $border; }
 
 .res-info { flex: 1; min-width: 0; }
-.res-label { font-size: 12px; font-weight: 500; color: $text; }
-.res-url   { font-size: 11px; color: $muted; font-family: 'IBM Plex Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-label { font-size: 14px; font-weight: 500; color: $text; }
+.res-url   { font-size: 13px; color: $muted; font-family: 'IBM Plex Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .res-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 .res-tag {
-  font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  font-size: 12px; padding: 2px 8px; border-radius: 4px;
   font-family: 'IBM Plex Mono', monospace; font-weight: 600;
   &.checking { background: color-mix(in srgb, var(--accent) 12%, transparent); color: $accent; }
   &.done     { background: color-mix(in srgb, var(--accent) 10%, transparent);  color: $accent; }
@@ -462,7 +462,7 @@ $muted:  var(--muted);
   &.idle     { background: $s3; color: $muted; }
 }
 
-.res-time { font-size: 11px; color: $muted; font-family: 'IBM Plex Mono', monospace; }
+.res-time { font-size: 13px; color: $muted; font-family: 'IBM Plex Mono', monospace; }
 
 // ── ANIMATIONS ────────────────────────────────────
 .spin { animation: spin .8s linear infinite; }

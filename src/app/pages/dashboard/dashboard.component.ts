@@ -738,6 +738,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       : 'CVE scan qilingan, CVE topilmadi';
   }
 
+  cveBadgeText(result: ScanResult): string {
+    const count = result.website?.cveFindingsCount ?? 0;
+    return count > 0 ? `CVE ${count}` : '+CVE';
+  }
+
   private showSuccess(msg: string) {
     this.successMsg.set(msg);
     setTimeout(() => this.successMsg.set(null), 3000);

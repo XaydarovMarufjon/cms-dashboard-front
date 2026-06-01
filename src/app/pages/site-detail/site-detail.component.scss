@@ -50,7 +50,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--s3) 60%, transparent);
   border: 1px solid $border;
   color: $muted;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   transition: color .15s, border-color .15s, background .15s;
@@ -83,7 +83,7 @@ $muted:  var(--muted);
 }
 
 .header-url {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
   color: $text;
@@ -91,7 +91,7 @@ $muted:  var(--muted);
 }
 
 .header-label {
-  font-size: 15px;
+  font-size: 17px;
   color: $muted;
   margin-top: 3px;
 }
@@ -105,7 +105,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
   color: $accent;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   transition: all .15s;
@@ -150,7 +150,7 @@ $muted:  var(--muted);
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -161,7 +161,7 @@ $muted:  var(--muted);
   background: $s3;
   border-radius: 20px;
   padding: 1px 7px;
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   margin-left: auto;
 }
@@ -176,14 +176,14 @@ $muted:  var(--muted);
 }
 
 .info-key {
-  font-size: 14px;
+  font-size: 16px;
   color: $muted;
   min-width: 110px;
   flex-shrink: 0;
 }
 
 .info-val {
-  font-size: 15px;
+  font-size: 17px;
   color: $text;
   display: flex;
   align-items: center;
@@ -191,7 +191,7 @@ $muted:  var(--muted);
   word-break: break-all;
 }
 
-.mono { font-family: 'IBM Plex Mono', monospace; font-size: 14px; }
+.mono { font-family: 'IBM Plex Mono', monospace; font-size: 16px; }
 .muted-val { color: $muted; }
 
 .name-val {
@@ -204,7 +204,7 @@ $muted:  var(--muted);
 .auto-badge {
   padding: 1px 6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   background: color-mix(in srgb, var(--muted) 15%, transparent);
   border: 1px solid color-mix(in srgb, var(--muted) 25%, transparent);
@@ -217,7 +217,7 @@ $muted:  var(--muted);
 .url-link {
   color: $accent;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'IBM Plex Mono', monospace;
   word-break: break-all;
   transition: opacity .15s;
@@ -231,7 +231,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--c) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
   color: var(--c);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -241,7 +241,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   color: $accent;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
 
   &.unknown {
@@ -258,7 +258,7 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--muted) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--muted) 18%, transparent);
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'IBM Plex Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -276,14 +276,14 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--cc) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--cc) 28%, transparent);
   color: var(--cc);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .http-pill {
   padding: 2px 8px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 600;
   &.http-ok           { background: rgba(#4caf7d,.12); color: #4caf7d; }
@@ -309,14 +309,14 @@ $muted:  var(--muted);
 }
 
 .conf-label {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   text-transform: uppercase;
   letter-spacing: .06em;
 }
 
 .conf-num {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
   &.high { color: $accent; }
@@ -351,7 +351,7 @@ $muted:  var(--muted);
 .level-badge {
   padding: 2px 9px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   flex-shrink: 0;
   &.level-high { background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); color: $accent; }
@@ -361,7 +361,7 @@ $muted:  var(--muted);
 }
 
 .level-desc {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   line-height: 1.4;
 }
@@ -385,7 +385,7 @@ $muted:  var(--muted);
   width: 22px; height: 22px;
   border-radius: 5px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; flex-shrink: 0;
+  font-size: 15px; flex-shrink: 0;
   &.ev-file    { background: color-mix(in srgb, var(--accent) 10%, transparent);  color: $accent;  }
   &.ev-meta    { background: color-mix(in srgb, var(--accent) 10%, transparent);  color: $accent;  }
   &.ev-cookie  { background: color-mix(in srgb, var(--yellow) 10%, transparent);  color: $yellow;  }
@@ -405,13 +405,13 @@ $muted:  var(--muted);
 }
 
 .ev-label {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $text;
 }
 
 .ev-method {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
   overflow: hidden;
@@ -425,7 +425,7 @@ $muted:  var(--muted);
   gap: 6px;
   min-width: 0;
   color: color-mix(in srgb, var(--muted) 80%, transparent);
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'IBM Plex Mono', monospace;
 
   span {
@@ -464,7 +464,7 @@ $muted:  var(--muted);
 .raw-key {
   min-width: 0;
   color: $muted;
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'IBM Plex Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -474,7 +474,7 @@ $muted:  var(--muted);
 .raw-value {
   min-width: 0;
   color: $text;
-  font-size: 12px;
+  font-size: 14px;
   font-family: 'IBM Plex Mono', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -494,14 +494,14 @@ $muted:  var(--muted);
   background: color-mix(in srgb, var(--accent) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
   color: $accent;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .tech-chip {
   padding: 3px 10px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   &.server-chip { background: color-mix(in srgb, var(--yellow) 8%, transparent); border: 1px solid color-mix(in srgb, var(--yellow) 18%, transparent); color: $yellow; }
   &.js-chip     { background: rgba(#7c6cff,.1);  border: 1px solid rgba(#7c6cff,.22); color: #9d93ff; }
@@ -514,7 +514,7 @@ $muted:  var(--muted);
 }
 
 .iframe-domain-label {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.01em;
@@ -567,7 +567,7 @@ $muted:  var(--muted);
   background: rgba(#fff, .08);
   border: 1px solid rgba(#fff, .15);
   color: #fff;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   text-decoration: none;
   transition: background .15s, border-color .15s;
@@ -579,7 +579,7 @@ $muted:  var(--muted);
 }
 
 .no-embed-note {
-  font-size: 13px;
+  font-size: 15px;
   color: rgba(#fff, .35);
   margin: 0;
   text-align: center;
@@ -608,7 +608,7 @@ $muted:  var(--muted);
 .red-title { color: $red; }
 
 .error-msg {
-  font-size: 14px;
+  font-size: 16px;
   color: color-mix(in srgb, var(--red) 80%, transparent);
   font-family: 'IBM Plex Mono', monospace;
   line-height: 1.6;
@@ -638,7 +638,7 @@ $green: #4caf7d;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: $text;
   flex-wrap: wrap;
@@ -655,7 +655,7 @@ $green: #4caf7d;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   background: color-mix(in srgb, var(--accent) 7%, transparent);
   color: $accent;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   overflow: hidden;
@@ -773,7 +773,7 @@ $green: #4caf7d;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: 16px;
   color: $muted;
   flex-wrap: wrap;
 }
@@ -793,7 +793,7 @@ $green: #4caf7d;
 .step {
   padding: 1px 7px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 600;
   background: $s3;
@@ -807,7 +807,7 @@ $green: #4caf7d;
   }
 }
 
-.step-arrow { font-size: 12px; color: color-mix(in srgb, var(--muted) 40%, transparent); }
+.step-arrow { font-size: 14px; color: color-mix(in srgb, var(--muted) 40%, transparent); }
 
 @keyframes step-pulse {
   0%, 100% { opacity: .6; }
@@ -816,7 +816,7 @@ $green: #4caf7d;
 
 // ── SECTION LABELS ───────────────────────────────
 .sub-section-label {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $muted;
   text-transform: uppercase;
@@ -840,7 +840,7 @@ $green: #4caf7d;
 .label-count {
   padding: 1px 8px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   &.green { background: rgba($green,.1); border: 1px solid rgba($green,.2); color: $green; }
   &.red   { background: color-mix(in srgb, var(--red) 10%, transparent);   border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);   color: $red;   }
@@ -856,7 +856,7 @@ $green: #4caf7d;
 }
 
 .discover-error {
-  font-size: 14px; color: $red;
+  font-size: 16px; color: $red;
   padding: 8px 12px; border-radius: 6px;
   background: color-mix(in srgb, var(--red) 6%, transparent); border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
 }
@@ -867,7 +867,7 @@ $green: #4caf7d;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   color: $accent;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   display: inline-flex;
   align-items: center;
@@ -894,14 +894,14 @@ $green: #4caf7d;
 
   span {
     color: $muted;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
   }
 
   strong {
     margin-left: auto;
     color: $text;
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
     font-family: 'IBM Plex Mono', monospace;
   }
@@ -949,7 +949,7 @@ $green: #4caf7d;
   border-radius: 7px;
   min-height: 28px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
@@ -993,7 +993,7 @@ $green: #4caf7d;
 .pager-position {
   color: $muted;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
 }
 
@@ -1069,14 +1069,14 @@ $green: #4caf7d;
 .sub-top { display: flex; flex-direction: column; gap: 3px; }
 
 .sub-url {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   font-family: 'IBM Plex Mono', monospace;
   color: $text;
   word-break: break-all;
 }
 
-.sub-label { font-size: 13px; color: $muted; }
+.sub-label { font-size: 15px; color: $muted; }
 
 .sub-badges {
   display: flex;
@@ -1091,7 +1091,7 @@ $green: #4caf7d;
   background: color-mix(in srgb, var(--c) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--c) 28%, transparent);
   color: var(--c);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -1101,7 +1101,7 @@ $green: #4caf7d;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
   color: $accent;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
 
   &.unknown {
@@ -1112,7 +1112,7 @@ $green: #4caf7d;
 }
 
 .sub-unknown {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
 }
 
@@ -1146,7 +1146,7 @@ $green: #4caf7d;
 }
 
 .sub-conf-num {
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 600;
   flex-shrink: 0;
@@ -1158,7 +1158,7 @@ $green: #4caf7d;
 .sub-http {
   padding: 1px 6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 600;
   flex-shrink: 0;
@@ -1175,7 +1175,7 @@ $green: #4caf7d;
   gap: 10px;
   padding: 16px 0;
   border-top: 1px solid $border;
-  font-size: 14px;
+  font-size: 16px;
   color: $muted;
 }
 
@@ -1211,14 +1211,14 @@ $green: #4caf7d;
 }
 
 .card-scan-text {
-  font-size: 13px;
+  font-size: 15px;
   color: $accent;
   font-weight: 600;
   letter-spacing: .03em;
 }
 
 .card-scan-error {
-  font-size: 13px;
+  font-size: 15px;
   color: $red;
   font-style: italic;
   padding-top: 2px;
@@ -1235,7 +1235,7 @@ $green: #4caf7d;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 15px;
   color: color-mix(in srgb, var(--accent) 50%, transparent);
   font-style: italic;
   cursor: pointer;
@@ -1244,7 +1244,7 @@ $green: #4caf7d;
 }
 
 .sub-tech-hint {
-  font-size: 13px;
+  font-size: 15px;
   font-family: 'IBM Plex Mono', monospace;
   color: $muted;
   background: $s3;
@@ -1272,7 +1272,7 @@ $green: #4caf7d;
   border-radius: 7px;
   padding: 5px 9px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
@@ -1292,7 +1292,7 @@ $green: #4caf7d;
 }
 
 .sub-offline {
-  font-size: 13px;
+  font-size: 15px;
   color: $red;
   font-style: italic;
 }
@@ -1302,23 +1302,23 @@ $green: #4caf7d;
 
 .src-chip {
   padding: 1px 6px; border-radius: 4px;
-  font-size: 13px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px; font-family: 'IBM Plex Mono', monospace;
   background: $s3; border: 1px solid $border; color: $muted;
   &.in-db-chip { background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 20%, transparent); color: $accent; }
 }
 
 .src-chip-sm {
   padding: 1px 5px; border-radius: 3px;
-  font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px; font-family: 'IBM Plex Mono', monospace;
   background: $s3; border: 1px solid $border; color: $muted;
 }
 
 .not-scanned {
-  font-size: 13px; color: $muted;
+  font-size: 15px; color: $muted;
   font-style: italic;
 }
 
-.sub-title-text { font-size: 13px; color: $muted; }
+.sub-title-text { font-size: 15px; color: $muted; }
 
 // ── ALIVE SUBDOMAINS TABLE ─────────────────────────
 .alive-table-wrap {
@@ -1333,7 +1333,7 @@ $green: #4caf7d;
   width: 100%;
   min-width: 760px;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 16px;
 
   thead tr {
     background: rgba($green, .06);
@@ -1343,7 +1343,7 @@ $green: #4caf7d;
   th {
     padding: 9px 14px;
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     color: color-mix(in srgb, var(--muted) 78%, transparent);
     text-transform: uppercase;
@@ -1422,13 +1422,13 @@ $green: #4caf7d;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   line-height: 1.3;
 }
 
 .alive-error {
-  font-size: 12px;
+  font-size: 14px;
   color: $red;
   line-height: 1.3;
 }
@@ -1462,7 +1462,7 @@ $green: #4caf7d;
 }
 
 .scan-inline-text {
-  font-size: 12px;
+  font-size: 14px;
   color: $accent;
   font-weight: 600;
 }
@@ -1490,7 +1490,7 @@ $green: #4caf7d;
   padding: 5px 10px;
   min-height: 28px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
@@ -1516,7 +1516,7 @@ $green: #4caf7d;
   width: 100%;
   min-width: 520px;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 16px;
 
   thead tr {
     background: color-mix(in srgb, var(--red) 5%, transparent);
@@ -1526,7 +1526,7 @@ $green: #4caf7d;
   th {
     padding: 9px 14px;
     text-align: left;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: $muted;
     text-transform: uppercase;
@@ -1547,7 +1547,7 @@ $green: #4caf7d;
 .row-num {
   color: color-mix(in srgb, var(--muted) 50%, transparent);
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
+  font-size: 15px;
   width: 32px;
 }
 
@@ -1573,8 +1573,8 @@ $green: #4caf7d;
 
 .row-db { text-align: center; }
 
-.db-yes { color: $green; font-weight: 700; font-size: 15px; }
-.db-no  { color: color-mix(in srgb, var(--muted) 30%, transparent); font-size: 15px; }
+.db-yes { color: $green; font-weight: 700; font-size: 17px; }
+.db-no  { color: color-mix(in srgb, var(--muted) 30%, transparent); font-size: 17px; }
 
 @media (max-width: 760px) {
   .sub-summary-bar {
@@ -1646,7 +1646,7 @@ $green: #4caf7d;
   gap: 10px;
   margin: 16px 0 10px;
   color: color-mix(in srgb, var(--muted) 60%, transparent);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -1692,7 +1692,7 @@ $green: #4caf7d;
   border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   border-radius: 8px;
   color: $muted;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 
@@ -1718,7 +1718,7 @@ $green: #4caf7d;
 
 .whois-ns {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
+  font-size: 15px;
   color: color-mix(in srgb, var(--text) 65%, transparent);
   background: color-mix(in srgb, var(--s3) 60%, transparent);
   border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
@@ -1728,7 +1728,7 @@ $green: #4caf7d;
 }
 
 .whois-status {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -1751,7 +1751,7 @@ $green: #4caf7d;
   gap: 8px;
   padding: 12px 0 4px;
   color: color-mix(in srgb, var(--muted) 60%, transparent);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .whois-spinner {
@@ -1769,7 +1769,7 @@ $green: #4caf7d;
 
 .whois-ip {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
+  font-size: 15px;
   color: #00e5c0;
   background: rgba(#00e5c0, .06);
   border: 1px solid rgba(#00e5c0, .18);
@@ -1781,7 +1781,7 @@ $green: #4caf7d;
 
 // ── SSL ───────────────────────────────────────────
 .ssl-badge {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 4px;
   padding: 2px 8px;
@@ -1793,7 +1793,7 @@ $green: #4caf7d;
 }
 
 .ssl-days {
-  font-size: 13px;
+  font-size: 15px;
   margin-left: 6px;
   &.ssl-days-ok   { color: #22c55e; }
   &.ssl-days-warn { color: #ffc84a; }
@@ -1802,7 +1802,7 @@ $green: #4caf7d;
 
 // ── GEO ───────────────────────────────────────────
 .flag-emoji {
-  font-size: 15px;
+  font-size: 17px;
   margin-right: 4px;
 }
 
@@ -1826,7 +1826,7 @@ $green: #4caf7d;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   flex-shrink: 0;
   border: 2px solid;
@@ -1846,13 +1846,13 @@ $green: #4caf7d;
 }
 
 .sec-score {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: $text;
 }
 
 .sec-score-desc {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
 }
 
@@ -1866,7 +1866,7 @@ $green: #4caf7d;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 4px;
   padding: 3px 8px;
@@ -1931,12 +1931,12 @@ $green: #4caf7d;
 }
 
 .port-title-text {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 750;
 }
 
 .open-port-badge {
-  font-size: 10px;
+  font-size: 12px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 800;
   color: $red;
@@ -1947,7 +1947,7 @@ $green: #4caf7d;
 }
 
 .port-subtitle {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   margin: 2px 0 0;
 }
@@ -1967,7 +1967,7 @@ $green: #4caf7d;
   background: $s2;
   color: $text;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   padding: 0 10px;
   outline: none;
 }
@@ -1982,7 +1982,7 @@ $green: #4caf7d;
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   color: $accent;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -1996,13 +1996,13 @@ $green: #4caf7d;
 }
 
 .btn-port-scan { height: 36px; padding: 0 14px; }
-.btn-port-task { min-height: 28px; padding: 0 10px; font-size: 12px; }
+.btn-port-task { min-height: 28px; padding: 0 10px; font-size: 14px; }
 
 .port-alert {
   border-radius: 8px;
   padding: 9px 12px;
   margin-bottom: 12px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 
   &.error {
@@ -2027,7 +2027,7 @@ $green: #4caf7d;
 .port-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead tr {
     background: $s2;
@@ -2042,7 +2042,7 @@ $green: #4caf7d;
 
   th {
     color: $muted;
-    font-size: 11px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: .05em;
   }
@@ -2066,7 +2066,7 @@ $green: #4caf7d;
   min-height: 22px;
   padding: 2px 8px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
 
   &.open {
@@ -2098,7 +2098,7 @@ $green: #4caf7d;
   border: 1px dashed $border;
   border-radius: 10px;
   padding: 14px;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 // ── NUCLEI CVE SCAN ───────────────────────────────────────────────────────
@@ -2146,13 +2146,13 @@ $green: #4caf7d;
 }
 
 .nuclei-title-text {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: $text;
 }
 
 .via-badge {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $muted;
   background: $s2;
@@ -2163,7 +2163,7 @@ $green: #4caf7d;
 }
 
 .nuclei-subtitle {
-  font-size: 13px;
+  font-size: 15px;
   color: $muted;
   margin: 0;
 }
@@ -2174,7 +2174,7 @@ $green: #4caf7d;
   gap: 6px;
   padding: 8px 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
@@ -2208,7 +2208,7 @@ $green: #4caf7d;
   background: color-mix(in srgb, var(--red) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
   color: $red;
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 14px;
 }
 
@@ -2226,7 +2226,7 @@ $green: #4caf7d;
 }
 
 .step {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   padding: 3px 10px;
   border-radius: 20px;
@@ -2241,12 +2241,12 @@ $green: #4caf7d;
 }
 
 .step-arrow {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
 }
 
 .nuclei-scan-note {
-  font-size: 12px;
+  font-size: 14px;
   color: $muted;
   margin: 0;
 }
@@ -2260,7 +2260,7 @@ $green: #4caf7d;
   border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
   color: $accent;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -2270,7 +2270,7 @@ $green: #4caf7d;
   gap: 12px;
   padding: 20px 16px;
   color: $muted;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .cve-count-row {
@@ -2281,7 +2281,7 @@ $green: #4caf7d;
 }
 
 .cve-count {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: $red;
 }
@@ -2295,7 +2295,7 @@ $green: #4caf7d;
 .cve-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
 
   thead tr {
     background: $s2;
@@ -2304,7 +2304,7 @@ $green: #4caf7d;
     th {
       padding: 8px 14px;
       text-align: left;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 600;
       color: $muted;
       text-transform: uppercase;
@@ -2330,7 +2330,7 @@ $green: #4caf7d;
 
 .cve-id, .cve-sub, .cve-url {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .cve-link, .cve-matched-link {
@@ -2344,7 +2344,7 @@ $green: #4caf7d;
   margin-top: 5px;
   padding: 2px 6px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -2378,7 +2378,7 @@ $green: #4caf7d;
   display: inline-block;
   padding: 2px 9px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .04em;
