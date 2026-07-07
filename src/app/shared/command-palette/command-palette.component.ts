@@ -31,6 +31,7 @@ const PAGES: Cmd[] = [
   { kind: 'page', title: 'Qo\'ng\'iroqlar', sub: 'Call jurnali',   link: ['/calls'] },
   { kind: 'page', title: 'Proxy',        sub: 'Proksi pool',       link: ['/proxies'] },
   { kind: 'page', title: 'Lotin-Kiril',  sub: 'Transliterator',    link: ['/transliterator'] },
+  { kind: 'page', title: 'Docs',         sub: 'Qo‘llanma va oylik hisoblagich', link: ['/docs'] },
   { kind: 'page', title: 'Foydalanuvchilar', sub: 'Admin',         link: ['/admin'] },
   { kind: 'page', title: 'Loglar',       sub: 'Audit / sessiya',   link: ['/logs'] },
 ];

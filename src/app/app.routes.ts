@@ -108,6 +108,12 @@ export const routes: Routes = [
             import('./pages/transliterator/transliterator.component').then(m => m.TransliteratorComponent),
     },
     {
+        path: 'docs',
+        canActivate: [authGuard],
+        loadComponent: () =>
+            import('./pages/docs/docs.component').then(m => m.DocsComponent),
+    },
+    {
         path: 'logs',
         canActivate: [adminGuard],
         loadComponent: () =>

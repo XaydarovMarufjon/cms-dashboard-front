@@ -168,6 +168,12 @@ $muted:  var(--muted);
   text-align: center;
 }
 
+.nav-cve-badge {
+  background: rgba(#ff6b7a, .15);
+  color: #ff6b7a;
+  border-color: rgba(#ff6b7a, .25);
+}
+
 // ── BOTTOM ──
 .sidebar-bottom {
   margin-top: auto;

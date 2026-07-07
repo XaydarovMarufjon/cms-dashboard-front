@@ -73,6 +73,9 @@
           stroke-linecap="round" />
       </svg>
       CVE Scanner
+      @if (cveCount() > 0) {
+      <span class="nav-alert-badge nav-cve-badge">{{ cveCount() }}</span>
+      }
     </a>
 
     <a class="sidenav-item" routerLink="/vulnerabilities" routerLinkActive="active">
@@ -158,6 +161,17 @@
         <path d="M9 12h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
       </svg>
       Lotin-Kiril
+    </a>
+
+    <!-- ── Yordam ── -->
+    <div class="sidenav-label">Yordam</div>
+
+    <a class="sidenav-item" routerLink="/docs" routerLinkActive="active">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <path d="M3 2.2h6.4L12 4.8v8H3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M9.3 2.4v2.7h2.5M5 7.2h5M5 9.5h5M5 11.8h3" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>
+      </svg>
+      Docs
     </a>
 
     <!-- ── Tizim ── -->

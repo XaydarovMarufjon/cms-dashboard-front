@@ -70,6 +70,9 @@
             stroke-linecap="round" />
         </svg>
         CVE Scanner
+        @if (dashboardMetrics().cveFindings > 0) {
+        <span class="nav-alert-badge nav-cve-badge">{{ dashboardMetrics().cveFindings }}</span>
+        }
       </a>
       <a class="sidenav-item" routerLink="/statistics">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -239,6 +242,11 @@
           <span class="count-num">{{ filteredResults().length }}</span>
           <span class="count-lbl">natija</span>
         </div>
+        <div class="dashboard-live-pill" [class.is-live]="dashboardLive()" [class.is-busy]="liveActiveCount() > 0">
+          <span class="live-pulse-dot"></span>
+          <span>{{ liveStatusText() }}</span>
+          <b>{{ liveAgeLabel() }}</b>
+        </div>
       </div>
       <div class="topbar-right">
 
@@ -381,6 +389,48 @@
         <div class="overview-health" [class.warn]="metrics.healthPct < 80" [class.bad]="metrics.healthPct < 55">
           <span class="health-ring" [style.--p]="metrics.healthPct + '%'">{{ metrics.healthPct }}%</span>
           <span>health</span>
+        </div>
+      </div>
+
+      <div class="live-ops-strip" [class.is-live]="dashboardLive()" [class.has-active]="liveActiveCount() > 0">
+        <div class="live-ops-main">
+          <span class="live-ops-orb"></span>
+          <div>
+            <strong>{{ liveStatusText() }}</strong>
+            <span>Natijalar: {{ liveSyncLabel() }} · Active scan: {{ liveActiveCount() }}</span>
+          </div>
+        </div>
+
+        @if (systemStatus(); as sys) {
+        <div class="live-ops-metrics">
+          <span [class.warn]="sys.status !== 'OK'">{{ systemStatusLabel(sys.status) }}</span>
+          <span>CPU {{ sys.resources.cpu.loadPct }}%</span>
+          <span>RAM {{ sys.resources.memory.usedPct }}%</span>
+          <span>DB {{ sys.database.latencyMs }}ms</span>
+          <span>↑ {{ formatSpeed(sys.resources.network?.txBytesPerSec) }}</span>
+          <span>↓ {{ formatSpeed(sys.resources.network?.rxBytesPerSec) }}</span>
+          <span>Uptime {{ formatUptime(sys.runtime.uptimeSec) }}</span>
+        </div>
+        } @else {
+        <div class="live-ops-metrics muted">
+          <span>System status yuklanmoqda</span>
+        </div>
+        }
+
+        <div class="live-feed-rail">
+          @for (item of liveRecentItems(); track item.id) {
+          <div class="live-feed-item" [class.running]="item.status === 'RUNNING'" [class.failed]="item.status === 'FAILED'">
+            <span class="feed-dot"></span>
+            <span class="feed-url">{{ stripProtocol(item.url) }}</span>
+            <b>{{ liveItemStatusLabel(item.status) }}</b>
+          </div>
+          } @empty {
+          <div class="live-feed-item empty">
+            <span class="feed-dot"></span>
+            <span class="feed-url">Live activity kutilmoqda</span>
+            <b>standby</b>
+          </div>
+          }
         </div>
       </div>
 

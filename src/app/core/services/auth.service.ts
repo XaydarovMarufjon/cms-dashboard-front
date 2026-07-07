@@ -1,26 +1,28 @@
 // src/app/core/services/auth.service.ts
 import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { of } from 'rxjs';
 import { User, LoginDto, LoginResponse, ROLE_PERMISSIONS } from '../../shared/models/user.model';
 
 const TOKEN_KEY = 'cms_token';
 const USER_KEY = 'cms_user';
+const TOKENLESS_USER: User = {
+  id: 'local-admin',
+  username: 'admin',
+  role: 'ADMIN',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
-  private api = environment.apiUrl;
 
   // ── STATE ──────────────────────────────────────
-  currentUser = signal<User | null>(this.loadUser());
-  token = signal<string | null>(this.loadToken());
+  currentUser = signal<User | null>(TOKENLESS_USER);
+  token = signal<string | null>(null);
 
   isLoggedIn = computed(() => !!this.currentUser());
   role = computed(() => this.currentUser()?.role ?? null);
@@ -29,68 +31,42 @@ export class AuthService {
     return r ? ROLE_PERMISSIONS[r] : null;
   });
 
+  constructor() {
+    this.clearStoredAuth();
+  }
+
   // ── LOGIN ──────────────────────────────────────
-  login(dto: LoginDto) {
-    return this.http.post<LoginResponse>(`${this.api}/auth/login`, dto).pipe(
-      tap(res => {
-        this.token.set(res.access_token);
-        this.currentUser.set(res.user);
-        if (this.isBrowser) {
-          localStorage.setItem(TOKEN_KEY, res.access_token);
-          localStorage.setItem(USER_KEY, JSON.stringify(res.user));
-        }
-      })
-    );
+  login(_dto: LoginDto) {
+    this.token.set(null);
+    this.currentUser.set(TOKENLESS_USER);
+    this.clearStoredAuth();
+    return of<LoginResponse>({ access_token: '', user: TOKENLESS_USER });
   }
 
   // ── LOGOUT ─────────────────────────────────────
   logout() {
-    if (this.token()) {
-      this.http.post(`${this.api}/auth/logout`, {}).subscribe({
-        next: () => {},
-        error: () => {},
-      });
-    }
     this.token.set(null);
-    this.currentUser.set(null);
-    if (this.isBrowser) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-    }
-    this.router.navigate(['/login']);
+    this.currentUser.set(TOKENLESS_USER);
+    this.clearStoredAuth();
+    this.router.navigate(['/']);
   }
 
-  // ── REFRESH (sliding 10d) ──────────────────────
+  // ── REFRESH ────────────────────────────────────
   refresh() {
-    return this.http.post<{ access_token: string; expiresAt: string }>(
-      `${this.api}/auth/refresh`, {},
-    ).pipe(
-      tap(res => {
-        this.token.set(res.access_token);
-        if (this.isBrowser) localStorage.setItem(TOKEN_KEY, res.access_token);
-      }),
-    );
+    return of({ access_token: '', expiresAt: '' });
   }
 
   getToken(): string | null {
-    return this.token();
+    return null;
   }
 
   hasPermission(perm: keyof typeof ROLE_PERMISSIONS.ADMIN): boolean {
     return this.permissions()?.[perm] ?? false;
   }
 
-  // ── LOAD FROM STORAGE ──────────────────────────
-  private loadToken(): string | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
-    return localStorage.getItem(TOKEN_KEY);
-  }
-
-  private loadUser(): User | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
-    const raw = localStorage.getItem(USER_KEY);
-    if (!raw) return null;
-    try { return JSON.parse(raw); }
-    catch { return null; }
+  private clearStoredAuth() {
+    if (!this.isBrowser) return;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   }
 }

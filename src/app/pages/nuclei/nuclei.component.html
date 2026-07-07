@@ -861,6 +861,19 @@
               </svg>
             </button>
           </div>
+          <button class="btn-add-feed" type="button" (click)="showAddFeed() ? closeAddFeed() : openAddFeed()">
+            @if (showAddFeed()) {
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M3 3l6 6M9 3L3 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              Bekor
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              Feed qo'shish
+            }
+          </button>
           <button class="btn-enrich-all" (click)="enrichAll()" [disabled]="enrichingAll()">
             @if (enrichingAll()) {
               <span class="spin"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4" stroke-dasharray="7 5"/></svg></span>
@@ -888,8 +901,84 @@
         </div>
       </div>
 
+      <div class="feed-sync-info" [class.disabled]="feedSyncConfig()?.autoEnabled === false">
+        <span class="feed-sync-dot"></span>
+        <div>
+          <strong>
+            @if (feedSyncConfig()?.autoEnabled === false) {
+              Auto-sync o'chirilgan
+            } @else {
+              Auto-sync yoqilgan
+            }
+          </strong>
+          <span>
+            {{ feedSyncConfig()?.scheduleLabel || 'Har kuni 04:15' }} · faqat yoqilgan feedlar sinxronlanadi · qo'lda tekshirish uchun "Hammani sinxron" tugmasini bosing
+          </span>
+        </div>
+      </div>
+
       @if (feedError()) {
         <div class="feed-err">{{ feedError() }}</div>
+      }
+
+      @if (showAddFeed()) {
+        <form class="add-feed-form" (ngSubmit)="addFeed()">
+          <div class="aff-title">Yangi threat feed</div>
+
+          <div class="aff-row">
+            <label class="aff-label" for="feedName">Nom</label>
+            <input id="feedName" name="feedName" class="aff-input" [(ngModel)]="newFeed.name"
+                   placeholder="Masalan: Corporate MISP" autocomplete="off"/>
+          </div>
+
+          <div class="aff-row">
+            <label class="aff-label" for="feedType">Tur</label>
+            <select id="feedType" name="feedType" class="aff-select"
+                    [(ngModel)]="newFeed.type" (ngModelChange)="onNewFeedTypeChange()">
+              @for (option of feedTypeOptions; track option.type) {
+                <option [ngValue]="option.type">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          @if (needsUrl(newFeed.type)) {
+            <div class="aff-row">
+              <label class="aff-label" for="feedUrl">URL</label>
+              <input id="feedUrl" name="feedUrl" class="aff-input" [(ngModel)]="newFeed.url"
+                     placeholder="https://misp.example.uz" autocomplete="off"/>
+            </div>
+          }
+
+          @if (needsKey(newFeed.type) || keyOptional(newFeed.type)) {
+            <div class="aff-row">
+              <label class="aff-label" for="feedApiKey">
+                API key
+                @if (keyOptional(newFeed.type)) {
+                  <span class="aff-optional">(ixtiyoriy)</span>
+                }
+              </label>
+              <input id="feedApiKey" name="feedApiKey" class="aff-input" type="password"
+                     [(ngModel)]="newFeed.apiKey" placeholder="API kaliti" autocomplete="new-password"/>
+            </div>
+          }
+
+          <label class="aff-enabled">
+            <input type="checkbox" name="feedEnabled" [(ngModel)]="newFeed.enabled"/>
+            <span>Yoqilgan</span>
+          </label>
+
+          <div class="aff-btns">
+            <button class="btn-aff-save" type="submit" [disabled]="!canAddFeed()">
+              @if (addingFeed()) {
+                <span class="spin"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4" stroke-dasharray="7 5"/></svg></span>
+                Saqlanmoqda...
+              } @else {
+                Saqlash
+              }
+            </button>
+            <button class="btn-aff-cancel" type="button" (click)="closeAddFeed()">Bekor</button>
+          </div>
+        </form>
       }
 
       @if (feedsLoading()) {
@@ -924,7 +1013,14 @@
                       </span>
                     </td>
 
-                    <td class="ftd-name">{{ feed.name }}</td>
+                    <td class="ftd-name">
+                      <span class="feed-name-line">
+                        <span>{{ feed.name }}</span>
+                        @if (feedHasApiConnection(feed)) {
+                          <span class="api-feed-badge" title="API key bilan ulangan">API</span>
+                        }
+                      </span>
+                    </td>
 
                     <td class="ftd-url">
                       @if (feed.url) {
@@ -1005,6 +1101,13 @@
                             Ulash
                           </button>
                         }
+                        @if (canDeleteFeeds()) {
+                          <button class="btn-feed-del" (click)="deleteFeed(feed.id)" title="O'chirish">
+                            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                              <path d="M2.5 3h6M4 3V2h3v1M3.5 4v5h4V4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+                        }
                       </div>
                       <!-- inline config form in table row -->
                       @if (configuringFeedId() === feed.id) {
@@ -1041,7 +1144,8 @@
           @for (feed of feeds(); track feed.id) {
             <div class="feed-card"
                  [class.feed-disabled]="!feed.enabled"
-                 [class.feed-unconfigured]="!feedIsConfigured(feed)">
+                 [class.feed-unconfigured]="!feedIsConfigured(feed)"
+                 [class.feed-api-connected]="feedHasApiConnection(feed)">
 
               <!-- Card header: type badge + toggle -->
               <div class="feed-card-header">
@@ -1058,7 +1162,12 @@
               </div>
 
               <!-- Feed name -->
-              <div class="feed-name">{{ feed.name }}</div>
+              <div class="feed-name">
+                <span>{{ feed.name }}</span>
+                @if (feedHasApiConnection(feed)) {
+                  <span class="api-feed-badge" title="API key bilan ulangan">API</span>
+                }
+              </div>
               @if (feed.url) {
                 <div class="feed-url muted">{{ feed.url }}</div>
               }
@@ -1171,6 +1280,13 @@
                     </button>
                   }
                 }
+                @if (canDeleteFeeds()) {
+                  <button class="btn-feed-del" (click)="deleteFeed(feed.id)" title="O'chirish">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                      <path d="M2.5 3h6M4 3V2h3v1M3.5 4v5h4V4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                }
               </div>
             </div>
           }
@@ -1198,6 +1314,55 @@
               <span>OTX Pulses — AlienVault tahdid ma'lumotlari</span>
             </div>
           </div>
+        </div>
+
+        <!-- Recently used feeds chart -->
+        <div class="recent-feeds-chart">
+          <div class="rfc-header">
+            <div class="rfc-title-row">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 2v5l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+              <span class="rfc-title">Oxirgi foydalanilgan feedlar</span>
+            </div>
+            <div class="rfc-sub">Sinxron qilingan vaqt bo'yicha — bar uzunligi yangiligi darajasini ko'rsatadi</div>
+          </div>
+
+          @if (recentFeeds().length === 0) {
+            <div class="rfc-empty">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="13" stroke="currentColor" stroke-width="1.3" opacity=".3"/>
+                <path d="M16 9v7l4 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+              </svg>
+              <span>Hali biror feed sinxronlashtirilmagan</span>
+            </div>
+          } @else {
+            <div class="rfc-bars">
+              @for (f of recentFeeds(); track f.id; let i = $index) {
+                <div class="rfc-row">
+                  <div class="rfc-rank">{{ i + 1 }}</div>
+                  <div class="rfc-name-col">
+                    <div class="rfc-name">{{ f.name }}</div>
+                    <div class="rfc-type">{{ f.typeLabel }}</div>
+                  </div>
+                  <div class="rfc-bar-col">
+                    <div class="rfc-bar-track">
+                      <div class="rfc-bar-fill"
+                           [class.fresh]="f.pct >= 70"
+                           [class.warm]="f.pct >= 40 && f.pct < 70"
+                           [class.cold]="f.pct < 40"
+                           [style.width.%]="f.pct"></div>
+                    </div>
+                  </div>
+                  <div class="rfc-ago-col">
+                    <div class="rfc-ago">{{ f.ago }}</div>
+                    <div class="rfc-sync-at muted">{{ f.lastSync | date:'dd.MM.yy HH:mm' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
     }

@@ -3,9 +3,9 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { interval, timer, Subscription } from 'rxjs';
+import { firstValueFrom, interval, timer, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ScannerService, BulkScanJob, BulkScanMode } from '../../core/services/scanner.service';
+import { ScannerService, BulkScanJob, BulkScanMode, LiveScanActivity, LiveScanActivityItem, SystemStatus } from '../../core/services/scanner.service';
 import { WebsiteService } from '../../core/services/website.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService, Theme } from '../../core/services/theme.service';
@@ -53,6 +53,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   savingEdit      = signal(false);
   deletingId      = signal<string | null>(null);
   confirmDeleteId = signal<string | null>(null);
+  systemStatus    = signal<SystemStatus | null>(null);
+  liveActivity    = signal<LiveScanActivity | null>(null);
+  livePollError   = signal<string | null>(null);
+  lastLiveOkAt    = signal<number | null>(null);
+  lastResultsAt   = signal<number | null>(null);
+  liveClock       = signal(Date.now());
 
   // ── ALERTS ────────────────────────────────────
   alertCount = signal(0);
@@ -72,6 +78,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private pollSub?:    Subscription;
   private badgeRefreshSub?: Subscription;
   private bulkPollSub?: Subscription;
+  private liveDashSub?: Subscription;
+  private liveClockSub?: Subscription;
+  private livePollBusy = false;
+  private livePollCount = 0;
 
   readonly INTERVAL_OPTIONS = [
     { label: '15 daqiqa', value: 15,   dangerous: true  },
@@ -224,6 +234,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .slice(0, 5)
   );
 
+  liveAgeSec = computed(() => {
+    this.liveClock();
+    const last = this.lastLiveOkAt();
+    return last ? Math.floor((Date.now() - last) / 1000) : null;
+  });
+
+  dashboardLive = computed(() => {
+    const age = this.liveAgeSec();
+    return age !== null && age <= 12 && !this.livePollError();
+  });
+
+  liveActiveCount = computed(() => this.liveActivity()?.active?.length ?? this.bulkJob()?.running ?? 0);
+
+  liveRecentItems = computed<LiveScanActivityItem[]>(() => {
+    const activity = this.liveActivity();
+    const active = activity?.active ?? [];
+    const recent = activity?.recent ?? [];
+    return (active.length ? active : recent).slice(0, 4);
+  });
+
+  liveStatusText = computed(() => {
+    if (!this.dashboardLive()) return 'Aloqa tekshirilmoqda';
+    if (this.liveActiveCount() > 0) return 'Skan ishlayapti';
+    if (this.systemStatus()?.status === 'WARN') return 'Tizim ogohlantirishda';
+    if (this.systemStatus()?.status === 'ERROR') return 'Tizimda xato';
+    return 'Tizim jonli';
+  });
+
   bulkRunning = computed(() => this.isBulkStatusRunning(this.bulkJob()?.status));
 
   bulkDone = computed(() => {
@@ -253,6 +291,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.scanner.getAlertCount().subscribe({ next: r => this.alertCount.set(r.count), error: () => {} });
     this.badgeRefreshSub = this.scanner.scanBadgeRefresh$.subscribe(() => this.loadResults());
     this.loadBulkJob();
+    this.startDashboardLive();
   }
 
   ngOnDestroy() {
@@ -262,16 +301,83 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.pollSub?.unsubscribe();
     this.badgeRefreshSub?.unsubscribe();
     this.bulkPollSub?.unsubscribe();
+    this.liveDashSub?.unsubscribe();
+    this.liveClockSub?.unsubscribe();
     this.stopIframeReload();
   }
 
   // ── LOAD ──────────────────────────────────────
-  loadResults() {
-    this.loading.set(true);
+  loadResults(options: { silent?: boolean } = {}) {
+    if (!options.silent) this.loading.set(true);
     this.scanner.getLatestResults().subscribe({
-      next:  data => { this.results.set(data); this.loading.set(false); },
-      error: ()   => { this.error.set("Serverga ulanib bo'lmadi"); this.loading.set(false); },
+      next:  data => {
+        this.results.set(data);
+        this.lastResultsAt.set(Date.now());
+        if (!options.silent) this.loading.set(false);
+      },
+      error: ()   => {
+        if (!options.silent) {
+          this.error.set("Serverga ulanib bo'lmadi");
+          this.loading.set(false);
+        }
+      },
     });
+  }
+
+  private startDashboardLive() {
+    this.liveClockSub?.unsubscribe();
+    this.liveClockSub = interval(1000).subscribe(() => this.liveClock.set(Date.now()));
+
+    this.liveDashSub?.unsubscribe();
+    this.liveDashSub = timer(0, 5000).subscribe(() => this.refreshDashboardLive());
+  }
+
+  private async refreshDashboardLive() {
+    if (this.livePollBusy) return;
+    this.livePollBusy = true;
+    this.livePollCount++;
+    const includeResults = this.livePollCount === 1 || this.livePollCount % 3 === 0;
+
+    try {
+      const requests: Promise<unknown>[] = [
+        firstValueFrom(this.scanner.getSystemStatus()),
+        firstValueFrom(this.scanner.getLiveScanActivity()),
+        firstValueFrom(this.scanner.getAlertCount()),
+      ];
+      if (includeResults) requests.push(firstValueFrom(this.scanner.getLatestResults()));
+
+      const [system, activity, alerts, results] = await Promise.allSettled(requests);
+      let ok = false;
+
+      if (system.status === 'fulfilled') {
+        this.systemStatus.set(system.value as SystemStatus);
+        ok = true;
+      }
+      if (activity.status === 'fulfilled') {
+        this.liveActivity.set(activity.value as LiveScanActivity);
+        ok = true;
+      }
+      if (alerts.status === 'fulfilled') {
+        this.alertCount.set((alerts.value as { count: number }).count ?? 0);
+        ok = true;
+      }
+      if (results?.status === 'fulfilled') {
+        this.results.set(results.value as ScanResult[]);
+        this.lastResultsAt.set(Date.now());
+        ok = true;
+      }
+
+      if (ok) {
+        this.lastLiveOkAt.set(Date.now());
+        this.livePollError.set(null);
+      } else {
+        this.livePollError.set('Live ma\'lumot olinmadi');
+      }
+    } catch {
+      this.livePollError.set('Live aloqa uzildi');
+    } finally {
+      this.livePollBusy = false;
+    }
   }
 
   // ── SCAN ──────────────────────────────────────
@@ -539,6 +645,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   formatRelativeTime(value: number | string | null | undefined): string {
+    this.liveClock();
     if (!value) return 'hali yoq';
     const time = typeof value === 'number' ? value : new Date(value).getTime();
     if (!Number.isFinite(time)) return 'hali yoq';
@@ -550,6 +657,87 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (hours < 24) return `${hours} soat oldin`;
     const days = Math.floor(hours / 24);
     return `${days} kun oldin`;
+  }
+
+  liveAgeLabel(): string {
+    const age = this.liveAgeSec();
+    if (age === null) return '--';
+    if (age < 2) return 'hozir';
+    if (age < 60) return `${age}s oldin`;
+    const minutes = Math.floor(age / 60);
+    if (minutes < 60) return `${minutes}m oldin`;
+    return `${Math.floor(minutes / 60)}h oldin`;
+  }
+
+  liveSyncLabel(): string {
+    const last = this.lastResultsAt();
+    return last ? this.formatRelativeTime(last) : 'hali yoq';
+  }
+
+  formatBytes(bytes: number | null | undefined): string {
+    if (!bytes || bytes <= 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let value = bytes;
+    let unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+      value /= 1024;
+      unit++;
+    }
+    const digits = value >= 10 || unit === 0 ? 0 : 1;
+    return `${value.toFixed(digits)} ${units[unit]}`;
+  }
+
+  formatSpeed(bytesPerSec: number | null | undefined): string {
+    return `${this.formatBytes(bytesPerSec)}/s`;
+  }
+
+  formatUptime(seconds: number | null | undefined): string {
+    if (!seconds || seconds <= 0) return '0s';
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (days > 0) return `${days} kun ${hours} soat`;
+    if (hours > 0) return `${hours} soat ${minutes} daqiqa`;
+    if (minutes > 0) return `${minutes} daqiqa`;
+    return `${seconds}s`;
+  }
+
+  formatDurationMs(value: number | null | undefined): string {
+    if (!value || value <= 0) return '--';
+    if (value < 1000) return `${Math.round(value)}ms`;
+    const seconds = value / 1000;
+    if (seconds < 60) return `${seconds.toFixed(seconds < 10 ? 1 : 0)}s`;
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m ${Math.round(seconds % 60)}s`;
+  }
+
+  systemStatusLabel(status: SystemStatus['status'] | undefined): string {
+    switch (status) {
+      case 'OK': return 'Barqaror';
+      case 'WARN': return 'Ogohlantirish';
+      case 'ERROR': return 'Xato';
+      default: return 'Noma\'lum';
+    }
+  }
+
+  liveSourceLabel(source: string): string {
+    switch (source) {
+      case 'MANUAL': return 'Manual';
+      case 'SCAN_ALL': return 'Scan all';
+      case 'AUTO': return 'Auto';
+      case 'BULK': return 'Bulk';
+      case 'HISTORY': return 'History';
+      default: return source || 'Scan';
+    }
+  }
+
+  liveItemStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'RUNNING': return 'Ishlayapti';
+      case 'DONE': return 'Tugadi';
+      case 'FAILED': return 'Xato';
+      default: return status || 'Noma\'lum';
+    }
   }
 
   getAttentionLabel(result: ScanResult): string {

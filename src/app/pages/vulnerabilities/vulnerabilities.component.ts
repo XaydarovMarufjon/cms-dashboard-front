@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 
 import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 import { StatisticsComponent } from '../statistics/statistics.component';
+import { VulnerabilityImportsService } from '../../core/services/vulnerability-imports.service';
 
 interface SheetColumn {
   id: string;
@@ -97,7 +98,9 @@ const DEFAULT_COLUMNS: SheetColumn[] = [
 })
 export class VulnerabilitiesComponent implements OnInit {
   private host = inject(ElementRef<HTMLElement>);
+  private vulnerabilityImports = inject(VulnerabilityImportsService);
   private resizeState?: ResizeState;
+  private apiSyncTimer?: number;
 
   sheets = signal<WorkbookSheet[]>([]);
   activeSheetId = signal('');
@@ -772,9 +775,64 @@ export class VulnerabilitiesComponent implements OnInit {
   private persist(message: string) {
     this.statusText.set(message);
     this.storeWorkbook();
+    this.scheduleApiSync();
     window.setTimeout(() => {
       if (this.statusText() === message) this.statusText.set('Avtomatik saqlandi');
     }, 900);
+  }
+
+  private scheduleApiSync() {
+    window.clearTimeout(this.apiSyncTimer);
+    this.apiSyncTimer = window.setTimeout(() => this.syncSnapshotToApi(), 900);
+  }
+
+  private syncSnapshotToApi() {
+    const snapshot = this.apiSnapshot();
+    this.vulnerabilityImports.syncSnapshot(snapshot).subscribe({
+      next: result => {
+        const current = this.statusText();
+        if (current === 'Avtomatik saqlandi' || current === 'API sinxronlanmoqda') {
+          this.statusText.set(`API sinxron: ${result.rows} qator`);
+          window.setTimeout(() => {
+            if (this.statusText().startsWith('API sinxron:')) this.statusText.set('Avtomatik saqlandi');
+          }, 1200);
+        }
+      },
+      error: () => {
+        this.statusText.set('API sinxronlashda xato');
+      },
+    });
+  }
+
+  private apiSnapshot() {
+    this.saveActiveSheetToWorkbook();
+    return {
+      activeSheetId: this.activeSheetId(),
+      activeWorkbookId: this.activeWorkbookId(),
+      fileName: this.activeWorkbookName(),
+      sheets: this.sheets().map(sheet => {
+        const columns = this.cloneColumns(sheet.columns);
+        return {
+          id: sheet.id,
+          name: sheet.name,
+          workbookId: sheet.workbookId,
+          workbookName: sheet.workbookName,
+          columns: columns.map(column => ({
+            id: column.id,
+            label: column.label,
+            width: column.width,
+          })),
+          rows: sheet.rows
+            .filter(row => this.rowHasDataFor(row, columns))
+            .map(row => ({
+              id: row.id,
+              height: row.height,
+              cells: { ...row.cells },
+              styles: row.styles ? { ...row.styles } : undefined,
+            })),
+        };
+      }),
+    };
   }
 
   private storeWorkbook() {

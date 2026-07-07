@@ -1,0 +1,278 @@
+<main class="docs-page">
+  <header class="docs-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Docs</span>
+      <h1>CMS Monitoring va oylik modeli</h1>
+      <p>
+        Bu bo‘lim docx modelidagi yangi ball, 1-bosqich shartlari, bonus
+        va tizim modullarini bitta joyda ko‘rsatadi.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <a routerLink="/sites" class="doc-action primary">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <rect x="1.6" y="2.1" width="11.8" height="10.8" rx="1.8" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M1.8 5.1h11.4" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" opacity=".45"/>
+          <path d="M4 8h7M4 10.3h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Saytlar
+      </a>
+      <a routerLink="/tasks" class="doc-action">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <rect x="2" y="1.8" width="11" height="11.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M5 5h5M5 7.5h5M5 10h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Vazifalar
+      </a>
+    </div>
+  </header>
+
+  <section class="docs-section salary-section">
+    <div class="section-title">
+      <span>Calculator</span>
+      <h2>Oylik hisoblagich</h2>
+    </div>
+
+    @let result = salaryResult();
+    <div class="salary-layout">
+      <article class="salary-input-panel">
+        <div class="salary-panel-head">
+          <div>
+            <h3>Zaifliklar soni</h3>
+            <p>Har bir toifa va daraja bo‘yicha topilmalarni kiriting.</p>
+          </div>
+          <button type="button" class="small-action" (click)="resetSalaryCalculator()">Tozalash</button>
+        </div>
+
+        <div class="salary-table-wrap">
+          <table class="salary-input-table">
+            <thead>
+              <tr>
+                <th>Toifa</th>
+                @for (severity of severityRows; track severity.key) {
+                <th>{{ severity.label }}</th>
+                }
+                <th>Jami</th>
+                <th>Ball</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of categoryRows; track category.key) {
+              <tr>
+                <td class="category-cell">
+                  <strong>{{ category.label }}</strong>
+                  <span>{{ category.coefficient ? '×' + category.coefficient : '1-bosqich' }}</span>
+                </td>
+                @for (severity of severityRows; track severity.key) {
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    inputmode="numeric"
+                    [attr.aria-label]="category.label + ' ' + severity.label"
+                    [value]="getFinding(category.key, severity.key)"
+                    (input)="setFinding(category.key, severity.key, $any($event.target).value)" />
+                </td>
+                }
+                <td class="numeric-cell">{{ categoryTotal(category.key) }}</td>
+                <td class="numeric-cell">{{ categoryScore(category.key) }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="salary-hints">
+          @for (category of categoryRows; track category.key) {
+          <span>{{ category.label }}: {{ category.hint }}</span>
+          }
+        </div>
+      </article>
+
+      <article class="salary-result-panel" [class.is-stage-one]="result.stageOne" [class.is-low]="result.belowMinimum">
+        <div class="result-main">
+          <span>Yakuniy oylik</span>
+          <strong>{{ formatMoney(result.salary) }}</strong>
+          <p>{{ result.mode }}</p>
+        </div>
+
+        <div class="result-grid">
+          <div>
+            <span>Jami zaiflik</span>
+            <b>{{ result.totalVulnerabilities }}</b>
+          </div>
+          <div>
+            <span>Umumiy ball</span>
+            <b>{{ result.totalScore }}</b>
+          </div>
+          <div>
+            <span>Baza foiz</span>
+            <b>{{ formatPercent(result.cappedBasePercent) }}</b>
+          </div>
+          <div>
+            <span>Bonus</span>
+            <b>+{{ formatPercent(result.bonusPercent) }}</b>
+          </div>
+          <div class="wide">
+            <span>Final foiz</span>
+            <b>{{ formatPercent(result.finalPercent) }}</b>
+          </div>
+        </div>
+
+        @if (result.stageOneReasons.length) {
+        <div class="stage-reasons">
+          <span>1-bosqich bajarildi</span>
+          @for (reason of result.stageOneReasons; track reason) {
+          <p>{{ reason }}</p>
+          }
+        </div>
+        } @else if (result.belowMinimum) {
+        <div class="stage-reasons low">
+          <span>Minimumdan past</span>
+          <p>{{ formatPercent(result.rawPercent) }} natija {{ formatPercent(minPercent) }} minimumdan past.</p>
+        </div>
+        } @else {
+        <div class="stage-reasons neutral">
+          <span>2-bosqich hisoblanmoqda</span>
+          <p>Foiz = ({{ result.totalScore }} / {{ basePointTarget }}) × 100 = {{ formatPercent(result.rawPercent) }}</p>
+        </div>
+        }
+      </article>
+    </div>
+
+    <div class="salary-rules-grid">
+      <article class="rule-panel">
+        <h3>1-bosqich shartlari</h3>
+        <div class="rule-table">
+          @for (rule of firstStageRules; track rule.category + rule.severity) {
+          <div>
+            <strong>{{ rule.category }}</strong>
+            <span>{{ rule.severity }}</span>
+            <b>{{ rule.condition }}</b>
+          </div>
+          }
+        </div>
+      </article>
+
+      <article class="rule-panel">
+        <h3>Daraja ballari</h3>
+        <div class="score-pills">
+          @for (severity of severityRows; track severity.key) {
+          <span>{{ severity.label }} <b>{{ severity.score }}</b></span>
+          }
+        </div>
+        <p>Ball = zaiflik balli × toifa koeffitsienti. II-toifa ×4, III-toifa ×2.</p>
+      </article>
+
+      <article class="rule-panel">
+        <h3>Foiz va bonus</h3>
+        <p>Foiz = umumiy ball / 50 × 100. 10+ zaiflik +20%, 20+ zaiflik +30% bonus beradi.</p>
+        <p>Oylik = final foiz × 2 000 000 / 100.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="docs-section">
+    <div class="section-title">
+      <span>Flow</span>
+      <h2>Oylik hisoblash jarayoni</h2>
+    </div>
+
+    <div class="flow-grid">
+      @for (item of flow; track item.number) {
+      <article class="flow-item">
+        <div class="flow-number">{{ item.number }}</div>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.body }}</p>
+      </article>
+      }
+    </div>
+  </section>
+
+  <section class="docs-section">
+    <div class="section-title">
+      <span>Modules</span>
+      <h2>Tizim modullari nima qiladi</h2>
+    </div>
+
+    <div class="module-grid">
+      @for (module of modules; track module.name) {
+      <article class="module-card">
+        <div class="module-top">
+          <h3>{{ module.name }}</h3>
+          <span>{{ module.tag }}</span>
+        </div>
+        <p>{{ module.body }}</p>
+      </article>
+      }
+    </div>
+  </section>
+
+  <section class="docs-columns">
+    <article class="docs-panel">
+      <div class="section-title compact">
+        <span>Roles</span>
+        <h2>Ruxsatlar</h2>
+      </div>
+
+      <div class="role-list">
+        @for (role of roles; track role.name) {
+        <div class="role-row">
+          <strong>{{ role.name }}</strong>
+          <span>{{ role.access }}</span>
+          <p>{{ role.note }}</p>
+        </div>
+        }
+      </div>
+    </article>
+
+    <article class="docs-panel">
+      <div class="section-title compact">
+        <span>Runbook</span>
+        <h2>Ishga tushirish</h2>
+      </div>
+
+      <div class="command-list">
+        @for (item of commands; track item.label) {
+        <div class="command-row">
+          <span>{{ item.label }}</span>
+          <code>{{ item.command }}</code>
+          <p>{{ item.hint }}</p>
+        </div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="docs-section">
+    <div class="section-title">
+      <span>Notes</span>
+      <h2>Muhim eslatmalar</h2>
+    </div>
+
+    <div class="note-grid">
+      <article class="note-item">
+        <h3>API ulanishi</h3>
+        <p>
+          Frontend API manzilini environment fayllaridan oladi. Backendda JWT guard
+          himoyasi bor, shuning uchun login bo‘lmagan so‘rovlar yopiq endpointlarga kira olmaydi.
+        </p>
+      </article>
+      <article class="note-item">
+        <h3>Scan tezligi</h3>
+        <p>
+          Bulk scan concurrency va timeout qiymatlari bilan boshqariladi. Juda katta
+          concurrency server, proxy va target saytlar limitiga ta’sir qiladi.
+        </p>
+      </article>
+      <article class="note-item">
+        <h3>Natijalar sifati</h3>
+        <p>
+          CMS va CVE aniqlash fingerprint, metadata va tashqi template natijalariga
+          tayanadi. Muhim topilmalar CONFIRMED statusiga o‘tkazishdan oldin tekshiriladi.
+        </p>
+      </article>
+    </div>
+  </section>
+</main>

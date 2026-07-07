@@ -657,19 +657,6 @@
 
       <section class="ops-grid">
         <div class="ops-panel">
-          <div class="card-head"><h3>Scan coverage</h3><span class="card-tag">{{ ov.scan.coveragePct }}%</span></div>
-          <div class="coverage-ring-row">
-            <div class="mini-ring" [style.--v.%]="ov.scan.coveragePct"><span>{{ ov.scan.coveragePct }}%</span></div>
-            <div class="coverage-facts">
-              <b>{{ ov.scan.scannedSites }}/{{ ov.scan.totalSites }}</b>
-              <span>{{ ov.scan.unscannedSites }} scan qilinmagan</span>
-              <span>{{ ov.scan.scans24h }} scan / 24 soat · {{ ov.scan.errors24h }} xato</span>
-              <span>{{ ov.scan.staleSites }} eskirgan scan</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="ops-panel">
           <div class="card-head"><h3>CMS intelligence</h3><span class="card-tag">{{ ov.cms.detected }} aniqlangan</span></div>
           <div class="mini-metrics">
             <span><b>{{ ov.cms.unknown }}</b>Noma'lum</span>
@@ -704,32 +691,6 @@
         </div>
 
         <div class="ops-panel">
-          <div class="card-head"><h3>Subdomain radar</h3><span class="card-tag">{{ ov.subdomains.aliveSaved }} tirik</span></div>
-          <div class="mini-metrics">
-            <span><b>{{ ov.subdomains.domainsTracked }}</b>Domen</span>
-            <span><b>{{ ov.subdomains.deadTracked }}</b>O'lik track</span>
-          </div>
-          <div class="compact-list">
-            @for (d of ov.subdomains.topDomains; track d.domain) {
-            <div><span>{{ d.domain }}</span><b>{{ d.count }}</b><i [style.width.%]="100"></i></div>
-            }
-          </div>
-        </div>
-
-        <div class="ops-panel">
-          <div class="card-head"><h3>Port risk</h3><span class="card-tag">{{ ov.ports.open }} open</span></div>
-          <div class="mini-metrics">
-            <span><b>{{ ov.ports.riskyOpen }}</b>Xavfli port</span>
-            <span><b>{{ ov.ports.affectedSites }}</b>Sayt</span>
-          </div>
-          <div class="port-chips">
-            @for (p of ov.ports.topOpenPorts; track p.port) {
-            <span>{{ p.port }} <small>{{ p.count }}</small></span>
-            }
-          </div>
-        </div>
-
-        <div class="ops-panel">
           <div class="card-head"><h3>Proksi holati</h3><span class="card-tag">{{ proxyAlivePct() }}%</span></div>
           <div class="mini-metrics two-metrics">
             <span><b>{{ proxyAlive() }}</b>Tirik</span>
@@ -738,15 +699,6 @@
           <div class="process-list">
             <div><span>Rotatsiya</span><b>{{ proxyRotations() }}</b></div>
             <div><span>Ishlash foizi</span><b>{{ proxyAlivePct() }}%</b></div>
-          </div>
-        </div>
-
-        <div class="ops-panel">
-          <div class="card-head"><h3>Jarayonlar</h3><span class="card-tag">auto scan</span></div>
-          <div class="process-list">
-            <div><span>Auto interval</span><b>{{ ov.process.autoScan?.intervalMinutes || 360 }} daqiqa</b></div>
-            <div><span>Oxirgi window</span><b>{{ ov.process.autoScan?.scannedInLastWindow || 0 }}/{{ ov.process.autoScan?.totalAtLastWindow || ov.scan.totalSites }}</b></div>
-            <div><span>Bulk scan</span><b>{{ ov.process.bulkJob ? ov.process.bulkJob.progressPct + '%' : 'yoq' }}</b></div>
           </div>
         </div>
 

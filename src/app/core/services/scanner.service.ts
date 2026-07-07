@@ -843,6 +843,10 @@ export class ScannerService {
     }
 
     // ── Threat Intel Feeds ────────────────────────────────────────────────
+    getFeedSyncConfig(): Observable<ThreatFeedSyncConfig> {
+        return this.http.get<ThreatFeedSyncConfig>(`${this.api}/scanner/threat-feeds/sync-config`);
+    }
+
     getFeeds(): Observable<ThreatFeed[]> {
         return this.http.get<ThreatFeed[]>(`${this.api}/scanner/threat-feeds`);
     }
@@ -924,6 +928,12 @@ export interface ThreatFeed {
     lastStatus: string | null;
     lastError:  string | null;
     createdAt:  string;
+}
+
+export interface ThreatFeedSyncConfig {
+    autoEnabled: boolean;
+    cron: string;
+    scheduleLabel: string;
 }
 
 export interface NucleiResult {
