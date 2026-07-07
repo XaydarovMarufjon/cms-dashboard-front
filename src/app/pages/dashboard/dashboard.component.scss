@@ -756,11 +756,48 @@ $radius: 10px;
   line-height: 1.25;
 }
 
+.insight-accordion {
+  margin-top: 10px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+  background: $s1;
+
+  &.open { margin-bottom: 4px; }
+}
+
+.insight-accordion-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  color: $muted;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+
+  &:hover { color: $text; background: $s2; }
+
+  .toggle-chevron { transition: transform .2s ease; color: $muted; }
+}
+
+.insight-accordion.open .insight-accordion-toggle .toggle-chevron {
+  transform: rotate(180deg);
+}
+
 .insight-grid {
   display: grid;
   grid-template-columns: 1.05fr 1fr 1.05fr;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 0;
+  padding: 0 10px 10px;
 }
 
 .insight-panel {

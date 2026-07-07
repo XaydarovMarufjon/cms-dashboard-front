@@ -46,6 +46,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   searchQuery     = signal('');
   filterCms       = signal('all');
   controlsOpen    = signal(false);
+  insightOpen     = signal(false);
   sortBy          = signal<'confidence' | 'date' | 'url'>('confidence');
   successMsg      = signal<string | null>(null);
   error           = signal<string | null>(null);

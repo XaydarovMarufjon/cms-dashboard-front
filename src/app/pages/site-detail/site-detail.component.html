@@ -49,6 +49,7 @@
           </svg>
           CMS Ma'lumotlari
         </div>
+        <div class="scrollable-body-30">
         <div class="info-rows">
           <div class="info-row">
             <span class="info-key">CMS</span>
@@ -144,6 +145,7 @@
           </div>
           }
         </div>
+        </div>
       </div>
 
       <!-- Detection Methods -->
@@ -157,7 +159,7 @@
           Aniqlash usullari
           <span class="count-badge">{{ r.detectionMethods.length }}</span>
         </div>
-        <div class="chip-list">
+        <div class="chip-list scrollable-body">
           @for (m of r.detectionMethods; track m) {
           <span class="method-chip">{{ m }}</span>
           }
@@ -174,7 +176,7 @@
           Signal tafsilotlari
           <span class="count-badge">{{ rawSignalEntries(r).length }}</span>
         </div>
-        <div class="raw-signal-list">
+        <div class="raw-signal-list scrollable-body">
           @for (signal of rawSignalEntries(r); track signal.key) {
           <div class="raw-signal-row">
             <span class="raw-key">{{ signal.key }}</span>
@@ -198,7 +200,7 @@
           Server texnologiyalari
           <span class="count-badge">{{ r.serverTech.length }}</span>
         </div>
-        <div class="chip-list">
+        <div class="chip-list scrollable-body">
           @for (t of r.serverTech; track t) {
           <span class="tech-chip server-chip">{{ t }}</span>
           }

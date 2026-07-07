@@ -498,6 +498,14 @@
         </div>
       </div>
 
+      <div class="insight-accordion" [class.open]="insightOpen()">
+        <button class="insight-accordion-toggle" (click)="insightOpen.set(!insightOpen())">
+          <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Statistika</span>
+        </button>
+        @if (insightOpen()) {
       <div class="insight-grid">
         <div class="insight-panel">
           <div class="insight-title">Coverage</div>
@@ -558,6 +566,8 @@
           <div class="insight-empty">Muammo topilmadi</div>
           }
         </div>
+      </div>
+        }
       </div>
     </section>
 

@@ -146,6 +146,22 @@ $muted:  var(--muted);
   gap: 14px;
 }
 
+.scrollable-body,
+.scrollable-body-30 {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  &::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scrollable-body { max-height: 25vh; }
+.scrollable-body-30 { max-height: 30vh; }
+
 .card-title {
   display: flex;
   align-items: center;
