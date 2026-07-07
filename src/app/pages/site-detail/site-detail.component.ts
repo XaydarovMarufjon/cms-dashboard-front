@@ -92,11 +92,6 @@ export class SiteDetailComponent implements OnInit {
   paginatedAliveSubdomains = computed(() => this.paginate(this.aliveSubdomains(), this.aliveDisplayPage(), this.alivePageSize()));
   paginatedDeadSubdomains  = computed(() => this.paginate(this.deadSubdomains(), this.deadDisplayPage(), this.deadPageSize()));
 
-  // inline scan state — keyed by subdomain hostname
-  scanningSet   = signal<Set<string>>(new Set());
-  scanResultMap = signal<Map<string, ScanResult>>(new Map());
-  scanErrorMap  = signal<Map<string, string>>(new Map());
-
   // Nuclei CVE scan state is kept in ScannerService so it survives navigation.
   private nucleiState = computed(() => this.scanner.getNucleiScanState(this._fetchWebsiteId));
   private nucleiTargetError = signal('');
@@ -285,62 +280,8 @@ export class SiteDetailComponent implements OnInit {
     this.router.navigate(['/site', r.websiteId], { state: { result: r } });
   }
 
-  // ── Inline scan for alive-but-not-yet-scanned subdomains ─────────────────
-  isScanning(subdomain: string): boolean {
-    return this.scanningSet().has(subdomain);
-  }
-
-  getScanResult(subdomain: string): ScanResult | null {
-    return this.scanResultMap().get(subdomain) ?? null;
-  }
-
-  getScanError(subdomain: string): string {
-    return this.scanErrorMap().get(subdomain) ?? '';
-  }
-
   openSubdomainCard(sub: DiscoveredSub) {
-    const existing = this.getScanResult(sub.subdomain) ?? sub.inDb;
-    if (existing) this.openDetail(existing);
-  }
-
-  async addSubdomainToDashboard(sub: DiscoveredSub, event?: Event) {
-    event?.stopPropagation();
-
-    // Already scanned inline → navigate to detail
-    const existing = this.getScanResult(sub.subdomain);
-    if (existing) { this.openDetail(existing); return; }
-
-    // Already in DB → navigate to detail
-    if (sub.inDb) { this.openDetail(sub.inDb); return; }
-
-    // Already scanning → do nothing
-    if (this.isScanning(sub.subdomain)) return;
-
-    // Mark scanning
-    this.scanningSet.update(s => { const n = new Set(s); n.add(sub.subdomain); return n; });
-    this.scanErrorMap.update(m => { const n = new Map(m); n.delete(sub.subdomain); return n; });
-
-    try {
-      const url = `https://${sub.subdomain}`;
-
-      // 1. Create website record
-      const website = await firstValueFrom(this.scanner.createWebsite(url));
-
-      // 2. Scan it
-      const result = await firstValueFrom(this.scanner.scanOne(website.id, url));
-
-      // Attach website info so openDetail works
-      const enriched: ScanResult = { ...result, website: { ...website, createdAt: new Date().toISOString() } };
-
-      this.scanResultMap.update(m => { const n = new Map(m); n.set(sub.subdomain, enriched); return n; });
-
-      // Also update allResults so future cross-reference works
-      this.allResults = [...this.allResults, enriched];
-    } catch {
-      this.scanErrorMap.update(m => { const n = new Map(m); n.set(sub.subdomain, 'Dashboardga qo\'shib bo\'lmadi'); return n; });
-    } finally {
-      this.scanningSet.update(s => { const n = new Set(s); n.delete(sub.subdomain); return n; });
-    }
+    if (sub.inDb) this.openDetail(sub.inDb);
   }
 
   // ── Nuclei CVE scan ───────────────────────────────────────────────────────

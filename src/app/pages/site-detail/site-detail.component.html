@@ -604,8 +604,8 @@
           <path d="M7.5 1v13M1 7.5h13" stroke="#00e5c0" stroke-opacity=".25" stroke-width="1.2" />
         </svg>
         <span>{{ rootDomain() }} subdomenlari</span>
-        @if (subdomains().length > 0) {
-        <span class="sub-count">DB: {{ subdomains().length }}</span>
+        @if (totalDiscovered() > 0) {
+        <span class="sub-count">Cache: {{ totalDiscovered() }}</span>
         }
       </div>
 
@@ -651,54 +651,6 @@
 
     @if (discoverError()) {
     <div class="discover-error">{{ discoverError() }}</div>
-    }
-
-    <!-- ── DB subdomains ── -->
-    @if (subdomains().length > 0) {
-    <div class="sub-section-label">
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-        <circle cx="5" cy="5" r="4.5" stroke="currentColor" stroke-width="1" />
-        <path d="M2.5 5h5M5 2.5v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-      </svg>
-      Ma'lumotlar bazasida
-    </div>
-    <div class="sub-grid">
-      @for (sub of subdomains(); track sub.id) {
-      <div class="sub-card" (click)="openDetail(sub)" role="button">
-        <div class="sub-accent" [style.background]="getCmsColor(sub.cms)"></div>
-        <div class="sub-top">
-          <div class="sub-url">{{ stripProtocol(sub.website?.url) }}</div>
-          @if (sub.website?.label) { <div class="sub-label">{{ sub.website?.label }}</div> }
-        </div>
-        <div class="sub-badges">
-          @if (sub.cms) {
-          <span class="sub-cms" [style.--c]="getCmsColor(sub.cms)">{{ sub.cms }}</span>
-          @if (sub.version) {
-            <span class="sub-ver">v{{ sub.version }}</span>
-          } @else {
-            <span class="sub-ver unknown">v<span class="ver-q">?</span></span>
-          }
-          } @else {
-          <span class="sub-unknown">Aniqlanmadi</span>
-          }
-        </div>
-        <div class="sub-foot">
-          <div class="sub-conf">
-            <div class="sub-conf-bar">
-              <div class="sub-conf-fill" [class]="getConfidenceClass(sub.confidence)" [style.width.%]="sub.confidence">
-              </div>
-            </div>
-            <span class="sub-conf-num" [class]="getConfidenceClass(sub.confidence)">{{ sub.confidence }}%</span>
-          </div>
-          @if (sub.httpStatus) {
-          <span class="sub-http" [class]="getHttpStatusClass(sub.httpStatus)">{{ sub.httpStatus }}</span>
-          } @else if (sub.errorMessage) {
-          <span class="sub-http http-error">offline</span>
-          }
-        </div>
-      </div>
-      }
-    </div>
     }
 
     <!-- ── Scanning progress bar ── -->
@@ -771,17 +723,14 @@
             <th>Subdomen</th>
             <th>Status</th>
             <th>Manba</th>
-            <th>CMS / DB</th>
+            <th>Saqlash</th>
             <th>Amal</th>
           </tr>
         </thead>
         <tbody>
           @for (sub of paginatedAliveSubdomains(); track sub.subdomain; let i = $index) {
-          @let scanRes = getScanResult(sub.subdomain);
-          @let scanning = isScanning(sub.subdomain);
-          @let scanErr = getScanError(sub.subdomain);
-          @let displayResult = scanRes ?? sub.inDb;
-          <tr [class.in-db]="!!displayResult" [class.is-scanning]="scanning">
+          @let displayResult = sub.inDb;
+          <tr [class.in-db]="!!displayResult">
             <td class="row-num">{{ aliveRangeStart() + i }}</td>
             <td class="row-domain">
               <span class="alive-dot"></span>
@@ -793,9 +742,6 @@
                 @if (sub.title || (displayResult && displayResult.website?.label)) {
                 <span class="alive-title">{{ displayResult?.website?.label || sub.title }}</span>
                 }
-                @if (scanErr) {
-                <span class="alive-error">{{ scanErr }}</span>
-                }
               </div>
             </td>
             <td>
@@ -804,10 +750,6 @@
                 <span class="sub-http" [ngClass]="getHttpStatusClass(sub.statusCode)">{{ sub.statusCode }}</span>
                 } @else {
                 <span class="muted-dash">—</span>
-                }
-                @if (scanning) {
-                <span class="mini-spinner"></span>
-                <span class="scan-inline-text">Qo'shilmoqda...</span>
                 }
               </div>
             </td>
@@ -822,7 +764,7 @@
             <td>
               @if (displayResult) {
               <div class="alive-db-cell">
-                <span class="src-chip-sm in-db-chip">{{ scanRes ? 'Yangi' : 'DB' }}</span>
+                <span class="src-chip-sm in-db-chip">DB</span>
                 @if (displayResult.cms) {
                 <span class="sub-cms" [style.--c]="getCmsColor(displayResult.cms)">{{ displayResult.cms }}</span>
                 } @else {
@@ -839,13 +781,7 @@
                 Ochish
               </button>
               } @else {
-              <button class="btn-add-dashboard" type="button" [disabled]="scanning"
-                (click)="addSubdomainToDashboard(sub, $event)">
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M5.5 2v7M2 5.5h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                Dashboardga qo'shish
-              </button>
+              <span class="not-scanned">Detailda</span>
               }
             </td>
           </tr>
@@ -941,14 +877,14 @@
     </div>
     }
 
-    @if (!discoverDone() && !discovering() && subdomains().length === 0) {
+    @if (!discoverDone() && !discovering() && totalDiscovered() === 0) {
     <div class="no-subdomains">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="10" cy="10" r="9" stroke="#22233a" stroke-width="1.5" />
         <path d="M10 2c-3 3-3 10 0 16M10 2c3 3 3 10 0 16M1 10h18" stroke="#22233a" stroke-width="1.5"
           stroke-linecap="round" />
       </svg>
-      <span>Cache da subdomenlar yo'q. "Subdomenlari qidirish" tugmasini bosing</span>
+      <span>Cache da subdomenlar yo'q. Avtomatik skan kutilmoqda yoki hozir yangilash mumkin</span>
     </div>
     }
   </div>
