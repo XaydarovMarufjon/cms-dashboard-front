@@ -786,12 +786,24 @@ export class ScannerService {
         return this.http.get<Alert[]>(`${this.api}/alerts`);
     }
 
+    getFalsePositiveAlerts(): Observable<Alert[]> {
+        return this.http.get<Alert[]>(`${this.api}/alerts/false-positive`);
+    }
+
     getAlertCount(): Observable<{ count: number }> {
         return this.http.get<{ count: number }>(`${this.api}/alerts/count`);
     }
 
     dismissAlert(id: string): Observable<Alert> {
         return this.http.patch<Alert>(`${this.api}/alerts/${id}/dismiss`, {});
+    }
+
+    markAlertFalsePositive(id: string): Observable<Alert> {
+        return this.http.patch<Alert>(`${this.api}/alerts/${id}/false-positive`, {});
+    }
+
+    restoreAlert(id: string): Observable<Alert> {
+        return this.http.patch<Alert>(`${this.api}/alerts/${id}/restore`, {});
     }
 
     exportCsv(): Observable<string> {
@@ -1008,5 +1020,7 @@ export interface Alert {
     message:     string;
     dueDate:     string;
     dismissed:   boolean;
+    falsePositive: boolean;
+    falsePositiveUntil?: string | null;
     createdAt:   string;
 }
