@@ -790,6 +790,38 @@ export class ScannerService {
         return this.http.get<Alert[]>(`${this.api}/alerts/false-positive`);
     }
 
+    getOsintDorkConfig(): Observable<OsintDorkConfig> {
+        return this.http.get<OsintDorkConfig>(`${this.api}/alerts/osint/config`);
+    }
+
+    getOsintDorkFindings(): Observable<OsintDorkFinding[]> {
+        return this.http.get<OsintDorkFinding[]>(`${this.api}/alerts/osint`);
+    }
+
+    getOsintDorkFalsePositive(): Observable<OsintDorkFinding[]> {
+        return this.http.get<OsintDorkFinding[]>(`${this.api}/alerts/osint/false-positive`);
+    }
+
+    runOsintDorkScan(input: OsintDorkScanInput = {}): Observable<OsintDorkScanResult> {
+        return this.http.post<OsintDorkScanResult>(`${this.api}/alerts/osint/scan`, input);
+    }
+
+    createOsintDorkFinding(input: OsintDorkManualInput): Observable<OsintDorkFinding> {
+        return this.http.post<OsintDorkFinding>(`${this.api}/alerts/osint/manual`, input);
+    }
+
+    dismissOsintDorkFinding(id: string): Observable<OsintDorkFinding> {
+        return this.http.patch<OsintDorkFinding>(`${this.api}/alerts/osint/${id}/dismiss`, {});
+    }
+
+    markOsintDorkFalsePositive(id: string): Observable<OsintDorkFinding> {
+        return this.http.patch<OsintDorkFinding>(`${this.api}/alerts/osint/${id}/false-positive`, {});
+    }
+
+    restoreOsintDorkFinding(id: string): Observable<OsintDorkFinding> {
+        return this.http.patch<OsintDorkFinding>(`${this.api}/alerts/osint/${id}/restore`, {});
+    }
+
     getAlertCount(): Observable<{ count: number }> {
         return this.http.get<{ count: number }>(`${this.api}/alerts/count`);
     }
@@ -1023,4 +1055,76 @@ export interface Alert {
     falsePositive: boolean;
     falsePositiveUntil?: string | null;
     createdAt:   string;
+}
+
+export type OsintDorkSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+
+export interface OsintDorkFinding {
+    id:            string;
+    domain:        string;
+    websiteId:     string | null;
+    url:           string;
+    title:         string | null;
+    category:      string;
+    severity:      OsintDorkSeverity;
+    query:         string;
+    source:        string;
+    evidence:      string | null;
+    sensitiveHits: string[];
+    rawSignals:    Record<string, unknown>;
+    status:        string;
+    dismissed:     boolean;
+    falsePositive: boolean;
+    foundAt:       string;
+    createdAt:     string;
+    updatedAt:     string;
+}
+
+export interface OsintDorkConfig {
+    providerConfigured: boolean;
+    provider:           string;
+    scope:              string;
+    autoScan: {
+        enabled:           boolean;
+        cron:              string;
+        timezone:          string;
+        limitPerQuery:     number;
+        maxDomainsPerScan: number;
+        defaultDomains:    string[];
+        running:           boolean;
+        last:              {
+            startedAt:      string;
+            finishedAt:     string;
+            status:         string;
+            saved:          number;
+            scannedDomains: number;
+            error?:         string;
+        } | null;
+    };
+    presets:            { category: string; label: string; severity: OsintDorkSeverity }[];
+}
+
+export interface OsintDorkScanInput {
+    domains?:       string[];
+    websiteIds?:    string[];
+    categories?:    string[];
+    limitPerQuery?: number;
+}
+
+export interface OsintDorkScanResult {
+    providerConfigured: boolean;
+    scannedDomains:     number;
+    saved:              number;
+    queries:            { domain: string; category: string; severity: OsintDorkSeverity; query: string }[];
+    errors?:            { domain: string; category: string; error: string }[];
+}
+
+export interface OsintDorkManualInput {
+    domain?:   string;
+    url:       string;
+    title?:    string;
+    evidence?: string;
+    query?:    string;
+    category?: string;
+    severity?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }

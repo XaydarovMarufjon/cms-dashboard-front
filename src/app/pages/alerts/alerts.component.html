@@ -85,7 +85,19 @@
     }
   </div>
 
+  <div class="alert-tabs">
+    <button type="button" class="alert-tab" [class.active]="activeTab() === 'alerts'" (click)="activeTab.set('alerts')">
+      Alertlar
+      <span>{{ alertTabCount() }}</span>
+    </button>
+    <button type="button" class="alert-tab osint-tab" [class.active]="activeTab() === 'osint'" (click)="activeTab.set('osint')">
+      OSINT DORK
+      <span>{{ osintTabCount() }}</span>
+    </button>
+  </div>
+
   <!-- CONTENT -->
+  @if (activeTab() === 'alerts') {
   @if (loading()) {
   <div class="state-block">
     <span class="spinner"></span>
@@ -215,6 +227,153 @@
     }
   </div>
   }
+  }
+  } @else {
+  <section class="osint-panel">
+    <div class="osint-toolbar">
+      <div class="osint-kpis">
+        <div class="osint-kpi">
+          <span>Aktiv</span>
+          <strong>{{ osintFindings().length }}</strong>
+        </div>
+        <div class="osint-kpi critical">
+          <span>Kritik</span>
+          <strong>{{ osintCriticalCount() }}</strong>
+        </div>
+        <div class="osint-kpi high">
+          <span>Yuqori</span>
+          <strong>{{ osintHighCount() }}</strong>
+        </div>
+      </div>
+
+      <div class="osint-actions">
+        @if (osintConfig(); as cfg) {
+        <span class="provider-pill" [class.ready]="cfg.providerConfigured">
+          {{ cfg.providerConfigured ? cfg.provider : 'GOOGLE_CSE kerak' }}
+        </span>
+        <span class="provider-pill" [class.ready]="cfg.autoScan.enabled">
+          {{ cfg.autoScan.enabled ? 'AUTO DAILY' : 'AUTO OFF' }}
+        </span>
+        }
+        <button type="button" class="btn-done osint-scan-btn" [disabled]="osintScanning()" (click)="runOsintScan()">
+          @if (osintScanning()) { <span class="btn-spinner"></span> }
+          OSINT scan
+        </button>
+      </div>
+    </div>
+
+    @if (osintScanMessage()) {
+    <div class="osint-message">{{ osintScanMessage() }}</div>
+    }
+    @if (osintConfig()?.autoScan; as auto) {
+    <div class="osint-schedule">
+      <span>Kunlik scan: {{ auto.cron }}</span>
+      <span>{{ auto.timezone }}</span>
+      <span>{{ auto.defaultDomains.join(', ') }} · {{ auto.limitPerQuery }} natija/query</span>
+      @if (auto.last) {
+      <span>Oxirgi: {{ auto.last.status }} · {{ auto.last.saved }} dalil · {{ auto.last.finishedAt | date:'dd.MM.yyyy HH:mm' }}</span>
+      }
+    </div>
+    }
+
+    <div class="manual-evidence">
+      <input type="url" placeholder="https://gov.uz/..." [ngModel]="manualOsintUrl()" (ngModelChange)="manualOsintUrl.set($event)" />
+      <input type="text" placeholder="Sarlavha" [ngModel]="manualOsintTitle()" (ngModelChange)="manualOsintTitle.set($event)" />
+      <textarea rows="2" placeholder="Dalil/snippet" [ngModel]="manualOsintEvidence()" (ngModelChange)="manualOsintEvidence.set($event)"></textarea>
+      <button type="button" class="btn-restore" [disabled]="manualSaving() || !manualOsintUrl()" (click)="saveManualOsint()">
+        @if (manualSaving()) { <span class="btn-spinner"></span> }
+        Saqlash
+      </button>
+    </div>
+
+    @if (loading()) {
+    <div class="state-block">
+      <span class="spinner"></span>
+      <span class="state-text">Yuklanmoqda…</span>
+    </div>
+    } @else if (osintFindings().length === 0 && osintFalsePositiveFindings().length === 0) {
+    <div class="state-block empty-state">
+      <div class="empty-title">OSINT DORK topilma yo'q</div>
+      <div class="empty-desc">Gov domenlar bo'yicha dalillar shu yerda saqlanadi</div>
+    </div>
+    } @else {
+    @if (osintFindings().length > 0) {
+    <div class="section-head">
+      <span>OSINT topilmalar</span>
+      <strong>{{ osintFindings().length }}</strong>
+    </div>
+    <div class="osint-list">
+      @for (finding of osintFindings(); track finding.id) {
+      <article class="osint-card" [ngClass]="'severity-' + osintSeverityClass(finding.severity)">
+        <div class="osint-main">
+          <div class="osint-card-head">
+            <a class="osint-url" [href]="finding.url" target="_blank" rel="noopener">{{ finding.title || finding.url }}</a>
+            <span class="ssl-tag tag-gov">UZ</span>
+            <span class="osint-category">{{ osintCategoryLabel(finding.category) }}</span>
+            <span class="osint-severity" [ngClass]="'severity-pill-' + osintSeverityClass(finding.severity)">
+              {{ osintSeverityLabel(finding.severity) }}
+            </span>
+          </div>
+          <div class="osint-meta">
+            <span>{{ finding.domain || hostFromUrl(finding.url) }}</span>
+            <span>{{ finding.source }}</span>
+            <span>{{ finding.foundAt | date:'dd.MM.yyyy HH:mm' }}</span>
+          </div>
+          @if (finding.evidence) {
+          <p class="osint-evidence">{{ finding.evidence }}</p>
+          }
+          @if (finding.sensitiveHits.length) {
+          <div class="osint-hits">
+            @for (hit of finding.sensitiveHits; track hit) {
+            <span>{{ hit }}</span>
+            }
+          </div>
+          }
+          <div class="osint-query">{{ finding.query }}</div>
+        </div>
+        <div class="alert-actions osint-card-actions">
+          <button class="btn-done" [disabled]="isOsintActing(finding.id)" (click)="dismissOsint(finding)">
+            @if (isOsintActing(finding.id)) { <span class="btn-spinner"></span> }
+            Bajarildi
+          </button>
+          <button class="btn-skip" [disabled]="isOsintActing(finding.id)" (click)="markOsintFalsePositive(finding)">
+            False positive
+          </button>
+        </div>
+      </article>
+      }
+    </div>
+    }
+
+    @if (osintFalsePositiveFindings().length > 0) {
+    <div class="section-head fp-head">
+      <span>OSINT false positive</span>
+      <strong>{{ osintFalsePositiveFindings().length }}</strong>
+    </div>
+    <div class="osint-list fp-list">
+      @for (finding of osintFalsePositiveFindings(); track finding.id) {
+      <article class="osint-card osint-fp">
+        <div class="osint-main">
+          <div class="osint-card-head">
+            <a class="osint-url" [href]="finding.url" target="_blank" rel="noopener">{{ finding.title || finding.url }}</a>
+            <span class="type-badge type-badge-fp">False positive</span>
+            <span class="osint-category">{{ osintCategoryLabel(finding.category) }}</span>
+          </div>
+          @if (finding.evidence) {
+          <p class="osint-evidence">{{ finding.evidence }}</p>
+          }
+        </div>
+        <div class="alert-actions osint-card-actions">
+          <button class="btn-restore" [disabled]="isOsintActing(finding.id)" (click)="restoreOsint(finding)">
+            Tiklash
+          </button>
+        </div>
+      </article>
+      }
+    </div>
+    }
+    }
+  </section>
   }
 
 </div>
