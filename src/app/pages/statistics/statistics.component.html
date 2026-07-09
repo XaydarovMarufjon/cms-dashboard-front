@@ -44,8 +44,50 @@
       </div>
     }
 
+    <section class="daily-report">
+      <div class="daily-report-head">
+        <h2>Kunlik xisobot statistikasi</h2>
+        <label class="btn-secondary daily-upload" [class.loading]="dailyLoading()">
+          DOCX yuklash
+          <input
+            type="file"
+            hidden
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            (change)="onDailyReportFile($event)"
+            [disabled]="dailyLoading()"
+          />
+        </label>
+      </div>
+
+      @if (dailyLoading()) {
+        <div class="daily-loading">O'qilmoqda…</div>
+      }
+      @if (dailyError()) { <div class="error daily-error">{{ dailyError() }}</div> }
+
+      @if (dailyReport(); as report) {
+        <div class="daily-total">
+          <span>Умумий бартараф этилган ҳужумлар сони</span>
+          <b>{{ fmtNum(report.totalMitigated) }}</b>
+          <button class="btn-secondary" (click)="downloadSvodka()" [disabled]="svodkaLoading()">
+            {{ svodkaLoading() ? 'Tayyorlanmoqda…' : 'Svodka yuklab olish' }}
+          </button>
+        </div>
+        @if (svodkaError()) { <div class="error daily-error">{{ svodkaError() }}</div> }
+
+        <div class="daily-country-list">
+          @for (c of report.countries; track c.country) {
+            <div class="daily-country-row" [class.top-country]="c.rank <= 3" [attr.data-rank]="c.rank <= 3 ? c.rank : null">
+              <span class="daily-rank">{{ c.rank }}</span>
+              <span class="daily-country">{{ c.country }}</span>
+              <span class="daily-count">{{ fmtNum(c.count) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
     <!-- Section tabs -->
-    @if (hasAnyData()) {
+    @if (hasWorkbookData()) {
       <div class="section-tabs">
         <button class="sec-tab" [class.active]="activeSection() === 'vuln'" [class.disabled]="!vuln()"
                 (click)="vuln() && setSection('vuln')">

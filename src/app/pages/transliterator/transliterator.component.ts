@@ -102,9 +102,36 @@ export class TransliteratorComponent implements OnDestroy {
     const output = this.outputText();
     if (!output) return;
 
-    await navigator.clipboard.writeText(output);
+    await this.writeClipboard(output);
     this.copied.set(true);
     setTimeout(() => this.copied.set(false), 1400);
+  }
+
+  private async writeClipboard(text: string) {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // Fall back for browsers that expose Clipboard API but deny the write.
+      }
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.body.removeChild(textarea);
+    }
   }
 
   onSourceTextChange(value: string) {
