@@ -21,13 +21,13 @@
         <path d="M9 5v4M9 10.5v.5" stroke="#ffc84a" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span>Alertlar</span>
-      @if (alerts().length > 0) {
-      <span class="total-badge">{{ alerts().length }}</span>
+      @if (filteredAlerts().length > 0) {
+      <span class="total-badge">{{ filteredAlerts().length }}</span>
       }
     </div>
 
     <!-- Summary chips -->
-    @if (!loading() && alerts().length > 0) {
+    @if (!loading() && (alerts().length > 0 || falsePositiveAlerts().length > 0)) {
     <div class="summary-chips">
       @if (urgentCount() > 0) {
       <span class="chip chip-urgent">
@@ -64,6 +64,23 @@
         <span class="chip-dot chip-pulse"></span>{{ defacementCount() }} Defacement
       </span>
       }
+      @if (falsePositiveCount() > 0) {
+      <span class="chip chip-fp">
+        <span class="chip-dot"></span>{{ falsePositiveCount() }} False positive
+      </span>
+      }
+    </div>
+    <div class="alert-tag-filter">
+      <button class="tag-filter-btn" [class.active]="filterTag() === 'all'" (click)="filterTag.set('all')">
+        <span class="tag-symbol">#</span>
+        Barchasi
+        <span class="tag-count">{{ allAlertCount() }}</span>
+      </button>
+      <button class="tag-filter-btn tag-filter-gov" [class.active]="filterTag() === 'gov'" (click)="filterTag.set('gov')">
+        <span class="tag-symbol">G</span>
+        Gov saytlar
+        <span class="tag-count">{{ govTagCount() }}</span>
+      </button>
     </div>
     }
   </div>
@@ -74,22 +91,31 @@
     <span class="spinner"></span>
     <span class="state-text">Yuklanmoqda…</span>
   </div>
-  } @else if (alerts().length === 0) {
+  } @else if (filteredAlerts().length === 0 && filteredFalsePositiveAlerts().length === 0) {
   <div class="state-block empty-state">
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
       <circle cx="24" cy="24" r="22" stroke="#22c55e" stroke-opacity=".2" stroke-width="1.5"/>
       <path d="M16 24l6 6 10-12" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <div class="empty-title">Hech qanday alert yo'q</div>
-    <div class="empty-desc">Barcha domenlar muddatidan 30+ kun oldinda</div>
+    <div class="empty-title">{{ filterTag() === 'all' ? "Hech qanday alert yo'q" : "Bu tagda alert yo'q" }}</div>
+    <div class="empty-desc">{{ filterTag() === 'all' ? 'Barcha domenlar muddatidan 30+ kun oldinda' : tagLabel(filterTag()) + " bo'yicha alert topilmadi" }}</div>
   </div>
   } @else {
+  @if (filteredAlerts().length === 0) {
+  <div class="state-block compact-state">
+    <div class="empty-title">Aktiv alert yo'q</div>
+  </div>
+  } @else {
+  <div class="section-head">
+    <span>Aktiv alertlar</span>
+    <strong>{{ filteredAlerts().length }}</strong>
+  </div>
   <div class="alerts-list">
-    @for (alert of alerts(); track alert.id) {
+    @for (alert of filteredAlerts(); track alert.id) {
     @let days = daysLeft(alert.dueDate);
-    <div class="alert-card" [class]="'alert-' + cssType(alert.type)" [class.alert-urgent-pulse]="isUrgent(alert.type)">
+    <div class="alert-card" [ngClass]="'alert-' + cssType(alert.type)" [class.alert-urgent-pulse]="isUrgent(alert.type)">
       <div class="alert-left">
-        <div class="alert-icon" [class]="'icon-' + alert.type">
+        <div class="alert-icon" [ngClass]="'icon-' + alert.type">
           @if (alert.type === 'expiry_critical') {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/>
@@ -121,28 +147,25 @@
           </svg>
           }
         </div>
-        <div class="alert-body">
-          <div class="alert-domain">
-            {{ alert.domain }}
-            @if (isSsl(alert.type)) { <span class="ssl-tag">SSL</span> }
-            @if (isCmsChange(alert.type)) { <span class="ssl-tag" style="background:#f59e0b22;color:#f59e0b;border-color:#f59e0b44">CMS</span> }
-            @if (isSiteDown(alert.type)) { <span class="ssl-tag" style="background:#ef444422;color:#ef4444;border-color:#ef444444">DOWN</span> }
-            @if (isDefacement(alert.type)) { <span class="ssl-tag" style="background:#ef444422;color:#ef4444;border-color:#ef444444">DEFACE</span> }
-          </div>
-          <div class="alert-message">{{ alert.message }}</div>
-          <div class="alert-meta">
-            <span class="type-badge type-badge-{{ cssType(alert.type) }}">{{ typeLabel(alert.type) }}</span>
-            <span class="days-left" [class.days-overdue]="days <= 0">
-              @if (days <= 0) { {{ expiredLabel(alert.type) }} }
-              @else { {{ days }} kun qoldi }
-            </span>
-            <span class="due-date">Tugash: {{ alert.dueDate | date:'dd.MM.yyyy' }}</span>
-          </div>
+        <div class="alert-line">
+          <span class="alert-domain">{{ alert.domain }}</span>
+          @if (isGovAlert(alert)) { <span class="ssl-tag tag-gov">GOV</span> }
+          @if (isSsl(alert.type)) { <span class="ssl-tag">SSL</span> }
+          @if (isCmsChange(alert.type)) { <span class="ssl-tag tag-cms">CMS</span> }
+          @if (isSiteDown(alert.type)) { <span class="ssl-tag tag-down">DOWN</span> }
+          @if (isDefacement(alert.type)) { <span class="ssl-tag tag-down">DEFACE</span> }
+          <span class="type-badge type-badge-{{ cssType(alert.type) }}">{{ typeLabel(alert.type) }}</span>
+          <span class="alert-message">{{ alert.message }}</span>
+          <span class="days-left" [class.days-overdue]="days <= 0">
+            @if (days <= 0) { {{ expiredLabel(alert.type) }} }
+            @else { {{ days }} kun qoldi }
+          </span>
+          <span class="due-date">{{ alert.dueDate | date:'dd.MM.yyyy' }}</span>
         </div>
       </div>
       <div class="alert-actions">
-        <button class="btn-done" [disabled]="isDismissing(alert.id)" (click)="dismiss(alert)">
-          @if (isDismissing(alert.id)) {
+        <button class="btn-done" [disabled]="isActing(alert.id)" (click)="dismiss(alert)">
+          @if (isActing(alert.id)) {
           <span class="btn-spinner"></span>
           } @else {
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -152,13 +175,46 @@
           }
           Bajarildi
         </button>
-        <button class="btn-skip" [disabled]="isDismissing(alert.id)">
-          Yo'q
+        <button class="btn-skip" [disabled]="isActing(alert.id)" (click)="markFalsePositive(alert)">
+          False positive
         </button>
       </div>
     </div>
     }
   </div>
+  }
+
+  @if (filteredFalsePositiveAlerts().length > 0) {
+  <div class="section-head fp-head">
+    <span>False positive</span>
+    <strong>{{ filteredFalsePositiveAlerts().length }}</strong>
+  </div>
+  <div class="alerts-list fp-list">
+    @for (alert of filteredFalsePositiveAlerts(); track alert.id) {
+    <div class="alert-card alert-fp">
+      <div class="alert-left">
+        <div class="alert-icon icon-fp">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="alert-line">
+          <span class="alert-domain">{{ alert.domain }}</span>
+          @if (isGovAlert(alert)) { <span class="ssl-tag tag-gov">GOV</span> }
+          <span class="type-badge type-badge-fp">False positive</span>
+          <span class="alert-message">{{ alert.message }}</span>
+          <span class="due-date">{{ alert.dueDate | date:'dd.MM.yyyy' }}</span>
+        </div>
+      </div>
+      <div class="alert-actions">
+        <button class="btn-restore" [disabled]="isActing(alert.id)" (click)="restore(alert)">
+          Tiklash
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+  }
   }
 
 </div>

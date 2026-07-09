@@ -28,10 +28,10 @@ $green:  #22c55e;
   min-height: 100vh;
   background: $bg;
   color: $text;
-  padding: 28px 32px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 // ── HEADER ─────────────────────────────────────────
@@ -61,7 +61,7 @@ $green:  #22c55e;
   gap: 10px;
   font-size: 22px;
   font-weight: 700;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
 }
 
 .total-badge {
@@ -100,6 +100,80 @@ $green:  #22c55e;
   &.chip-critical { color: $red;    background: color-mix(in srgb, var(--red) 8%, transparent);    border-color: color-mix(in srgb, var(--red) 20%, transparent); }
   &.chip-warning  { color: $orange; background: rgba($orange,.08); border-color: rgba($orange,.2); }
   &.chip-notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 8%, transparent); border-color: color-mix(in srgb, var(--yellow) 20%, transparent); }
+  &.chip-fp       { color: $muted; background: color-mix(in srgb, var(--muted) 8%, transparent); border-color: color-mix(in srgb, var(--muted) 18%, transparent); }
+}
+
+.alert-tag-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid $border;
+  background: $s1;
+  color: $muted;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+
+  &:hover {
+    color: $text;
+    border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
+  }
+
+  &.active {
+    color: $accent;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+
+.tag-filter-gov.active {
+  color: #38bdf8;
+  background: color-mix(in srgb, #38bdf8 12%, transparent);
+  border-color: color-mix(in srgb, #38bdf8 34%, transparent);
+}
+
+.tag-symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: $s3;
+  color: currentColor;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.tag-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: $s3;
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tag-filter-btn.active .tag-count {
+  color: currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 // ── STATES ─────────────────────────────────────────
@@ -129,32 +203,76 @@ $green:  #22c55e;
   .empty-desc  { font-size: 15px; color: $muted; }
 }
 
+.compact-state {
+  align-items: flex-start;
+  padding: 12px 0 0;
+
+  .empty-title {
+    font-size: 14px;
+    color: $muted;
+  }
+}
+
 // ── ALERTS LIST ────────────────────────────────────
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+  color: $text;
+  font-size: 14px;
+  font-weight: 700;
+
+  strong {
+    min-width: 24px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 7px;
+    border-radius: 999px;
+    border: 1px solid $border;
+    color: $muted;
+    font-size: 12px;
+  }
+}
+
+.fp-head {
+  margin-top: 14px;
+  color: $muted;
+}
+
 .alerts-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 860px;
+  gap: 8px;
+  width: 100%;
+  max-width: none;
 }
 
 .alert-card {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
   background: $s1;
   border: 1px solid $border;
-  border-radius: 12px;
-  padding: 16px 20px;
+  border-radius: 8px;
+  padding: 7px 10px;
   border-left-width: 3px;
   transition: box-shadow .2s;
+  overflow: hidden;
 
-  &:hover { box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+  &:hover { box-shadow: 0 2px 14px rgba(0,0,0,.24); }
 
   &.alert-expiry_urgent   { border-left-color: $red;    border-left-width: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--red) 8%, transparent) 0%, $s1 60%); }
   &.alert-expiry_critical { border-left-color: $red;    background: linear-gradient(90deg, color-mix(in srgb, var(--red) 4%, transparent) 0%, $s1 60%); }
   &.alert-expiry_warning  { border-left-color: $orange; background: linear-gradient(90deg, rgba($orange,.04) 0%, $s1 60%); }
   &.alert-expiry_notice   { border-left-color: $yellow; background: linear-gradient(90deg, color-mix(in srgb, var(--yellow) 4%, transparent) 0%, $s1 60%); }
+  &.alert-fp              { border-left-color: $muted; opacity: .82; background: $s1; }
 
   &.alert-urgent-pulse {
     animation: urgentPulse 2s ease-in-out infinite;
@@ -163,16 +281,16 @@ $green:  #22c55e;
 
 .alert-left {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
 .alert-icon {
   flex-shrink: 0;
-  width: 32px; height: 32px;
-  border-radius: 8px;
+  width: 26px; height: 26px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,6 +300,7 @@ $green:  #22c55e;
   &.icon-expiry_warning  { color: $orange; background: rgba($orange,.12); border: 1px solid rgba($orange,.2); }
   &.icon-expiry_notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 12%, transparent); border: 1px solid color-mix(in srgb, var(--yellow) 20%, transparent); }
   &.icon-defacement_change { color: $red; background: color-mix(in srgb, var(--red) 18%, transparent); border: 1px solid color-mix(in srgb, var(--red) 35%, transparent); }
+  &.icon-fp { color: $muted; background: color-mix(in srgb, var(--muted) 10%, transparent); border: 1px solid color-mix(in srgb, var(--muted) 18%, transparent); }
 }
 
 .alert-body {
@@ -191,17 +310,37 @@ $green:  #22c55e;
   min-width: 0;
 }
 
+.alert-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .alert-domain {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: $text;
+  min-width: 140px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .alert-message {
-  font-size: 14px;
+  flex: 1;
+  min-width: 160px;
+  font-size: 13px;
   color: color-mix(in srgb, var(--text) 65%, transparent);
-  line-height: 1.5;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .alert-meta {
@@ -213,22 +352,25 @@ $green:  #22c55e;
 }
 
 .type-badge {
-  font-size: 12px;
+  flex: 0 0 auto;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: 0;
   text-transform: uppercase;
   border-radius: 4px;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border: 1px solid;
 
   &.type-badge-expiry_urgent   { color: $red;    background: color-mix(in srgb, var(--red) 15%, transparent);   border-color: color-mix(in srgb, var(--red) 30%, transparent); font-weight: 800; letter-spacing: .08em; }
   &.type-badge-expiry_critical { color: $red;    background: color-mix(in srgb, var(--red) 10%, transparent);    border-color: color-mix(in srgb, var(--red) 20%, transparent); }
   &.type-badge-expiry_warning  { color: $orange; background: rgba($orange,.1); border-color: rgba($orange,.2); }
   &.type-badge-expiry_notice   { color: $yellow; background: color-mix(in srgb, var(--yellow) 10%, transparent); border-color: color-mix(in srgb, var(--yellow) 20%, transparent); }
+  &.type-badge-fp              { color: $muted;  background: color-mix(in srgb, var(--muted) 8%, transparent); border-color: color-mix(in srgb, var(--muted) 18%, transparent); }
 }
 
 .days-left {
-  font-size: 14px;
+  flex: 0 0 auto;
+  font-size: 13px;
   font-weight: 600;
   color: color-mix(in srgb, var(--text) 60%, transparent);
 
@@ -236,7 +378,8 @@ $green:  #22c55e;
 }
 
 .due-date {
-  font-size: 13px;
+  flex: 0 0 auto;
+  font-size: 12px;
   font-family: 'IBM Plex Mono', monospace;
   color: $muted;
 }
@@ -249,17 +392,19 @@ $green:  #22c55e;
   align-items: center;
 }
 
-.btn-done, .btn-skip {
+.btn-done, .btn-skip, .btn-restore {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  padding: 7px 14px;
+  min-height: 30px;
+  padding: 5px 10px;
   transition: background .2s, opacity .2s;
+  white-space: nowrap;
 
   &:disabled { opacity: .5; cursor: not-allowed; }
 }
@@ -276,6 +421,13 @@ $green:  #22c55e;
   color: $muted;
   border: 1px solid color-mix(in srgb, var(--muted) 15%, transparent);
   &:not(:disabled):hover { background: color-mix(in srgb, var(--muted) 14%, transparent); color: $text; }
+}
+
+.btn-restore {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: $accent;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  &:not(:disabled):hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 }
 
 .btn-spinner {
@@ -303,15 +455,33 @@ $green:  #22c55e;
 }
 
 .ssl-tag {
+  flex: 0 0 auto;
   display: inline-block;
   font-size: 11px; font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: 0;
   background: rgba(#00e5c0, .1);
   color: #00e5c0;
   border: 1px solid rgba(#00e5c0, .25);
   border-radius: 3px;
   padding: 1px 5px;
-  margin-left: 6px;
   vertical-align: middle;
   text-transform: uppercase;
+}
+
+.tag-cms {
+  background: rgba($orange,.12);
+  color: $orange;
+  border-color: rgba($orange,.28);
+}
+
+.tag-down {
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  color: $red;
+  border-color: color-mix(in srgb, var(--red) 28%, transparent);
+}
+
+.tag-gov {
+  background: color-mix(in srgb, #38bdf8 12%, transparent);
+  color: #38bdf8;
+  border-color: color-mix(in srgb, #38bdf8 30%, transparent);
 }
