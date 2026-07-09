@@ -1,6 +1,7 @@
 import { Component, Input, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import * as JSZip from 'jszip';
 import * as XLSX from 'xlsx';
 import { ThemeService } from '../../core/services/theme.service';
 import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
@@ -243,6 +244,18 @@ function findCol(headers: string[], ...needles: string[]): number {
 
 export interface CountEntry { key: string; count: number; }
 
+export interface DailyReportCountry {
+  country: string;
+  count: number;
+  rank: number;
+}
+
+export interface DailyReportStats {
+  fileName: string;
+  totalMitigated: number;
+  countries: DailyReportCountry[];
+}
+
 function splitSites(s: string): string[] {
   if (!s) return [];
   return s.split(/[,;\n]+/)
@@ -264,6 +277,38 @@ function isYes(v: string): boolean {
 function isNo(v: string): boolean {
   const x = v.toLowerCase().trim();
   return x === 'нет' || x === 'yo\'q' || x === 'yoq' || x === 'yoʻq' || x === 'no' || x === 'false';
+}
+
+function parseReportNumber(v: string): number {
+  const m = String(v || '').replace(/\u00a0/g, ' ').match(/-?\d[\d\s.,]*/);
+  if (!m) return 0;
+  const n = Number(m[0].replace(/[^\d-]/g, ''));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function isReportDate(v: string): boolean {
+  return /^\d{1,2}[.\/\-]\d{1,2}[.\/\-]\d{2,4}$/.test(v.trim());
+}
+
+function hasIpAddress(v: string): boolean {
+  return /\b\d{1,3}(?:\.\d{1,3}){3}\b/.test(v);
+}
+
+function isOtherIpRow(v: string): boolean {
+  return /^Бошқа\s+\d+\s+та\s+IP-манзиллардан/i.test(v.trim());
+}
+
+function xmlText(v: string): string {
+  return String(v || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function formatReportNumber(n: number): string {
+  return Math.round(n).toLocaleString('ru-RU').replace(/\s/g, '\u00a0');
 }
 
 // ─── Section row types ───
@@ -316,6 +361,12 @@ export class StatisticsComponent {
   uniError = signal('');
   uniFiles = signal<{ name: string; sections: string[] }[]>([]);
 
+  dailyLoading = signal(false);
+  dailyError = signal('');
+  dailyReport = signal<DailyReportStats | null>(null);
+  svodkaLoading = signal(false);
+  svodkaError = signal('');
+
   // ── Section data ──
   vuln = signal<SectionData<VulnRow> | null>(null);
   cyber = signal<SectionData<CyberRow> | null>(null);
@@ -342,7 +393,8 @@ export class StatisticsComponent {
   });
   techSearch = signal('');
 
-  hasAnyData = computed(() => !!(this.vuln() || this.cyber() || this.tech()));
+  hasWorkbookData = computed(() => !!(this.vuln() || this.cyber() || this.tech()));
+  hasAnyData = computed(() => this.hasWorkbookData() || !!this.dailyReport());
 
   // ═══════════ FILE HANDLING ═══════════
   async onFiles(e: Event) {
@@ -396,7 +448,212 @@ export class StatisticsComponent {
     }
   }
 
+  async onDailyReportFile(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) await this.parseDailyReport(file);
+    input.value = '';
+  }
+
+  async parseDailyReport(file: File) {
+    this.dailyError.set('');
+    this.dailyLoading.set(true);
+    try {
+      const zip = await JSZip.loadAsync(await file.arrayBuffer());
+      const documentFile = zip.file('word/document.xml');
+      if (!documentFile) throw new Error('word/document.xml topilmadi');
+      const xml = await documentFile.async('string');
+      const stats = this.extractDailyReport(xml, file.name);
+      if (!stats) {
+        this.dailyError.set(`"${file.name}" da kunlik hisobot jadvali topilmadi`);
+        return;
+      }
+      this.svodkaError.set('');
+      this.dailyReport.set(stats);
+    } catch (e: any) {
+      this.dailyError.set('DOCX faylni o\'qib bo\'lmadi: ' + (e?.message || 'xato'));
+    } finally {
+      this.dailyLoading.set(false);
+    }
+  }
+
+  async downloadSvodka() {
+    const report = this.dailyReport();
+    if (!report) return;
+
+    this.svodkaError.set('');
+    this.svodkaLoading.set(true);
+    try {
+      const res = await fetch('/templates/svodka-template.docx', { cache: 'no-store' });
+      if (!res.ok) throw new Error('svodka shabloni topilmadi');
+      const zip = await JSZip.loadAsync(await res.arrayBuffer());
+      const documentFile = zip.file('word/document.xml');
+      if (!documentFile) throw new Error('word/document.xml topilmadi');
+
+      const xml = await documentFile.async('string');
+      zip.file('word/document.xml', this.renderSvodkaDocumentXml(xml, report));
+
+      const blob = await zip.generateAsync({
+        type: 'blob',
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
+      this.downloadBlob(blob, `сводка ${this.todayFileDate()}.docx`);
+    } catch (e: any) {
+      this.svodkaError.set('Svodka tayyorlanmadi: ' + (e?.message || 'xato'));
+    } finally {
+      this.svodkaLoading.set(false);
+    }
+  }
+
+  private renderSvodkaDocumentXml(xml: string, report: DailyReportStats): string {
+    const firstParagraph = xml.match(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/)?.[0];
+    if (!firstParagraph) throw new Error('shablon matni topilmadi');
+
+    const openTag = firstParagraph.match(/^<w:p\b[^>]*>/)?.[0] || '<w:p>';
+    const paragraphProps = firstParagraph.match(/<w:pPr>[\s\S]*?<\/w:pPr>/)?.[0] || '';
+    const body = this.svodkaRuns(report);
+    return xml.replace(firstParagraph, `${openTag}${paragraphProps}${body}</w:p>`);
+  }
+
+  private svodkaRuns(report: DailyReportStats): string {
+    const top = report.countries.slice(0, 3);
+    const countryText = top
+      .map(c => ({ country: c.country, count: formatReportNumber(c.count) }))
+      .flatMap((c, index) => [
+        ...(index > 0 ? [{ text: ', ', bold: true }] : []),
+        { text: c.country, bold: true },
+        { text: ` (${c.count})`, bold: true },
+      ]);
+
+    const parts: { text?: string; bold?: boolean; br?: boolean }[] = [
+      { text: 'Так, ' },
+      { text: 'предотвращены ' },
+      { text: formatReportNumber(report.totalMitigated), bold: true },
+      { text: ' кибератак на сайты, принадлежащие государственным органам и организациям, подключенным ' },
+      { br: true },
+      { text: 'в систему защиты веб-ресурсов ГУ «Центр кибербезопасности» при СГБ. ' },
+      { br: true },
+      { text: 'В результате проведенных системных проверочных мероприятий ' },
+      { br: true },
+      { text: 'в киберпространстве, установлено, что указанные кибератаки осуществлялись ' },
+      { br: true },
+      { text: 'с интернет-сегмента ' },
+      ...countryText,
+    ];
+
+    return parts.map(part => part.br ? this.wordBreakRun() : this.wordTextRun(part.text || '', !!part.bold)).join('');
+  }
+
+  private wordTextRun(text: string, bold: boolean): string {
+    const boldXml = bold ? '<w:b/><w:bCs/>' : '';
+    return `<w:r><w:rPr>${boldXml}<w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t xml:space="preserve">${xmlText(text)}</w:t></w:r>`;
+  }
+
+  private wordBreakRun(): string {
+    return '<w:r><w:rPr><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:br/></w:r>';
+  }
+
   // ═══════════ EXTRACTORS ═══════════
+  private extractDailyReport(xml: string, fileName: string): DailyReportStats | null {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const tables = this.elementsByLocalName(doc, 'tbl');
+
+    for (const table of tables) {
+      const tableRows = this.wordTableRows(table);
+      if (!tableRows.length) continue;
+
+      const headerIndex = tableRows.findIndex(row => {
+        const text = row.join(' ').toLowerCase();
+        return text.includes('ҳужум амалга оширган мамлакатлар')
+          && text.includes('бартараф этилган ҳужумлар сони')
+          && text.includes('умумий бартараф этилган ҳужумлар сони');
+      });
+      if (headerIndex < 0) continue;
+
+      const headers = tableRows[headerIndex];
+      const countryCol = findCol(headers, 'ҳужум амалга оширган мамлакатлар');
+      const countCol = findCol(headers, 'бартараф этилган ҳужумлар сони');
+      const totalCol = findCol(headers, 'умумий бартараф этилган ҳужумлар сони');
+      const dateCol = findCol(headers, 'бошланиш санаси');
+      const ipCol = findCol(headers, 'ip-манзили', 'ip');
+      if (countryCol < 0 || countCol < 0 || totalCol < 0) continue;
+
+      let lastCountry = '';
+      let totalMitigated = 0;
+      const countryCounts = new Map<string, number>();
+
+      for (const row of tableRows.slice(headerIndex + 1)) {
+        const explicitCountry = cleanCell(row[countryCol]);
+        const count = parseReportNumber(row[countCol]);
+        const total = parseReportNumber(row[totalCol]);
+        if (total > 0) totalMitigated += total;
+
+        if (explicitCountry && !isOtherIpRow(explicitCountry)) {
+          lastCountry = explicitCountry;
+        }
+
+        const canInheritCountry = !explicitCountry
+          && lastCountry
+          && ((dateCol >= 0 && isReportDate(row[dateCol])) || (ipCol >= 0 && hasIpAddress(row[ipCol])));
+        const country = explicitCountry || (canInheritCountry ? lastCountry : '');
+        if (count > 0 && country && !isOtherIpRow(country)) {
+          countryCounts.set(country, (countryCounts.get(country) || 0) + count);
+        }
+      }
+
+      const countries = Array.from(countryCounts.entries())
+        .map(([country, count]) => ({ country, count }))
+        .sort((a, b) => b.count - a.count || a.country.localeCompare(b.country))
+        .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+      if (!totalMitigated && !countries.length) continue;
+      return { fileName, totalMitigated, countries };
+    }
+
+    return null;
+  }
+
+  private wordTableRows(table: Element): string[][] {
+    return this.childElementsByLocalName(table, 'tr').map(row => {
+      const values: string[] = [];
+      for (const cell of this.childElementsByLocalName(row, 'tc')) {
+        const text = this.wordCellText(cell);
+        const span = this.wordGridSpan(cell);
+        values.push(text);
+        for (let i = 1; i < span; i++) values.push('');
+      }
+      return values;
+    });
+  }
+
+  private wordCellText(cell: Element): string {
+    const text = this.elementsByLocalName(cell, 't').map(el => el.textContent || '').join('');
+    return cleanCell(text);
+  }
+
+  private wordGridSpan(cell: Element): number {
+    const span = this.elementsByLocalName(cell, 'gridSpan')[0];
+    if (!span) return 1;
+    const n = Number(this.xmlAttr(span, 'val'));
+    return Number.isFinite(n) && n > 1 ? n : 1;
+  }
+
+  private elementsByLocalName(root: Document | Element, localName: string): Element[] {
+    return Array.from(root.getElementsByTagName('*')).filter((el): el is Element => el.localName === localName);
+  }
+
+  private childElementsByLocalName(root: Element, localName: string): Element[] {
+    return Array.from(root.children).filter((el): el is Element => el.localName === localName);
+  }
+
+  private xmlAttr(el: Element, localName: string): string {
+    for (let i = 0; i < el.attributes.length; i++) {
+      const attr = el.attributes.item(i);
+      if (attr?.localName === localName) return attr.value;
+    }
+    return '';
+  }
+
   private extractVuln(wb: XLSX.WorkBook, fileName: string): SectionData<VulnRow> | null {
     const rows: VulnRow[] = [];
     const rawRows: any[][] = [];
@@ -1157,6 +1414,7 @@ export class StatisticsComponent {
 
   resetAll() {
     this.vuln.set(null); this.cyber.set(null); this.tech.set(null);
+    this.dailyReport.set(null); this.dailyError.set(''); this.svodkaError.set('');
     this.uniFiles.set([]); this.uniError.set('');
     this.resetVulnFilters(); this.resetCyberFilters(); this.resetTechFilters();
   }
@@ -1179,11 +1437,21 @@ export class StatisticsComponent {
     const lines = [headers.map(esc).join(',')];
     for (const r of rows) lines.push(r.map(esc).join(','));
     const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    this.downloadBlob(blob, filename);
+  }
+
+  private downloadBlob(blob: Blob, filename: string) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
   }
+
+  private todayFileDate(): string {
+    const d = new Date();
+    return `${d.getDate()}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+  }
+
   exportVuln() {
     this.exportCsv(
       ['№', 'Gov', 'Tashkilot', 'Veb-sayt', 'Zaiflik turi', 'OWASP', 'Chiquvchi xat', 'Kiruvchi xat', 'Yil'],

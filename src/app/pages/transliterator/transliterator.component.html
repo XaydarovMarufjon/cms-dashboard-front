@@ -21,10 +21,10 @@
       </div>
 
       <div class="mode-switch">
-        <button [class.active]="mode() === 'latin-cyrillic'" (click)="setMode('latin-cyrillic')">
+        <button type="button" [class.active]="mode() === 'latin-cyrillic'" (click)="setMode('latin-cyrillic')">
           Lotin → Kiril
         </button>
-        <button [class.active]="mode() === 'cyrillic-latin'" (click)="setMode('cyrillic-latin')">
+        <button type="button" [class.active]="mode() === 'cyrillic-latin'" (click)="setMode('cyrillic-latin')">
           Kiril → Lotin
         </button>
       </div>
@@ -34,7 +34,7 @@
       <div class="text-panel">
         <div class="panel-head">
           <span>Matn</span>
-          <button class="icon-btn" (click)="clearText()" [disabled]="!sourceText()" title="Tozalash">
+          <button type="button" class="icon-btn" (click)="clearText()" [disabled]="!sourceText()" title="Tozalash">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
@@ -48,7 +48,7 @@
       </div>
 
       <div class="swap-col">
-        <button class="swap-btn" (click)="swapText()" [disabled]="!outputText()" title="Almashtirish">
+        <button type="button" class="swap-btn" (click)="swapText()" [disabled]="!outputText()" title="Almashtirish">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 5h9M9.5 2.5 12 5 9.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M13 11H4M6.5 8.5 4 11l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -59,7 +59,7 @@
       <div class="text-panel result-panel">
         <div class="panel-head">
           <span>Natija</span>
-          <button class="copy-btn" (click)="copyOutput()" [disabled]="!outputText()" title="Nusxalash">
+          <button type="button" class="copy-btn" (click)="copyOutput()" [disabled]="!outputText()" title="Nusxalash">
             @if (copied()) {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7.2 5.6 10 11 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>

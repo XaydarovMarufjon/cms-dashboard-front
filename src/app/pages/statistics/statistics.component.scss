@@ -113,6 +113,151 @@ $muted:  var(--muted);
   }
 }
 
+.daily-report {
+  background: $s1;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.daily-report-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: $text;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+}
+
+.daily-upload {
+  &.loading {
+    opacity: .65;
+    cursor: wait;
+  }
+}
+
+.daily-loading {
+  color: $muted;
+  font-size: 14px;
+}
+
+.daily-error {
+  margin: 0 0 12px;
+}
+
+.daily-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 10px 12px;
+  background: $s2;
+  border: 1px solid $border;
+  border-radius: 6px;
+  margin-bottom: 10px;
+
+  span {
+    min-width: 0;
+    color: $muted;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+
+  b {
+    color: $accent;
+    font-size: 24px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .btn-secondary {
+    flex-shrink: 0;
+
+    &:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+  }
+}
+
+.daily-country-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: $border; border-radius: 3px; }
+}
+
+.daily-country-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) minmax(90px, auto);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  background: $s2;
+  font-size: 14px;
+  border-left-width: 4px;
+  border-left-color: transparent;
+
+  &[data-rank="1"] {
+    border-left-color: $red;
+    background: color-mix(in srgb, var(--red) 10%, $s2);
+  }
+
+  &[data-rank="2"] {
+    border-left-color: $yellow;
+    background: color-mix(in srgb, var(--yellow) 10%, $s2);
+  }
+
+  &[data-rank="3"] {
+    border-left-color: $blue;
+    background: color-mix(in srgb, var(--blue, #4d9fff) 10%, $s2);
+  }
+}
+
+.daily-rank {
+  color: $muted;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+}
+
+.daily-country {
+  min-width: 0;
+  color: $text;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.daily-count {
+  color: $text;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
 // Section tabs
 .section-tabs {
   display: flex; gap: 6px;
