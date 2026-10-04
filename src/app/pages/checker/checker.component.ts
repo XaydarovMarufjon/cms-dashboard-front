@@ -68,6 +68,7 @@ export class CheckerComponent implements OnInit, OnDestroy {
   private countId?: ReturnType<typeof setInterval>;
   private openWin?: Window | null;
   private doneTimer?: ReturnType<typeof setTimeout>;
+  private checkSequence = 0;
 
   // ── COMPUTED ──────────────────────────────────
   progress = computed(() => {
@@ -223,18 +224,18 @@ export class CheckerComponent implements OnInit, OnDestroy {
   }
 
   private async next() {
-    const idx = this.currentIndex() + 1;
+    if (!this.isRunning() || this.isPaused() || !this.sites().length) return;
+
+    const sequence = ++this.checkSequence;
+    let idx = this.currentIndex() + 1;
 
     if (idx >= this.sites().length) {
-      clearInterval(this.timerId);
-      clearInterval(this.countId);
-      this.currentIndex.set(-1);
+      // The existing interval drives every cycle; an awaited check must not
+      // create a new interval after the user has paused or stopped.
+      idx = 0;
       this.results.set(this.sites().map(s => ({
         id: s.id, url: s.url, label: s.label, status: 'idle',
       })));
-      await this.next();
-      this.timerId = setInterval(() => this.next(), this.intervalMs());
-      return;
     }
 
     this.currentIndex.set(idx);
@@ -259,6 +260,9 @@ export class CheckerComponent implements OnInit, OnDestroy {
         canEmbed = res.canEmbed;
       } catch { canEmbed = false; }
     }
+
+    // Ignore responses from a previous site, run, or paused/destroyed checker.
+    if (sequence !== this.checkSequence) return;
 
     this.openWin?.close();
     this.openWin = null;
@@ -332,6 +336,7 @@ export class CheckerComponent implements OnInit, OnDestroy {
   }
 
   private clearTimers() {
+    this.checkSequence += 1;
     clearInterval(this.timerId);
     clearInterval(this.countId);
     clearTimeout(this.doneTimer);
