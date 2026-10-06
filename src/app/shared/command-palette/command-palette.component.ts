@@ -1,11 +1,12 @@
 // src/app/shared/command-palette/command-palette.component.ts
 import {
-  Component, HostListener, inject, signal, computed, ElementRef, ViewChild,
+  Component, DestroyRef, HostListener, inject, signal, computed, ElementRef, OnDestroy, ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WebsiteService } from '../../core/services/website.service';
 import { Website } from '../../shared/models/website.model';
@@ -43,9 +44,10 @@ const PAGES: Cmd[] = [
   templateUrl: './command-palette.component.html',
   styleUrls: ['./command-palette.component.scss'],
 })
-export class CommandPaletteComponent {
+export class CommandPaletteComponent implements OnDestroy {
   private websiteSvc = inject(WebsiteService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('input') input?: ElementRef<HTMLInputElement>;
 
@@ -54,6 +56,8 @@ export class CommandPaletteComponent {
   active = signal(0);
   private sites = signal<Website[]>([]);
   private loaded = false;
+  private loading = false;
+  private focusTimer?: ReturnType<typeof setTimeout>;
 
   hits = computed<Cmd[]>(() => {
     const q = this.query().trim().toLowerCase();
@@ -83,17 +87,43 @@ export class CommandPaletteComponent {
   }
 
   async open() {
+    if (this.destroyRef.destroyed) return;
     this.isOpen.set(true);
     this.query.set('');
     this.active.set(0);
-    if (!this.loaded) {
-      this.loaded = true;
-      try { this.sites.set(await firstValueFrom(this.websiteSvc.getAll()) ?? []); } catch { /* graceful */ }
+    // Page commands and typing must work without waiting for the sites API.
+    this.clearFocusTimer();
+    this.focusTimer = setTimeout(() => {
+      this.focusTimer = undefined;
+      if (this.isOpen()) this.input?.nativeElement.focus();
+    }, 30);
+
+    if (!this.loaded && !this.loading) {
+      this.loading = true;
+      try {
+        const sites = await firstValueFrom(
+          this.websiteSvc.getAll().pipe(takeUntilDestroyed(this.destroyRef)),
+        );
+        if (!this.destroyRef.destroyed) {
+          this.sites.set(sites ?? []);
+          this.loaded = true;
+        }
+      } catch { /* Keep page commands available and retry sites on the next open. */ }
+      finally { this.loading = false; }
     }
-    setTimeout(() => this.input?.nativeElement.focus(), 30);
   }
 
-  close() { this.isOpen.set(false); }
+  close() {
+    this.isOpen.set(false);
+    this.clearFocusTimer();
+  }
+
+  ngOnDestroy() { this.clearFocusTimer(); }
+
+  private clearFocusTimer() {
+    if (this.focusTimer !== undefined) clearTimeout(this.focusTimer);
+    this.focusTimer = undefined;
+  }
 
   onQuery(v: string) { this.query.set(v); this.active.set(0); }
 
