@@ -416,14 +416,15 @@ export class TransliteratorComponent implements OnDestroy {
     const originals: string[] = [];
     const xmlFiles: string[] = [];
 
-    await Promise.all(files.map(async item => {
+    // Preview order must match the order used when edited lines are written back.
+    for (const item of files) {
       const xml = await item.async('string');
       const texts = this.extractXmlTexts(xml);
       if (texts.length) {
         xmlFiles.push(item.name);
         originals.push(...texts);
       }
-    }));
+    }
 
     if (!originals.length) throw new Error('Fayl ichidan matn topilmadi.');
 
@@ -494,12 +495,13 @@ export class TransliteratorComponent implements OnDestroy {
     const lines = this.editedLines();
     const cursor = { value: 0 };
 
-    await Promise.all(file.xmlFiles.map(async fileName => {
+    // Each part consumes a shared line cursor, so reads must retain preview order.
+    for (const fileName of file.xmlFiles) {
       const item = zip.file(fileName);
-      if (!item) return;
+      if (!item) continue;
       const xml = await item.async('string');
       zip.file(fileName, this.replaceXmlTexts(xml, lines, cursor));
-    }));
+    }
 
     return zip.generateAsync({
       type: 'blob',
