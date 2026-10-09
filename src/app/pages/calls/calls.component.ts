@@ -209,7 +209,10 @@ export class CallsComponent implements OnInit {
         note: note || null,
         createdAt,
       }));
-      this.calls.update(list => list.map(c => c.id === row.id ? updated : c));
+      this.calls.update(list => list.flatMap(c => {
+        if (c.id !== row.id) return [c];
+        return this.matchesFilter(updated) ? [updated] : [];
+      }));
       this.editingId.set(null);
     } catch { /* ignore */ }
   }
