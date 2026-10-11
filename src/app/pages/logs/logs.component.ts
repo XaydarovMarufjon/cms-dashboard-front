@@ -1,7 +1,7 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { LogsService, AuditEntry, SessionEntry, DatabaseDump, DatabaseDumpList } from '../../core/services/logs.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
@@ -15,9 +15,12 @@ type Tab = 'activity' | 'sessions' | 'dumps';
   templateUrl: './logs.component.html',
   styleUrls: ['./logs.component.scss'],
 })
-export class LogsComponent implements OnInit {
+export class LogsComponent implements OnInit, OnDestroy {
   private api  = inject(LogsService);
   private auth = inject(AuthService);
+  private activityRequest = 0;
+  private activityCancelled = new Subject<void>();
+  private destroyed = false;
 
   tab = signal<Tab>('activity');
 
@@ -53,6 +56,14 @@ export class LogsComponent implements OnInit {
     await this.loadActivity();
   }
 
+  ngOnDestroy() {
+    this.destroyed = true;
+    this.activityRequest++;
+    this.activityCancelled.next();
+    this.activityCancelled.complete();
+    this.loadingAct.set(false);
+  }
+
   setTab(t: Tab) {
     this.tab.set(t);
     if (t === 'activity' && this.audit().length === 0) this.loadActivity();
@@ -62,6 +73,9 @@ export class LogsComponent implements OnInit {
 
   // ── Activity ────────────────────────────
   async loadActivity() {
+    if (this.destroyed) return;
+    const request = ++this.activityRequest;
+    this.activityCancelled.next();
     this.loadingAct.set(true);
     try {
       const res = await firstValueFrom(this.api.getActivity({
@@ -71,11 +85,15 @@ export class LogsComponent implements OnInit {
         userId: this.userIdQ()  || undefined,
         page:   this.page(),
         limit:  this.limit(),
-      }));
+      }).pipe(takeUntil(this.activityCancelled)));
+      // A resolved promise may already be queued when another load starts.
+      if (request !== this.activityRequest) return;
       this.audit.set(res.items);
       this.total.set(res.total);
     } catch { /* ignore */ }
-    finally { this.loadingAct.set(false); }
+    finally {
+      if (request === this.activityRequest) this.loadingAct.set(false);
+    }
   }
 
   applyFilters() {
