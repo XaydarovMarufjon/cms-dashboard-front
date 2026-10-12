@@ -98,7 +98,7 @@
             <td><span class="source-chip">{{ sourceLabel(task.source) }}</span></td>
             <td><span class="priority-chip" [class]="'p-' + task.priority.toLowerCase()">{{ priorityLabel(task.priority) }}</span></td>
             <td>
-              <select class="mini-select" [ngModel]="task.assigneeId || ''" (ngModelChange)="updateAssignee(task, $event)">
+              <select class="mini-select" [disabled]="isTaskPending(task.id)" [ngModel]="task.assigneeId || ''" (ngModelChange)="updateAssignee(task, $event)">
                 <option value="">—</option>
                 @for (user of users(); track user.id) {
                 <option [value]="user.id">{{ user.username }}</option>
@@ -106,7 +106,7 @@
               </select>
             </td>
             <td>
-              <select class="mini-select" [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
+              <select class="mini-select" [disabled]="isTaskPending(task.id)" [ngModel]="task.status" (ngModelChange)="updateStatus(task, $event)">
                 <option value="OPEN">Ochiq</option>
                 <option value="IN_PROGRESS">Jarayonda</option>
                 <option value="DONE">Bajarildi</option>
@@ -116,7 +116,7 @@
             <td>{{ task.dueDate ? (task.dueDate | date:'yyyy-MM-dd') : '—' }}</td>
             <td class="actions">
               @if (auth.role() === 'ADMIN') {
-              <button class="icon-btn danger" (click)="remove(task)" title="O‘chirish">
+              <button class="icon-btn danger" [disabled]="isTaskPending(task.id)" (click)="remove(task)" title="O‘chirish">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                   <path d="M3 3h7M5 3V2h3v1M4 5v5M6.5 5v5M9 5v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
                 </svg>

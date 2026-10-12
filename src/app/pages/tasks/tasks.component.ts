@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { defer, finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { TasksService, SecurityTask, TaskPriority, TaskSource, TaskStatus } from '../../core/services/tasks.service';
 import { WebsiteService } from '../../core/services/website.service';
@@ -18,6 +19,7 @@ import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 export class TasksComponent implements OnInit {
   private tasksService = inject(TasksService);
   private websiteService = inject(WebsiteService);
+  private pendingTaskIds = signal<ReadonlySet<string>>(new Set());
   auth = inject(AuthService);
 
   tasks = signal<SecurityTask[]>([]);
@@ -106,14 +108,20 @@ export class TasksComponent implements OnInit {
   }
 
   updateStatus(task: SecurityTask, status: TaskStatus) {
-    this.tasksService.update(task.id, { status }).subscribe({
+    if (!this.beginTaskWrite(task.id)) return;
+    defer(() => this.tasksService.update(task.id, { status })).pipe(
+      finalize(() => this.finishTaskWrite(task.id)),
+    ).subscribe({
       next: updated => this.tasks.update(list => list.map(item => item.id === task.id ? updated : item)),
       error: err => this.error.set(err?.error?.message || 'Status yangilanmadi'),
     });
   }
 
   updateAssignee(task: SecurityTask, assigneeId: string) {
-    this.tasksService.update(task.id, { assigneeId: assigneeId || null }).subscribe({
+    if (!this.beginTaskWrite(task.id)) return;
+    defer(() => this.tasksService.update(task.id, { assigneeId: assigneeId || null })).pipe(
+      finalize(() => this.finishTaskWrite(task.id)),
+    ).subscribe({
       next: updated => this.tasks.update(list => list.map(item => item.id === task.id ? updated : item)),
       error: err => this.error.set(err?.error?.message || 'Javobgar yangilanmadi'),
     });
@@ -121,9 +129,31 @@ export class TasksComponent implements OnInit {
 
   remove(task: SecurityTask) {
     if (this.auth.role() !== 'ADMIN') return;
-    this.tasksService.remove(task.id).subscribe({
+    if (!this.beginTaskWrite(task.id)) return;
+    defer(() => this.tasksService.remove(task.id)).pipe(
+      finalize(() => this.finishTaskWrite(task.id)),
+    ).subscribe({
       next: () => this.tasks.update(list => list.filter(item => item.id !== task.id)),
       error: err => this.error.set(err?.error?.message || 'Vazifa o\'chirilmadi'),
+    });
+  }
+
+  isTaskPending(id: string): boolean {
+    return this.pendingTaskIds().has(id);
+  }
+
+  private beginTaskWrite(id: string): boolean {
+    // A response replaces the whole row, so all writes for one task share a guard.
+    if (this.isTaskPending(id)) return false;
+    this.pendingTaskIds.update(ids => new Set([...ids, id]));
+    return true;
+  }
+
+  private finishTaskWrite(id: string) {
+    this.pendingTaskIds.update(ids => {
+      const remaining = new Set(ids);
+      remaining.delete(id);
+      return remaining;
     });
   }
 
