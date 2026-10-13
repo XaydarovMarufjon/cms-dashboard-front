@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import {
   ImageModerationService, SiteOverviewEntry, ScanDetail, ImageResult,
 } from '../../core/services/image-moderation.service';
@@ -14,8 +14,11 @@ import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
   templateUrl: './image-moderation.component.html',
   styleUrls: ['./image-moderation.component.scss'],
 })
-export class ImageModerationComponent implements OnInit {
+export class ImageModerationComponent implements OnInit, OnDestroy {
   private svc = inject(ImageModerationService);
+  private detailCancelled = new Subject<void>();
+  private detailRequest = 0;
+  private destroyed = false;
 
   loading       = signal(true);
   scanning      = signal<Set<string>>(new Set());
@@ -75,21 +78,39 @@ export class ImageModerationComponent implements OnInit {
   }
 
   async openSite(site: SiteOverviewEntry) {
+    if (this.destroyed) return;
+    const request = ++this.detailRequest;
+    this.detailCancelled.next();
     this.selectedSite.set(site);
     this.detail.set(null);
+    this.detailLoading.set(false);
     if (!site.latestScan) return;
     this.detailLoading.set(true);
     try {
-      const d = await firstValueFrom(this.svc.getScanDetail(site.latestScan.id));
-      this.detail.set(d);
+      const d = await firstValueFrom(
+        this.svc.getScanDetail(site.latestScan.id).pipe(takeUntil(this.detailCancelled)),
+      );
+      // Cancellation cannot stop an already-queued promise continuation.
+      if (request === this.detailRequest) this.detail.set(d);
     } catch { /* ignore */ }
-    finally { this.detailLoading.set(false); }
+    finally {
+      if (request === this.detailRequest) this.detailLoading.set(false);
+    }
   }
 
   closeDetail() {
+    ++this.detailRequest;
+    this.detailCancelled.next();
     this.selectedSite.set(null);
     this.detail.set(null);
+    this.detailLoading.set(false);
     this.filter.set('all');
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
+    this.closeDetail();
+    this.detailCancelled.complete();
   }
 
   async rescan(site: SiteOverviewEntry, event?: Event) {
