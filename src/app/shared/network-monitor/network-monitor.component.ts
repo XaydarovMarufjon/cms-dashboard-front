@@ -34,6 +34,8 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
   browserDownlink = signal<number | null>(null);
 
   private pingId    = 0;
+  private speedTimer?: ReturnType<typeof setTimeout>;
+  private readonly lifetime = new AbortController();
   private destroyed = false;
   private speedRunning = false;
   private connection: NetworkConnection | null = null;
@@ -103,6 +105,8 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
     window.removeEventListener('offline', this.onOffline);
     this.connection?.removeEventListener('change', this.onConnectionChange);
     clearInterval(this.pingId);
+    clearTimeout(this.speedTimer);
+    this.lifetime.abort();
   }
 
   private getConnection(): NetworkConnection | null {
@@ -144,10 +148,10 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
     try {
       const r = await fetch(`${environment.apiUrl}/scanner/isp`, {
         cache: 'no-store',
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.any([this.lifetime.signal, AbortSignal.timeout(8000)]),
       });
       const d = await r.json();
-      this.zone.run(() => this.isp.set(d?.isp || null));
+      if (!this.destroyed) this.zone.run(() => this.isp.set(d?.isp || null));
     } catch {
       // silently ignore — ISP optional info
     }
@@ -155,16 +159,17 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
 
   private async runPingLoop() {
     const ping = async () => {
+      if (this.destroyed) return;
       const t0 = performance.now();
       try {
         await fetch('https://1.1.1.1', {
           method: 'HEAD', mode: 'no-cors', cache: 'no-store',
-          signal: AbortSignal.timeout(4000),
+          signal: AbortSignal.any([this.lifetime.signal, AbortSignal.timeout(4000)]),
         });
         const ms = Math.round(performance.now() - t0);
-        this.zone.run(() => this.latency.set(ms));
+        if (!this.destroyed) this.zone.run(() => this.latency.set(ms));
       } catch {
-        this.zone.run(() => this.latency.set(null));
+        if (!this.destroyed) this.zone.run(() => this.latency.set(null));
       }
     };
     await ping();
@@ -181,15 +186,16 @@ export class NetworkMonitorComponent implements AfterViewInit, OnDestroy {
       try {
         const url = `https://speed.cloudflare.com/__down?bytes=524288&_=${Date.now()}`;
         const t0  = performance.now();
-        const r   = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(12000) });
+        const r   = await fetch(url, { cache: 'no-store', signal: AbortSignal.any([this.lifetime.signal, AbortSignal.timeout(12000)]) });
         const buf = await r.arrayBuffer();
+        if (this.destroyed) return;
         const sec = (performance.now() - t0) / 1000;
         const mbps = parseFloat(((buf.byteLength * 8) / (sec * 1_000_000)).toFixed(2));
         this.zone.run(() => { this.speed.set(mbps > 0 ? mbps : null); this.measuring.set(false); });
       } catch {
-        this.zone.run(() => this.measuring.set(false));
+        if (!this.destroyed) this.zone.run(() => this.measuring.set(false));
       }
-      if (!this.destroyed) setTimeout(measure, 30000);
+      if (!this.destroyed) this.speedTimer = setTimeout(measure, 30000);
     };
     await measure();
   }
