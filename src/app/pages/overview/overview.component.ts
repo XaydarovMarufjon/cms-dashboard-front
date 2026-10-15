@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom, Subscription, timer } from 'rxjs';
+import { firstValueFrom, Observable, Subject, Subscription, takeUntil, timer } from 'rxjs';
 
 import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
 import { WebsiteService } from '../../core/services/website.service';
@@ -61,6 +61,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   loading  = signal(true);
   private systemPollSub?: Subscription;
   private livePollSub?: Subscription;
+  private readonly destroyed$ = new Subject<void>();
+  private destroyed = false;
 
   // ── search ────────────────────────────────────
   query    = signal('');
@@ -85,27 +87,35 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ];
 
   async ngOnInit() {
+    if (this.destroyed) return;
     this.loading.set(true);
-    const settle = async <T>(p: Promise<T>, set: (v: T) => void) => {
-      try { set(await p); } catch { /* graceful */ }
+    const settle = async <T>(source: Observable<T>, set: (v: T) => void) => {
+      try {
+        const value = await firstValueFrom(source.pipe(takeUntil(this.destroyed$)));
+        if (!this.destroyed) set(value);
+      } catch { /* graceful */ }
     };
     await Promise.allSettled([
-      settle(firstValueFrom(this.websiteSvc.getAll()),         v => this.websites.set(v ?? [])),
-      settle(firstValueFrom(this.scanner.getLatestResults()),  v => this.results.set(v ?? [])),
-      settle(firstValueFrom(this.scanner.getAlerts()),         v => this.alerts.set(v ?? [])),
-      settle(firstValueFrom(this.tasksSvc.getAll()),           v => this.tasks.set(v ?? [])),
-      settle(firstValueFrom(this.callsSvc.getCalls()),         v => this.calls.set(v ?? [])),
-      settle(firstValueFrom(this.scanner.getProxies()),        v => this.proxy.set(v)),
-      settle(firstValueFrom(this.scanner.getSystemStatus()),   v => this.systemStatus.set(v)),
-      settle(firstValueFrom(this.scanner.getOverviewStats()),  v => this.overviewStats.set(v)),
-      settle(firstValueFrom(this.scanner.getLiveScanActivity()), v => this.liveScanActivity.set(v)),
+      settle(this.websiteSvc.getAll(),          v => this.websites.set(v ?? [])),
+      settle(this.scanner.getLatestResults(),   v => this.results.set(v ?? [])),
+      settle(this.scanner.getAlerts(),          v => this.alerts.set(v ?? [])),
+      settle(this.tasksSvc.getAll(),            v => this.tasks.set(v ?? [])),
+      settle(this.callsSvc.getCalls(),          v => this.calls.set(v ?? [])),
+      settle(this.scanner.getProxies(),         v => this.proxy.set(v)),
+      settle(this.scanner.getSystemStatus(),    v => this.systemStatus.set(v)),
+      settle(this.scanner.getOverviewStats(),   v => this.overviewStats.set(v)),
+      settle(this.scanner.getLiveScanActivity(), v => this.liveScanActivity.set(v)),
     ]);
+    if (this.destroyed) return;
     this.loading.set(false);
     this.startSystemPolling();
     this.startLiveScanPolling();
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+    this.destroyed$.next();
+    this.destroyed$.complete();
     this.systemPollSub?.unsubscribe();
     this.livePollSub?.unsubscribe();
   }
@@ -121,16 +131,18 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   loadLiveOverview() {
+    if (this.destroyed) return;
     this.loadSystemStatus();
-    this.scanner.getOverviewStats().subscribe({
+    this.scanner.getOverviewStats().pipe(takeUntil(this.destroyed$)).subscribe({
       next: data => this.overviewStats.set(data),
       error: () => {},
     });
   }
 
   loadSystemStatus() {
+    if (this.destroyed) return;
     this.systemLoading.set(!this.systemStatus());
-    this.scanner.getSystemStatus().subscribe({
+    this.scanner.getSystemStatus().pipe(takeUntil(this.destroyed$)).subscribe({
       next: data => {
         this.systemStatus.set(data);
         this.systemError.set(null);
@@ -144,7 +156,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   loadLiveScanActivity() {
-    this.scanner.getLiveScanActivity().subscribe({
+    if (this.destroyed) return;
+    this.scanner.getLiveScanActivity().pipe(takeUntil(this.destroyed$)).subscribe({
       next: data => this.liveScanActivity.set(data),
       error: () => {},
     });
