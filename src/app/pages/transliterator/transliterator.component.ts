@@ -532,10 +532,8 @@ export class TransliteratorComponent implements OnDestroy {
   }
 
   private previewText(lines: string[]): string {
-    return lines
-      .map(line => line.trim())
-      .filter(Boolean)
-      .join('\n');
+    // Export consumes one line per source cell/run, including blank entries.
+    return lines.join('\n');
   }
 
   private downloadBlob(blob: Blob, name: string) {
