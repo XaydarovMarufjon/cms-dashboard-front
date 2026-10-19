@@ -206,6 +206,37 @@ function parseDate(v: any): Date | null {
   return isNaN(fallback.getTime()) ? null : fallback;
 }
 
+// Incident timestamps need their clock time; the other report sections use dates only.
+function parseTechDate(v: any): Date | null {
+  if (typeof v !== 'string') return parseDate(v);
+  const s = v.trim();
+  const match = s.match(/^(\d{4}-\d{2}-\d{2}|\d{1,2}[.\/\-]\d{1,2}[.\/\-]\d{2,4})[T\s]+(\d{1,2}):(\d{2})(?::(\d{2})(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?$/);
+  if (!match) {
+    // A malformed timestamp must not fall back to its otherwise valid date.
+    if (/^(\d{4}-\d{2}-\d{2}|\d{1,2}[.\/\-]\d{1,2}[.\/\-]\d{2,4})[T\s]+\d+:/.test(s)) return null;
+    return parseDate(v);
+  }
+
+  const [, dateText, hours, minutes, seconds = '0', fraction = '', zone = ''] = match;
+  const date = parseDate(dateText);
+  const iso = dateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const parts = dateText.split(/[.\/\-]/).map(Number);
+  const day = iso ? parts[2] : parts[0];
+  const month = parts[1];
+  let year = iso ? parts[0] : parts[2];
+  if (year < 100) year += 2000;
+  // Reject rollover dates and invalid clocks instead of inventing a duration.
+  if (!date || date.getFullYear() !== year || date.getMonth() !== month - 1 ||
+      date.getDate() !== day || +hours > 23 || +minutes > 59 || +seconds > 59) return null;
+  if (zone) {
+    if (!iso) return null;
+    const timestamp = new Date(`${dateText}T${hours.padStart(2, '0')}:${minutes}:${seconds.padStart(2, '0')}${fraction}${zone}`);
+    return isNaN(timestamp.getTime()) ? null : timestamp;
+  }
+  date.setHours(+hours, +minutes, +seconds, Number((fraction.slice(1) || '0').padEnd(3, '0')));
+  return date;
+}
+
 function quarterOf(d: Date): 1 | 2 | 3 | 4 { return (Math.floor(d.getMonth() / 3) + 1) as 1 | 2 | 3 | 4; }
 function halfOf(d: Date): 1 | 2 { return d.getMonth() < 6 ? 1 : 2; }
 
@@ -770,6 +801,8 @@ export class StatisticsComponent {
     if (/uz\s*домен/i.test(sn)) return null;
     const raw: any[][] = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: null, raw: false });
     if (!raw.length) return null;
+    // Display formatting may omit the time even when an Excel date cell stores it.
+    const values: any[][] = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: null, raw: true });
     const hRow = findHeaderRow(raw, ['наименование', 'веб-сайт', 'хостинг', 'начало']);
     const headers = raw[hRow].map(h => cleanCell(h));
     const idx = {
@@ -790,8 +823,12 @@ export class StatisticsComponent {
       if (!r || !r.some((c: any) => cleanCell(c))) continue;
       const web = cleanCell(r[idx.web]);
       if (!web) continue;
-      const start = parseDate(r[idx.start]);
-      const finish = idx.finish >= 0 ? parseDate(r[idx.finish]) : null;
+      const timestamp = (column: number) => {
+        const value = values[i]?.[column];
+        return parseTechDate(value instanceof Date ? value : r[column]);
+      };
+      const start = timestamp(idx.start);
+      const finish = idx.finish >= 0 ? timestamp(idx.finish) : null;
       let duration = idx.dur >= 0 ? cleanCell(r[idx.dur]) : '';
       if (!duration && start && finish) {
         const min = Math.max(0, Math.round((finish.getTime() - start.getTime()) / 60000));
