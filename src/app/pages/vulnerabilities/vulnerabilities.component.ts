@@ -887,16 +887,23 @@ export class VulnerabilitiesComponent implements OnInit {
     let nextCol = colIndex + step;
     let nextRow = rowIndex;
     const maxCol = this.columns().length - 1;
+    const filtered = !!this.search().trim();
+
+    if (filtered && (nextCol > maxCol || nextCol < 0)) {
+      // Wrap within rendered rows, just like Enter and the vertical arrow keys.
+      this.moveFrom(rowIndex, colIndex, step, step > 0 ? -maxCol : maxCol);
+      return;
+    }
 
     if (nextCol > maxCol) {
       nextCol = 0;
-      nextRow = this.search() ? rowIndex + 1 : this.insertRowAfter(rowIndex);
+      nextRow = this.insertRowAfter(rowIndex);
     } else if (nextCol < 0) {
       nextCol = maxCol;
       nextRow = rowIndex - 1;
     }
 
-    if (nextRow >= this.rows().length && !this.search()) {
+    if (nextRow >= this.rows().length && !filtered) {
       this.addRow(this.rows().length - 1);
       nextRow = this.rows().length - 1;
     }
