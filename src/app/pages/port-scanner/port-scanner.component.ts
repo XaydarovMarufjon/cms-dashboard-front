@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, finalize, Subscription } from 'rxjs';
 import { ScannerService, PortScanResult } from '../../core/services/scanner.service';
 import { TasksService } from '../../core/services/tasks.service';
 import { WebsiteService } from '../../core/services/website.service';
@@ -16,10 +16,13 @@ import { SideNavComponent } from '../../shared/side-nav/side-nav.component';
   templateUrl: './port-scanner.component.html',
   styleUrls: ['./port-scanner.component.scss'],
 })
-export class PortScannerComponent implements OnInit {
+export class PortScannerComponent implements OnInit, OnDestroy {
   private websitesService = inject(WebsiteService);
   private scanner = inject(ScannerService);
   private tasks = inject(TasksService);
+
+  private resultRead: Subscription | null = null;
+  private destroyed = false;
 
   websites = signal<Website[]>([]);
   selectedWebsiteId = signal('');
@@ -93,22 +96,45 @@ export class PortScannerComponent implements OnInit {
 
     this.selectedWebsiteId.set('');
     this.results.set([]);
+    this.cancelResultRead();
+  }
+
+  private cancelResultRead() {
+    const previous = this.resultRead;
+    this.resultRead = null;
+    previous?.unsubscribe();
+    this.loadingResults.set(false);
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
+    this.cancelResultRead();
   }
 
   loadResults() {
+    this.cancelResultRead();
     const id = this.selectedWebsiteId();
-    if (!id) return;
+    if (!id || this.destroyed) return;
+    // Establish ownership before subscribing: cached/test responses may complete synchronously.
+    const read = new Subscription();
+    this.resultRead = read;
+    const isCurrent = () => !this.destroyed && this.resultRead === read && this.selectedWebsiteId() === id;
     this.loadingResults.set(true);
-    this.scanner.getPortScanResults(id).subscribe({
+    read.add(this.scanner.getPortScanResults(id).pipe(
+      finalize(() => {
+        if (this.resultRead === read) {
+          this.resultRead = null;
+          this.loadingResults.set(false);
+        }
+      }),
+    ).subscribe({
       next: rows => {
-        this.results.set(rows);
-        this.loadingResults.set(false);
+        if (isCurrent()) this.results.set(rows);
       },
       error: () => {
-        this.loadingResults.set(false);
-        this.error.set('Port scan natijalarini yuklab bo\'lmadi');
+        if (isCurrent()) this.error.set('Port scan natijalarini yuklab bo\'lmadi');
       },
-    });
+    }));
   }
 
   async runScan() {
@@ -139,6 +165,7 @@ export class PortScannerComponent implements OnInit {
       return;
     }
 
+    this.cancelResultRead();
     this.scanning.set(true);
     this.error.set('');
     this.success.set('');
